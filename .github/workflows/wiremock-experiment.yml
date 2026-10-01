@@ -29,9 +29,8 @@ jobs:
         run: python3 RFS/src/test/wiremock/benchmark.py
         env:
           DOCKER_HOST: unix:///tmp/wiremock-no-docker.sock
-          OS_MIGRATIONS_GRADLE_SCAN_TOS_AGREE_AND_ENABLED: ''
-      - name: Check formatting
-        run: ./gradlew :RFS:spotlessJavaCheck --max-workers=4 --console=plain
+      - name: Check formatting and documentation
+        run: ./gradlew :RFS:spotlessJavaCheck :RFS:javadoc --max-workers=4 --console=plain
       - name: Upload timings and test reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -39,6 +38,7 @@ jobs:
           name: wiremock-experiment-evidence
           path: |
             build/wiremock-ci-results/
+            build/reports/profile/
             RFS/build/test-results/wiremockTest/
             RFS/build/reports/tests/wiremockTest/
           retention-days: 14

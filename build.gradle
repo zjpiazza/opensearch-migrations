@@ -145,7 +145,10 @@ subprojects {
 
         tasks.withType(Test).configureEach {
             // Getting javadoc to compile is part of the test suite to ensure we are able to publish our artifacts
-            dependsOn project.javadoc
+            // The focused RFS contract task keeps documentation in check, outside playback preparation.
+            if (project.path != ':RFS' || name != 'wiremockTest') {
+                dependsOn project.javadoc
+            }
         }
         if (!sourceSets.test.allSource.files.isEmpty()) {
             tasks.withType(Test).configureEach {

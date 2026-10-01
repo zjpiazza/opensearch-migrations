@@ -18,7 +18,7 @@ def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
     results = []
     phases = [
-        ("prepare", [":RFS:testClasses", ":RFS:javadoc"]),
+        ("prepare", [":RFS:prepareWiremockTest"]),
         ("playback", [":RFS:wiremockTest", "--rerun"]),
         ("unchanged", [":RFS:wiremockTest"]),
     ]
@@ -27,7 +27,7 @@ def main():
         start = time.perf_counter()
         with log_path.open("w") as output:
             completed = subprocess.run(
-                [str(ROOT / "gradlew"), *tasks, "--max-workers=4", "--console=plain"],
+                [str(ROOT / "gradlew"), *tasks, "--max-workers=4", "--console=plain", "--profile"],
                 cwd=ROOT, stdout=output, stderr=subprocess.STDOUT,
             )
         row = {"phase": name, "wall_seconds": round(time.perf_counter() - start, 3),
@@ -37,6 +37,12 @@ def main():
             print(log)
             raise SystemExit(completed.returncode)
         if name != "prepare":
+            # A playback measurement must not hide unfinished dependency preparation.
+            unfinished = re.findall(r"^> Task (\S+)(?: ([^\n]+))?$", log, re.MULTILINE)
+            unfinished = [(task, state) for task, state in unfinished
+                          if task != ":RFS:wiremockTest" and
+                          state not in ("UP-TO-DATE", "NO-SOURCE", "SKIPPED")]
+            assert not unfinished, f"Preparation missed tasks: {unfinished}"
             match = re.search(r"^> Task :RFS:wiremockTest(?: ([^\n]+))?$", log, re.MULTILINE)
             assert match, "Missing WireMock task result"
             row["task_result"] = match.group(1) or "EXECUTED"

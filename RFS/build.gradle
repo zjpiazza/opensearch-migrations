@@ -60,7 +60,6 @@ dependencies {
 
     testImplementation testFixtures(project(path: ':RFS'))
     testImplementation libs.lucene.v9.backward.codecs
-    testImplementation libs.wiremock.standalone
     testImplementation libs.reactor.test
     testImplementation libs.log4j.core
     testImplementation libs.log4j.slf4j2.impl
@@ -112,24 +111,62 @@ jmh {
     resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt")
 }
 
-// A focused playback target for CI experiments. The same cases are also part of test.
+// Compile contract tests independently of the container/snapshot test suite.
+sourceSets {
+    wiremock {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    wiremockImplementation.extendsFrom implementation
+    wiremockRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+    wiremockImplementation libs.wiremock.standalone
+    wiremockImplementation libs.junit.jupiter
+    wiremockRuntimeOnly libs.junit.platform.launcher
+    wiremockRuntimeOnly libs.log4j.core
+    wiremockRuntimeOnly libs.log4j.slf4j2.impl
+}
+
+// Materialize the complete execution classpath, including runtime-only project JARs.
+tasks.register('prepareWiremockTest') {
+    description = 'Builds and resolves the complete WireMock playback classpath without running tests.'
+    group = 'verification'
+    inputs.files(sourceSets.wiremock.runtimeClasspath)
+    doLast {
+        logger.lifecycle("WireMock runtime classpath: ${sourceSets.wiremock.runtimeClasspath.files.size()} entries")
+    }
+}
+
+// A focused task for PR playback; ordinary tests also consume this source set below.
 tasks.register('wiremockTest', Test) {
     description = 'Runs recorded destination HTTP contracts without a search engine or Docker.'
     group = 'verification'
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    filter { includeTestsMatching 'org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest' }
+    testClassesDirs = sourceSets.wiremock.output.classesDirs
+    classpath = sourceSets.wiremock.runtimeClasspath
+    useJUnitPlatform()
     maxParallelForks = 1
     systemProperty 'io.netty.eventLoopThreads', '2'
     systemProperty 'reactor.netty.ioWorkerCount', '2'
 }
 
+tasks.named('test') {
+    // Preserve normal test filtering and CI striping without running a separate suite on every shard.
+    testClassesDirs += sourceSets.wiremock.output.classesDirs
+    classpath += sourceSets.wiremock.output + configurations.wiremockRuntimeClasspath
+}
+tasks.named('check') { dependsOn tasks.named('javadoc') }
+
 // Deliberate live recording only; this is never a dependency of a test task.
 tasks.register('recordWireMock', JavaExec) {
     description = 'Records sink HTTP contracts against a fresh local engine; pass endpoint and new output directory via --args.'
     group = 'verification'
-    dependsOn testClasses
-    classpath = sourceSets.test.runtimeClasspath
+    dependsOn wiremockClasses
+    classpath = sourceSets.wiremock.runtimeClasspath
     mainClass = 'org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest'
     jvmArgs '-ea', '-Xmx512m', '-Dreactor.netty.ioWorkerCount=2'
 }

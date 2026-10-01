@@ -9,7 +9,8 @@ responses, without starting Elasticsearch, OpenSearch, Kubernetes or Docker:
 ./gradlew :RFS:wiremockTest --rerun
 ```
 
-These cases also run in the normal `:RFS:test` task. WireMock 3.13.2 is a test-only
+The normal `:RFS:test` task also includes the compiled WireMock tests and resources,
+preserving ordinary test filtering and CI striping. WireMock 3.13.2 is a test-only
 dependency. Its standalone JAR shades dependencies to avoid conflicts with the
 application's HTTP and JSON libraries. No production sources or E2E triggers change.
 
@@ -88,8 +89,14 @@ synthetic documents and an unauthenticated, isolated local engine.
 python3 RFS/src/test/wiremock/benchmark.py
 ```
 
-This separately measures Gradle preparation, forced playback and unchanged task
-reuse. It verifies nine passing tests with no skips. Logs and JSON measurements
+This separately measures complete runtime classpath preparation (`:RFS:prepareWiremockTest`),
+forced playback and unchanged task reuse. Playback fails the benchmark if any other
+task still executes or restores outputs: dependency preparation belongs in the first
+measurement. Gradle profiles in `build/reports/profile/` expose configuration and task
+costs. The dedicated `src/wiremock` source set avoids compiling ordinary RFS tests
+and their container fixtures; production RFS dependencies still have to build.
+Javadoc is validated separately by the workflow and remains part of `:RFS:check`
+and the existing ordinary test tasks. It verifies nine passing tests with no skips. Logs and JSON measurements
 are written to `build/wiremock-ci-results/`; JUnit/HTML reports are under
 `RFS/build/test-results/wiremockTest/` and `RFS/build/reports/tests/wiremockTest/`.
 
@@ -99,3 +106,37 @@ unavailable socket to ensure these scenarios do not require containers. Dependen
 downloads and compilation can still dominate a fresh CI job; setup/cache transfer
 are outside the script's timings. Playback is not equivalent to the complete E2E
 suite and these timings must not be described as a two-hour-to-seconds speedup.
+
+## Preparation audit
+
+The original focused task filtered the ordinary RFS test suite at execution time,
+but still compiled that entire suite and its container fixtures. Moving the nine
+cases into their own source set removes 51 prerequisites and introduces five tasks
+(including the explicit preparation task): the local dry-run graph drops from 162
+to 116 tasks, excluding buildSrc. Task count is not a wall-time speedup estimate.
+Capture protobuf generation, ordinary test compilation and container test fixtures
+are no longer prerequisites. Production snapshot and transformation dependencies
+remain; the recordings and production behavior under test are unchanged.
+
+The original GitHub run (36895169894) restored Gradle caches, including a fallback
+from the default branch, but preparation still executed 44 tasks and restored 18.
+Its 102.545-second preparation measurement omitted runtime-only project builds;
+the 18.448-second playback command also compiled transformation providers. Use the
+new complete-classpath measurement for future comparisons and compare fresh
+runners with equivalent cache state. An unchanged invocation on the same runner
+only measures local up-to-date checks, not cross-runner cache reuse.
+
+Further production separation should start with a destination module containing
+`OpenSearchDocumentSink`, `OpenSearchMetadataSink`, `OpenSearchIndexCreator`, the
+versioned `OpenSearchClient` implementations, bulk serialization/response parsing,
+and failed-document interfaces. The S3 implementation should stay in the application
+composition layer. Merely moving the test into a new project depending on RFS would
+retain the current dependency graph.
+
+A destination module alone will not eliminate all Lucene builds: `RfsHttp` depends
+on `RfsCommon`, whose compilation explicitly builds shaded Lucene 9/10 JARs, and
+`RfsPipeline` has a compile dependency on `RfsCommon` for its adapters. The HTTP
+client also uses `IRfsContexts` from that module. Shared models/tracing contracts
+and snapshot-specific types need separate boundaries before destination tests can
+avoid snapshot libraries altogether. This is a follow-up refactor, not a reason
+to duplicate production sources inside the test build.
