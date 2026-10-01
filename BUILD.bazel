@@ -10,6 +10,8 @@ test_suite(
         ":bazel_poc_java_tests",
         "//libraries/testAutomation:tests",
         "//build-support/bazel/components:approval_integration_test",
+        "//build-support/bazel/components:approval_contract_test",
+        "//build-support/bazel/components:workflow_output_integration_test",
     ],
 )
 

@@ -17,3 +17,16 @@ py_library(
     deps = [requirement("click"), requirement("kubernetes"), requirement("rich")],
     visibility = ["//visibility:public"],
 )
+
+py_library(
+    name = "workflow_outputs",
+    srcs = [
+        "console_link/workflow/commands/artifact_store.py",
+        "console_link/workflow/commands/autocomplete_k8s_labels.py",
+        "console_link/workflow/commands/log.py",
+        "console_link/workflow/commands/show.py",
+    ],
+    imports = ["."],
+    deps = [":approval", requirement("boto3"), requirement("requests")],
+    visibility = ["//visibility:public"],
+)

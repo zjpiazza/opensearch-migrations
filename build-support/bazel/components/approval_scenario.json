@@ -1,5 +1,5 @@
 {
   "namespace": "ma",
   "workflow": "migration-workflow",
-  "gates": ["begin", "migratemetadata.example", "documentbackfill.example"]
+  "snapshot_migration_name": "source1-target1-testsnapshot-migration-0"
 }

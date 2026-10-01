@@ -5,6 +5,7 @@ import time
 import uuid
 from kubernetes import client
 from console_link.workflow.commands.crd_utils import CRD_GROUP, CRD_VERSION
+from .. import approval_contract
 from ..cluster_version import CDC_MIGRATION_COMBINATIONS, RFS_MIGRATION_COMBINATIONS
 from ..integration_test_argo_service import ENDING_ARGO_PHASES
 from .cdc_base import load_k8s_config, wait_for_proxy_ready
@@ -637,13 +638,7 @@ class Test0003ApprovalGateIntegration(MATestBase):
         self._wait_until_suspended_or_ended(timeout_seconds)
 
     def _approval_gate_names(self):
-        return [
-            "begin",
-            "captureproxysetup.capture-proxy",
-            f"evaluatemetadata.{self.snapshot_migration_name}",
-            f"migratemetadata.{self.snapshot_migration_name}",
-            f"documentbackfill.{self.snapshot_migration_name}",
-        ]
+        return approval_contract.approval_gate_names(self.snapshot_migration_name)
 
     def _approve_expected_step_gates(self, timeout_seconds: int):
         for gate_name in self._approval_gate_names():
@@ -690,30 +685,15 @@ class Test0003ApprovalGateIntegration(MATestBase):
             ) from e
 
     def _assert_capture_proxy_not_started(self):
-        capture_proxy = self._get_capture_proxy()
-        phase = capture_proxy.get("status", {}).get("phase")
-        status = capture_proxy.get("status", {})
-        if phase != "Created":
-            raise AssertionError(
-                f"CaptureProxy phase before begin approval was {phase!r}, expected 'Created': {status}"
-            )
-        if status.get("configChecksum"):
-            raise AssertionError(f"CaptureProxy configChecksum was set before begin approval: {status}")
-        if status.get("serviceEndpoint") or status.get("loadBalancerEndpoint"):
-            raise AssertionError(f"CaptureProxy endpoint was set before begin approval: {status}")
+        approval_contract.assert_capture_proxy_not_started(self._get_capture_proxy())
         logger.info("CaptureProxy is still Created before begin approval")
 
     def _assert_capture_proxy_setup_pending(self):
-        capture_proxy = self._get_capture_proxy()
-        phase = capture_proxy.get("status", {}).get("phase")
-        if phase != "Pending":
-            raise AssertionError(
-                f"CaptureProxy phase before proxy setup approval was {phase!r}, expected 'Pending': "
-                f"{capture_proxy.get('status')}"
-            )
+        approval_contract.assert_capture_proxy_setup_pending(self._get_capture_proxy())
         logger.info("CaptureProxy is Pending before proxy setup approval")
 
     def _assert_workflow_show_output_available(self, task_name: str):
+        approval_contract.assert_workflow_output_reference(task_name, self._get_snapshot_migration())
         result = subprocess.run(
             [
                 "workflow", "show",
@@ -723,43 +703,14 @@ class Test0003ApprovalGateIntegration(MATestBase):
             ],
             capture_output=True, text=True, timeout=120,
         )
-        if result.returncode != 0:
-            raise AssertionError(
-                f"Expected workflow show to find {task_name} output before its approval gate "
-                f"(rc={result.returncode}). stdout={result.stdout!r} stderr={result.stderr!r}"
-            )
-        if not result.stdout.strip():
-            raise AssertionError(f"Expected workflow show {task_name} output to be non-empty")
+        approval_contract.assert_workflow_show_output_available(task_name, result)
 
     def _assert_document_backfill_not_started(self):
-        snapshot_migration = self._get_snapshot_migration()
-        backfill_status = snapshot_migration.get("status", {}).get("documentBackfill")
-        if backfill_status:
-            raise AssertionError(
-                "Document backfill status was set before the document backfill step ran: "
-                f"{backfill_status}"
-            )
+        approval_contract.assert_document_backfill_not_started(self._get_snapshot_migration())
         logger.info("Document backfill status is not set before the migrate metadata gate")
 
     def _assert_document_backfill_completed(self):
-        snapshot_migration = self._get_snapshot_migration()
-        status = snapshot_migration.get("status", {})
-        backfill_status = status.get("documentBackfill")
-        if not isinstance(backfill_status, dict):
-            raise AssertionError(f"SnapshotMigration documentBackfill status was not set: {status}")
-
-        if status.get("phase") != "Completed":
-            raise AssertionError(f"SnapshotMigration phase was not Completed after backfill: {status}")
-        if backfill_status.get("phase") != "Completed":
-            raise AssertionError(f"Document backfill phase was not Completed: {backfill_status}")
-        if not backfill_status.get("updatedAt"):
-            raise AssertionError(f"Document backfill status did not include updatedAt: {backfill_status}")
-
-        summary = backfill_status.get("summary", {})
-        if summary.get("shardsTotal", 0) < 1:
-            raise AssertionError(f"Document backfill status did not report any shards: {backfill_status}")
-        if summary.get("shardsMigrated") != summary.get("shardsTotal"):
-            raise AssertionError(f"Document backfill did not migrate all shards: {backfill_status}")
+        approval_contract.assert_document_backfill_completed(self._get_snapshot_migration())
 
     def _get_snapshot_migration(self):
         result = subprocess.run(

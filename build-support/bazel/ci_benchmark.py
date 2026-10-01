@@ -64,7 +64,7 @@ def main():
     original = fixture.read_bytes()
     try:
         scenario = json.loads(original)
-        scenario["gates"][-1] = "documentbackfill.changed-fixture"
+        scenario["snapshot_migration_name"] = "changed-fixture-migration"
         fixture.write_text(json.dumps(scenario, indent=2) + "\n")
         measure("changed-approval-fixture", target=COMPONENT, expect_cached=0)
     finally:

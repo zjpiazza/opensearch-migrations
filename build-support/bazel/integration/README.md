@@ -129,8 +129,11 @@ it does not implement that full replacement suite or change existing CI triggers
 
 `.github/workflows/bazel-experiment.yml` uses commit-pinned
 `bazel-contrib/setup-bazel` 0.19.0 and runs on PRs in
-`zjpiazza/opensearch-migrations`. It measures 22 Bazel targets: the original
-121 Java cases, 43 Python mock cases, and four new approval component cases.
+`zjpiazza/opensearch-migrations`. The initial GitHub measurement covered 22
+Bazel targets: 121 Java cases, 43 Python mock cases, and four approval component
+cases. The suite now has 24 targets, adding 23 approval assertion fault-injection
+cases and 12 workflow-output component cases. The original measurements do not
+include those additions.
 
 The new `//build-support/bazel/components:approval_integration_test` exercises
 the production approval command, gate discovery/classification and Kubernetes
@@ -139,6 +142,29 @@ workflow isolation, compressed Argo status and API rejection. Only Kubernetes
 configuration and the API server are replaced. Argo status transitions are
 explicit test inputs; no fake controller claims to execute a real migration.
 This is a control-plane pilot, not coverage equivalence with scenario 0003.
+
+The approval component now uses the same five gate names as the real scenario.
+`integ_test/approval_contract.py` holds the prerequisite assertions used by both
+the real E2E test and Bazel tests: proxy startup state, retained metadata output,
+and backfill completion/shard counts. The fault-injection target checks that
+these assertions reject invalid observations; it does not produce a migration.
+
+`//build-support/bazel/components:workflow_output_integration_test` runs the real
+`workflow show` command, Kubernetes SDK and artifact reader against HTTP fakes
+and temporary mounted files. It checks both metadata stages, exact returned
+artifact content, denied/missing objects, empty artifacts and missing output
+references. This caught an E2E assertion gap: a missing reference can produce a
+successful CLI exit and a nonempty diagnostic. The shared prerequisite now also
+requires the retained artifact reference in the SnapshotMigration resource.
+
+Full mocked E2E replacement remains unimplemented. In particular, these tests
+do not execute Argo's generated workflows, produce metadata/backfill results,
+run capture/replay, verify search-engine behavior, or cover the full 26-scenario
+catalog. The existing E2E triggers remain necessary. Removing local engines
+requires production orchestration and migration boundaries that can run in
+process; retaining them preserves their execution behavior but retains much of
+the existing cold-run cost. Neither choice can be measured by these component
+timings alone.
 
 The first CI job starts with a unique disk-cache namespace for each workflow
 run/attempt. It measures initial execution, forced test execution, an identical

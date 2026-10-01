@@ -16,21 +16,23 @@ from kubernetes import client
 import pytest
 
 from console_link.workflow.commands import approve
+from integ_test.approval_contract import approval_gate_names
 
 
 @pytest.fixture
 def api(monkeypatch):
     scenario = json.loads(Path(__file__).with_name("approval_scenario.json").read_text())
+    scenario["gates"] = approval_gate_names(scenario["snapshot_migration_name"])
     gates = {
         name: {
             "metadata": {"name": name, "labels": {approve.LABEL_WORKFLOW: scenario["workflow"]}},
-            "status": {"phase": "Initialized"},
+            "status": {"phase": "Created"},
         }
         for name in scenario["gates"]
     }
     gates["unrelated"] = {
         "metadata": {"name": "unrelated", "labels": {approve.LABEL_WORKFLOW: "other-workflow"}},
-        "status": {"phase": "Initialized"},
+        "status": {"phase": "Created"},
     }
     state = {"scenario": scenario, "gates": gates, "active": scenario["gates"][0],
              "compressed": False, "deny_patch": False, "patches": []}
@@ -132,7 +134,7 @@ def test_all_approval_is_scoped_to_workflow_and_active_gate(api):
     result = invoke("--all")
     assert result.exit_code == 0, (result.output, result.exception)
     assert api["patches"] == [api["scenario"]["gates"][0]]
-    assert api["gates"]["unrelated"]["status"]["phase"] == "Initialized"
+    assert api["gates"]["unrelated"]["status"]["phase"] == "Created"
 
 
 def test_api_rejection_is_reported_without_claiming_success(api):
@@ -141,4 +143,4 @@ def test_api_rejection_is_reported_without_claiming_success(api):
     assert result.exit_code == 1, result.output
     assert "Failed to approve" in result.output
     assert api["patches"] == []
-    assert api["gates"][api["active"]]["status"]["phase"] == "Initialized"
+    assert api["gates"][api["active"]]["status"]["phase"] == "Created"
