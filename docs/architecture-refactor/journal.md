@@ -496,3 +496,14 @@ Next question:
   `LuceneDocumentsReaderTest`. Timing/parallel scheduling may matter, but resource
   causation is unconfirmed. Resolve successful full coverage before interpreting
   cache comparisons as a valid replacement for the Gradle baseline.
+- Sequencing decision: user requested cache validation before concurrency work.
+  Keep current worker sizing, placement and client concurrency unchanged. First
+  establish complete passing coverage, then repeat unchanged inputs from a fresh
+  Bazel output base against the same remote instance. Confirm all 439 successful
+  test results are remote cache hits, no locally cached test results or fresh test
+  executions are counted as remote reuse, and cached reports retain all 4,794
+  baseline passing cases. Inspect execution evidence for any unexpected misses.
+  Then use the already prepared leaf/shared scenarios to check invalidation of
+  changed inputs. Record preparation and Bazel times separately. The queued driver
+  deliberately stops on a failed seed; full-6 had three failed targets at this
+  checkpoint, so an all-green cache result is not yet established.
