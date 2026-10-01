@@ -47,6 +47,7 @@ slf4j = "2.0.20"
 testcontainers = "2.0.5"
 testcontainers-modules = "1.21.4"
 toxiproxy = "2.1.11"
+wiremock = "3.13.2"
 zstd-jni = "1.5.7-12"
 
 [libraries]
@@ -177,6 +178,8 @@ testcontainers-opensearch = {module = "org.opensearch:opensearch-testcontainers"
 testcontainers-solr = {module = "org.testcontainers:solr", version.ref = "testcontainers-modules" }
 testcontainers-toxiproxy = {module = "org.testcontainers:toxiproxy", version.ref = "testcontainers-modules" }
 toxiproxy = {module = "eu.rekawek.toxiproxy:toxiproxy-java", version.ref = "toxiproxy" }
+
+wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
 
 zstd-jni = {module = "com.github.luben:zstd-jni", version.ref = "zstd-jni" }
 

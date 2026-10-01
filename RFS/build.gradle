@@ -60,6 +60,7 @@ dependencies {
 
     testImplementation testFixtures(project(path: ':RFS'))
     testImplementation libs.lucene.v9.backward.codecs
+    testImplementation libs.wiremock.standalone
     testImplementation libs.reactor.test
     testImplementation libs.log4j.core
     testImplementation libs.log4j.slf4j2.impl
@@ -109,4 +110,26 @@ jmh {
     fork = 0
     humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt")
     resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt")
+}
+
+// A focused playback target for CI experiments. The same cases are also part of test.
+tasks.register('wiremockTest', Test) {
+    description = 'Runs recorded destination HTTP contracts without a search engine or Docker.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    filter { includeTestsMatching 'org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest' }
+    maxParallelForks = 1
+    systemProperty 'io.netty.eventLoopThreads', '2'
+    systemProperty 'reactor.netty.ioWorkerCount', '2'
+}
+
+// Deliberate live recording only; this is never a dependency of a test task.
+tasks.register('recordWireMock', JavaExec) {
+    description = 'Records sink HTTP contracts against a fresh local engine; pass endpoint and new output directory via --args.'
+    group = 'verification'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest'
+    jvmArgs '-ea', '-Xmx512m', '-Dreactor.netty.ioWorkerCount=2'
 }
