@@ -97,5 +97,7 @@
     "Initial Rust run reached native AWS credential discovery in an existing test; ECR calls were denied and the run was stopped. Isolated offline rerun passed all 211 library tests.",
     "Shellcheck reports pre-existing warnings in workflow shell snippets; structural actionlint passed.",
     "Physical organization preserves dependency edges; operator and language consolidation remain proposals."
-  ]
+  ],
+  "implementation_commit": "8060ee7a7",
+  "pull_request": "https://github.com/zjpiazza/opensearch-migrations/pull/4"
 }

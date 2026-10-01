@@ -123,7 +123,7 @@ The current architecture baseline is recorded in [README.md](README.md).
   `experiment/architecture-refactor`; its parent is the WireMock experiment.
 - Hypothesis: source roots can reflect application/library/deployment/test/tool
   responsibilities while preserving build identities and current behavior.
-- Implementation: the source-layout commit following the baseline on this branch;
+- Implementation: `8060ee7a7`, [PR #4](https://github.com/zjpiazza/opensearch-migrations/pull/4);
   [layout-map.json](layout-map.json) records exact relocations. The PR is stacked
   on `experiment/wiremock-record-replay` so that WireMock changes are not repeated.
 - Change: move 2,926 files, preserve all 3,083 baseline files, assign 56 explicit
