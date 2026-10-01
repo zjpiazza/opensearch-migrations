@@ -456,3 +456,43 @@ Next question:
   execution nodes were Ready. Existing three worker pods retained zero restarts.
   A full-manifest server dry-run confirmed subsequent applies preserve the
   autoscaler-owned nine replicas. The benchmark continued to 61 passing targets.
+
+## E-010 — Measure worker density before changing resource allocations
+
+- Date: 2026-10-01. User asked whether more, smaller workers would help and whether
+  the execution pool was saturated. Read-only sampling during full-6; no worker
+  configuration changes or benchmark restarts.
+- Kubernetes Metrics API was unavailable. Collected three kubelet summary and
+  cAdvisor snapshots approximately 30 seconds apart on all nine execution nodes.
+  Counter timestamp intervals were 60–71 seconds, around 21:33–21:34 UTC.
+  [Measurement evidence](evidence/worker-utilization.json) includes per-node CPU,
+  memory working sets, throttling and limitations.
+- Pool CPU averaged about 12.84 of 36 nominal cores (35.7%). Individual node
+  averages ranged from 0.21 to 2.36 cores. Total node memory working set ranged
+  from 30.3 to 35.4 GiB across the three snapshots. This is substantial aggregate
+  headroom during this window, not evidence of whole-suite peak requirements.
+- Integration runner limits are one CPU each. Several runners experienced CPU
+  throttling despite pool headroom; one had throttling in 84.6% of its active CFS
+  periods. That percentage does not measure lost wall time. Six lightweight
+  workers were effectively idle because the bridge routes all targets to the
+  integration platform. Client concurrency is capped at nine actions, and required
+  anti-affinity restricts integration pods to one per node.
+- Resource-accounting finding: inspected live nested Docker containers in pod
+  `worker-integration-7b5c4c8659-s8f6d`. Their cgroups were `/docker/...`, outside
+  the daemon's `/kubepods/burstable/...` cgroup, with `cpu.max = max 100000` and
+  `memory.max = max`. Docker inspect also reported no explicit CPU/memory limits.
+  Thus the sidecar's one-CPU/six-GiB limits cannot be treated as limits for the
+  entire test workload. Verify and enforce nested-container accounting before
+  increasing integration-pod density; node measurements are the better capacity
+  evidence for this setup.
+- Recommendation: classify Docker-independent tests and route them to lightweight
+  slots; measure throughput with additional small slots and an increased client
+  concurrency cap. Keep a separate container-test tier, verify cgroup isolation,
+  and compare CPU bursting and two-slot-per-node placement at fixed node count.
+  Do not reduce integration memory limits based on this short sample. Any density
+  experiment must adjust placement, client concurrency and autoscaler bounds
+  together, and report elapsed time, peak memory, throttling and failures.
+- Full-6 has reported failures in `KafkaRestartingTrafficReplayerTest` and
+  `LuceneDocumentsReaderTest`. Timing/parallel scheduling may matter, but resource
+  causation is unconfirmed. Resolve successful full coverage before interpreting
+  cache comparisons as a valid replacement for the Gradle baseline.
