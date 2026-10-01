@@ -98,6 +98,8 @@ apps/cli/dist/
 !tools/build/
 !tools/build/**
 tools/build/**/build/
+tools/build/**/__pycache__/
+tools/build/**/*.pyc
 
 # Bazel convenience symlinks and local execution output.
 /bazel-*
