@@ -4,7 +4,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y --no-install-recommends ca-certificates curl git git-lfs \
-    jq openjdk-21-jdk-headless python3 unzip zip xz-utils libicu74
+    jq openjdk-21-jdk-headless python3 unzip zip xz-utils libicu74 build-essential
 id runner >/dev/null 2>&1 || useradd --create-home --shell /bin/bash runner
 install -d -o runner -g runner /home/runner/actions-runner /home/runner/bazel-state
 
