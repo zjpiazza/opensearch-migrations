@@ -55,6 +55,14 @@ They measure invalidation for those dependency locations, not the distribution
 of real PR changes. Source text is restored in a `finally` block; the generated
 runtime must then be rebuilt before it represents that restored source again.
 
+For an already-running seed, `finish-benchmark.py` can wait for its BEP and run
+all three scenarios sequentially. Supply the seed client's PID, its explicit
+output-base testlogs path, the baseline JSON, and a new output directory; see
+`--help`. It writes `status.json`, validates complete target/case coverage before
+each next phase, and restores the prepared runtime after source-change scenarios.
+Keep the authenticated Buildbarn tunnel running. A failed/interrupted seed stops
+the driver; it does not turn a partial run into a cache benchmark.
+
 ## Coverage and runtime fidelity
 
 `export.gradle` derives both JVM and npm checks from the actual `allTests`

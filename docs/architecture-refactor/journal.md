@@ -387,3 +387,19 @@ Next question:
   complete timing result. GraalPython failed when Java used the worker UID's
   unwritable default home. A diagnostic with writable user.home passed; the
   wrapper now sets Java user.home to the same action-local directory as HOME.
+- Baseline duration analysis: summing successful case durations across the 30
+  reports (median for duplicate executions) gives 45,331.1 seconds, about 12.6
+  hours. This is aggregate case time, not elapsed CI time or CPU consumption.
+  It excludes outside-case setup; class-local fixture reuse and different worker
+  hardware prevent converting it directly into a forecast for this run.
+- Dependency prediction before incremental measurement: the dashboard output is
+  on seven discovered targets' classpaths; the shared runtime output is on 404
+  of 439 targets' classpaths. These are graph-derived affected sets, not observed
+  cache misses. A broad runtime-library change can therefore invalidate most of
+  this bridge. Splitting shared utilities into smaller dependency targets is a
+  separate architectural proposal; remote caching alone cannot remove that cost.
+- Recovery: the first interruption stopped full-5; a later server restart left
+  full-6 and its tunnel alive, so no replacement run was started. Saved the
+  harness fixes on the fork at `080c1bef1`. A driver now waits for complete seed
+  coverage before running fresh-client unchanged, leaf and shared scenarios; it
+  records status and restores generated runtimes after temporary source changes.
