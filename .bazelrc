@@ -16,7 +16,7 @@ build:buildbarn --remote_executor=grpc://127.0.0.1:8980
 build:buildbarn --remote_cache=grpc://127.0.0.1:8980
 build:buildbarn --remote_instance_name=migrations-pilot
 build:buildbarn --extra_execution_platforms=//tools/build/bazel:buildbarn_linux
-build:buildbarn --jobs=9
+build:buildbarn --jobs=18
 build:buildbarn --remote_download_outputs=toplevel
 build:buildbarn --incompatible_strict_action_env
 build:buildbarn --noremote_local_fallback

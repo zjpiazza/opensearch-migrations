@@ -4,13 +4,13 @@ metadata:
   annotations:
     prometheus.io/port: '80'
     prometheus.io/scrape: 'true'
-  name: worker-integration
+  name: worker-integration-large
   namespace: migrations-buildbarn
 spec:
   selector:
     matchLabels:
       app: worker
-      instance: integration
+      instance: integration-large
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -20,13 +20,13 @@ spec:
     metadata:
       labels:
         app: worker
-        instance: integration
+        instance: integration-large
         container-tests: 'true'
     spec:
       automountServiceAccountToken: false
       containers:
       - args:
-        - /config/worker-integration.jsonnet
+        - /config/worker-integration-large.jsonnet
         env:
         - name: NODE_NAME
           valueFrom:
@@ -70,11 +70,11 @@ spec:
         name: runner
         resources:
           limits:
-            cpu: '1'
+            cpu: '2'
             ephemeral-storage: 12Gi
             memory: 3Gi
           requests:
-            cpu: '1'
+            cpu: '2'
             ephemeral-storage: 2Gi
             memory: 3Gi
         securityContext:
@@ -167,15 +167,15 @@ spec:
             path: common.libsonnet
           - key: runner-ubuntu22-04.jsonnet
             path: runner-ubuntu22-04.jsonnet
-          - key: worker-integration.jsonnet
-            path: worker-integration.jsonnet
+          - key: worker-integration-large.jsonnet
+            path: worker-integration-large.jsonnet
           - key: start-docker.sh
             path: start-docker.sh
           - key: runner-integration.jsonnet
             path: runner-integration.jsonnet
           - key: clean-docker.sh
             path: clean-docker.sh
-          name: buildbarn-integration-config
+          name: buildbarn-integration-large-config
         name: configs
       - emptyDir:
           sizeLimit: 12Gi

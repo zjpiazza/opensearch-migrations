@@ -16,6 +16,8 @@ import tarfile
 import urllib.request
 import zipfile
 
+from worker_routing import properties as worker_properties
+
 ROOT = Path(__file__).resolve().parents[4]
 OUT = ROOT / 'build/full-suite'
 
@@ -138,8 +140,8 @@ def main():
         group=ident+'_runtime'; lines.append('filegroup(name='+repr(group)+', srcs='+repr(sorted(set(filter(None,data+spec['archives']))))+')')
         for cls in classes:
             target=ident+'__'+cls
-            lines.append('exported_test(name='+repr(target)+', spec='+repr(filename)+', data=['+repr(':'+group)+'], test_class='+repr(cls)+', size="enormous", timeout="eternal", exec_properties={"workload":"integration"})')
-            evidence['targets'].append({'target':target,'task':task['task'],'class':cls})
+            lines.append('exported_test(name='+repr(target)+', spec='+repr(filename)+', data=['+repr(':'+group)+'], test_class='+repr(cls)+', size="enormous", timeout="eternal", exec_properties='+repr(worker_properties(task['task'],cls))+')')
+            evidence['targets'].append({'target':target,'task':task['task'],'class':cls,'exec_properties':worker_properties(task['task'],cls)})
         print(task['task'],len(classes),'classes',flush=True)
     npm_archives={}
     for task in manifest['npm']:
@@ -153,8 +155,8 @@ def main():
         if not (OUT/node).exists(): shutil.copytree(task['nodeHome'], OUT/node, symlinks=True)
         spec=dict(task,kind='npm',nodeHome=node,archives=[npm_archives[project],shared])
         filename='specs/'+ident+'.json'; write(OUT/filename,json.dumps(spec,indent=2)+'\n')
-        lines.append('exported_test(name='+repr(ident)+', spec='+repr(filename)+', data=glob(['+repr(node+'/**')+'])+'+repr(spec['archives'])+', size="large", exec_properties={"workload":"integration"})')
-        evidence['npm_tasks'].append(task['task']); evidence['targets'].append({'target':ident,'task':task['task']})
+        lines.append('exported_test(name='+repr(ident)+', spec='+repr(filename)+', data=glob(['+repr(node+'/**')+'])+'+repr(spec['archives'])+', size="large", exec_properties='+repr(worker_properties(task['task']))+')')
+        evidence['npm_tasks'].append(task['task']); evidence['targets'].append({'target':ident,'task':task['task'],'exec_properties':worker_properties(task['task'])})
     lines.append('test_suite(name="all_tests", tests='+repr([':'+t['target'] for t in evidence['targets']])+')')
     write(OUT/'BUILD.bazel','\n\n'.join(lines)+'\n');write(OUT/'WORKSPACE.bazel','workspace(name="full_suite")\n')
     write(OUT/'inventory.json',json.dumps(evidence,indent=2)+'\n')

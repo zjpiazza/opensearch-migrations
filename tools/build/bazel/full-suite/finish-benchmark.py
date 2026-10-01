@@ -18,6 +18,9 @@ parser.add_argument('--seed-testlogs', type=Path, required=True)
 parser.add_argument('--seed-client-pid', type=int, required=True)
 parser.add_argument('--baseline', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--instance', default='migrations-pilot')
+parser.add_argument('--scenarios', nargs='+', choices=('unchanged', 'leaf', 'shared'),
+                    default=['unchanged', 'leaf', 'shared'])
 args = parser.parse_args()
 out = args.output.resolve()
 out.mkdir(parents=True, exist_ok=False)
@@ -64,11 +67,12 @@ try:
         time.sleep(15)
     save(phase='validating-seed')
     summarize(args.seed_bep, args.seed_testlogs, out / 'seed.summary.json')
-    for scenario in ('unchanged', 'leaf', 'shared'):
+    for scenario in args.scenarios:
         save(phase=scenario)
         restore_needed |= scenario != 'unchanged'
         target = out / scenario
-        run(['python3', str(TOOLS / 'benchmark.py'), scenario, '--output', str(target)],
+        run(['python3', str(TOOLS / 'benchmark.py'), scenario, '--output', str(target),
+             '--instance', args.instance],
             out / (scenario + '.driver.log'))
         summarize(target / 'results.bep.json',
                   target / 'client/execroot/_main/bazel-out/k8-fastbuild/testlogs/external/+_repo_rules+full_suite',

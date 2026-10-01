@@ -45,10 +45,12 @@ try:
         run('gradle-prepare',['./gradlew','-I','tools/build/bazel/full-suite/export.gradle','exportBazelTestRuntime',
                               '--max-workers=3','-x','spotlessCheck','--console=plain'])
         run('runtime-export',['python3','tools/build/bazel/full-suite/prepare.py'])
+    cache_check = ['--experimental_remote_require_cached', '--disk_cache=',
+                   '--noremote_upload_local_results'] if args.scenario == 'unchanged' else []
     run('bazel',['./bazelw','--output_base='+str(out/'client'), 'test','--config=buildbarn',
                  '--remote_instance_name='+args.instance,'@full_suite//:all_tests','--keep_going','--test_timeout=7200',
                  '--build_event_json_file='+str(out/'results.bep.json'),
-                 '--execution_log_json_file='+str(out/'results.execution.json')])
+                 '--execution_log_json_file='+str(out/'results.execution.json'), *cache_check])
 finally:
     if source is not None and original is not None:
         source.write_text(original)

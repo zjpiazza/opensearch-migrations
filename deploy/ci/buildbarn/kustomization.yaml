@@ -11,6 +11,7 @@ resources:
 - worker-integration.yaml
 - integration-network-policy.yaml
 - autoscaler.yaml
+- worker-integration-large.yaml
 configMapGenerator:
 - name: buildbarn-config
   files:
@@ -25,6 +26,9 @@ configMapGenerator:
   - config/common.libsonnet
   - config/runner-ubuntu22-04.jsonnet
   - config/worker-integration.jsonnet
+  - config/start-docker.sh
+  - config/runner-integration.jsonnet
+  - config/clean-docker.sh
 - name: buildbarn-prometheus-config
   files:
   - config/prometheus.yaml
@@ -33,3 +37,11 @@ configMapGenerator:
 - name: buildbarn-autoscaler-config
   files:
   - config/autoscaler.jsonnet
+- name: buildbarn-integration-large-config
+  files:
+  - config/common.libsonnet
+  - config/runner-ubuntu22-04.jsonnet
+  - config/worker-integration-large.jsonnet
+  - config/start-docker.sh
+  - config/runner-integration.jsonnet
+  - config/clean-docker.sh

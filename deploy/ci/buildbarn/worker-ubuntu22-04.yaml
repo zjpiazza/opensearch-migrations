@@ -1,4 +1,4 @@
-# Six lightweight slots; three additional container-capable slots are in worker-integration.yaml.
+# Replicas owned by bb-autoscaler: 3–9. One lightweight worker per node.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +8,6 @@ metadata:
     prometheus.io/port: '80'
     prometheus.io/scrape: 'true'
 spec:
-  replicas: 6
   selector:
     matchLabels:
       app: worker
@@ -80,12 +79,12 @@ spec:
           readOnly: true
         resources:
           requests:
-            cpu: '1'
-            memory: 1Gi
+            cpu: 500m
+            memory: 3Gi
             ephemeral-storage: 2Gi
           limits:
             cpu: '1'
-            memory: 1Gi
+            memory: 3Gi
             ephemeral-storage: 12Gi
       initContainers:
       - name: bb-runner-installer
@@ -128,13 +127,14 @@ spec:
         operator: Equal
         value: bazel
         effect: NoSchedule
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: worker
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: worker
+                instance: ubuntu22-04
+            topologyKey: kubernetes.io/hostname
   strategy:
     type: RollingUpdate
     rollingUpdate:

@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-01T23:54:03.502997+00:00",
+  "client_jobs_before": 9,
+  "client_jobs_after": 18,
+  "node_pool_bounds_unchanged": {
+    "minimum": 3,
+    "maximum": 9,
+    "node_vcpu": 4,
+    "node_memory_gb": 16
+  },
+  "pools": [
+    {
+      "deployment": "worker-integration",
+      "min": 2,
+      "max": 6,
+      "runner": {
+        "limits": {
+          "cpu": "1",
+          "ephemeral-storage": "12Gi",
+          "memory": "3Gi"
+        },
+        "requests": {
+          "cpu": "1",
+          "ephemeral-storage": "2Gi",
+          "memory": "3Gi"
+        }
+      },
+      "platform": {
+        "properties": [
+          {
+            "name": "OSFamily",
+            "value": "linux"
+          },
+          {
+            "name": "container-image",
+            "value": "docker://ghcr.io/catthehacker/ubuntu:act-22.04@sha256:dd7654ffb01d5b7b54b23b9ce928a1f7f2d08c7b3d7e320b6574b55d7ccde78b"
+          },
+          {
+            "name": "workload",
+            "value": "integration"
+          }
+        ]
+      }
+    },
+    {
+      "deployment": "worker-integration-large",
+      "min": 1,
+      "max": 3,
+      "runner": {
+        "limits": {
+          "cpu": "2",
+          "ephemeral-storage": "12Gi",
+          "memory": "3Gi"
+        },
+        "requests": {
+          "cpu": "2",
+          "ephemeral-storage": "2Gi",
+          "memory": "3Gi"
+        }
+      },
+      "platform": {
+        "properties": [
+          {
+            "name": "OSFamily",
+            "value": "linux"
+          },
+          {
+            "name": "container-image",
+            "value": "docker://ghcr.io/catthehacker/ubuntu:act-22.04@sha256:dd7654ffb01d5b7b54b23b9ce928a1f7f2d08c7b3d7e320b6574b55d7ccde78b"
+          },
+          {
+            "name": "workload",
+            "value": "integration-large"
+          }
+        ]
+      }
+    },
+    {
+      "deployment": "worker-ubuntu22-04",
+      "min": 3,
+      "max": 9,
+      "runner": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "3Gi",
+          "ephemeral-storage": "2Gi"
+        },
+        "limits": {
+          "cpu": "1",
+          "memory": "3Gi",
+          "ephemeral-storage": "12Gi"
+        }
+      },
+      "platform": {
+        "properties": [
+          {
+            "name": "OSFamily",
+            "value": "linux"
+          },
+          {
+            "name": "container-image",
+            "value": "docker://ghcr.io/catthehacker/ubuntu:act-22.04@sha256:dd7654ffb01d5b7b54b23b9ce928a1f7f2d08c7b3d7e320b6574b55d7ccde78b"
+          }
+        ]
+      }
+    }
+  ],
+  "routing": {
+    "lightweight": 101,
+    "integration": 327,
+    "integration-large": 11,
+    "total": 439
+  },
+  "smoke": {
+    "timing": {
+      "exit_code": 0,
+      "wall_seconds": 22.653411865234375
+    },
+    "fresh_remote_targets": 3,
+    "cached_targets": 0,
+    "junit": [
+      {
+        "target": "RfsCommon_test__org.opensearch.migrations.bulkload.common.RepoUriTest",
+        "name": "JUnit Jupiter",
+        "tests": "7",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "0.111",
+        "hostname": "worker-integration-5c699b67db-w2mf2",
+        "timestamp": "2026-10-01T23:52:00"
+      },
+      {
+        "target": "transformation_test__org.opensearch.migrations.UnboundVersionMatchersTest",
+        "name": "JUnit Jupiter",
+        "tests": "6",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "0.098",
+        "hostname": "worker-ubuntu22-04-68d64c744c-sb52b",
+        "timestamp": "2026-10-01T23:52:02"
+      },
+      {
+        "target": "SnapshotReader_isolatedTest__org.opensearch.migrations.bulkload.common.LuceneDocumentsReaderTest",
+        "name": "JUnit Jupiter",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "2.519",
+        "hostname": "worker-integration-large-6f79cb7cb8-22tmn",
+        "timestamp": "2026-10-01T23:52:03"
+      }
+    ]
+  },
+  "docker_cgroup_probe": {
+    "nested_path_under_sidecar": true,
+    "ancestor_cpu_max": "150000 100000",
+    "ancestor_memory_max": 6442450944,
+    "probe_image": "busybox:1.37@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+    "probe_removed": true
+  },
+  "old_worker_eviction": {
+    "pod": "worker-integration-7b5c4c8659-lkgvl",
+    "reason": "Evicted",
+    "message": "Usage of EmptyDir volume \"docker\" exceeds the limit \"40Gi\"."
+  },
+  "full_run": {
+    "phase": "running",
+    "pid": 179011,
+    "started_at_epoch": 1790898763.876034,
+    "remote_instance": "migrations-mixed-workers-1",
+    "target_count": 439,
+    "jobs": 18
+  },
+  "limitations": [
+    "Complete 439-target run is in progress; no full-suite speedup yet established.",
+    "Fresh action-cache namespace; shared storage/input caches may already be warm.",
+    "Worker and node counts grow during this run.",
+    "Snapshot unpacker deadlock is not fixed by worker routing; larger thread pools are a mitigation.",
+    "Idle Docker cleanup cannot prevent a single test from exhausting the volume."
+  ],
+  "ready_checkpoint": {
+    "at_utc": "2026-10-01T23:56:51.540955+00:00",
+    "deployments": [
+      {
+        "name": "worker-integration",
+        "desired": 6,
+        "ready": 6
+      },
+      {
+        "name": "worker-integration-large",
+        "desired": 2,
+        "ready": 2
+      },
+      {
+        "name": "worker-ubuntu22-04",
+        "desired": 9,
+        "ready": 9
+      }
+    ]
+  }
+}

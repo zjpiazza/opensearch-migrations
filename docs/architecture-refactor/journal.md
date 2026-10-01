@@ -607,3 +607,64 @@ Next question:
   This is not yet an all-green 439-target benchmark, nor proof that mutable Docker
   image tags/other external state are fully represented in cache keys. Worker
   sizing, placement, concurrency, test code and timeouts were unchanged.
+
+## E-013 — Deploy mixed worker sizes and increase concurrent actions
+
+- Date: 2026-10-01. User authorized increasing concurrency and adding differently
+  sized workers after cache validation. Raised the Buildbarn client limit from
+  nine to eighteen actions. Worker pools now autoscale independently: lightweight
+  3–9, standard integration 2–6, large integration 1–3, one action per pod.
+  The owner's node-pool bounds remain 3–9 four-vCPU/16-GB nodes.
+- Lightweight runners request 0.5 CPU and can use one CPU; standard integration
+  runners request/limit one CPU; large integration runners request/limit two.
+  All runners have 3 GiB RAM. Docker sidecars reserve 0.5 CPU/6 GiB and have
+  1.5-CPU/6-GiB limits. Both integration tiers share required anti-affinity, so
+  no node hosts two Docker workers. Lightweight pods also require separate nodes;
+  one large plus one lightweight pod requests 3.10 CPU/12.25 GiB before system pods.
+- Corrected nested Docker accounting: `start-docker.sh` places daemon processes in
+  a child cgroup, enables cgroup-v2 controllers, and starts Docker with a parent
+  beneath the sidecar's Kubernetes cgroup. A disposable container verified that
+  ancestor limits are 150000/100000 CPU quota and 6,442,450,944 bytes memory.
+  No host Docker socket or host filesystem mounts were introduced.
+- Diagnosed earlier lost workers as eviction after the Docker emptyDir exceeded
+  40 GiB. Added Buildbarn's `runCommandCleaner` at idle/action boundaries to remove
+  leftover containers, dangling images and build cache. Retain tagged images
+  until their layers exceed 20 GiB, then prune unused images. This removes
+  cross-action accumulation; per-action peaks can still exceed the volume limit.
+- Explicit `worker-routing.json` policy retains all 439 targets: 101 lightweight,
+  327 standard integration, 11 large integration. Reviewed lightweight source
+  roots for Docker fixture usage; unclassified tasks default to integration.
+  Large classes include the long E2E tests and CPU-sensitive reader/replayer tests.
+  Runtime export and an idempotent routing-only update share the same policy;
+  compiled code, fixture archives and test assertions were unchanged.
+- Applied only worker, worker-config, network-policy and autoscaler resources.
+  Saved pre-change resources under ignored `mixed-workers/rollback-resources.yaml`.
+  Used a single large-worker canary before rolling the existing pools. Corrected
+  its missing read-only config mount during startup. Server dry-run passed; all
+  three Deployments completed rollout. Existing Prometheus rule assertions passed.
+  Autoscaler RBAC allows the three worker Deployments and denies the frontend.
+- Smoke validation: three real remote actions, zero result-cache hits, all passed
+  in 22.653 seconds including cold worker input setup. JUnit reports identify the
+  expected lightweight, standard and large pod hostnames. Notably the previously
+  failing isolated `LuceneDocumentsReaderTest` passed on the large tier in a
+  5.6-second action. This is not proof that every timing-sensitive failure is fixed.
+- Started **all 439 targets** as full-7 with eighteen jobs and fresh action-cache
+  namespace `migrations-mixed-workers-1`. Shared input/CAS caches may be warm;
+  nodes and worker counts grow during this run. A supervised private tunnel
+  restarts after port-forward resets. The localhost:8765 dashboard now polls all
+  worker pools and excludes terminated/failed pods from current capacity.
+- Queued an unchanged-input fresh-client replay in that same namespace, gated on
+  complete passing target/case coverage. Added explicit instance/scenario options
+  to the continuation driver so it cannot accidentally compare against the old
+  namespace. Leaf/shared source-change scenarios are not queued for this run.
+- [Configuration and validation evidence](evidence/mixed-workers.json). Full-run
+  outcome and timings remain pending. Rollback: suspend the autoscaler, wait for
+  work to finish, restore worker/config/autoscaler resources from the saved state,
+  remove the new large Deployment, and restore the prior routing plus `--jobs=9`.
+  Do not restore old replica ownership or roll workers while tests are active.
+- Capacity verified after scale-up: all nine execution nodes were Ready, with
+  nine lightweight, six standard integration and two large integration workers
+  Ready (17 total). The large tier can grow to three when its queue demands it.
+  Autoscaling selected those counts from live full-7 demand. The unchanged replay
+  now explicitly requires remote cache hits and disables disk cache/local-result
+  uploads, so misses fail rather than silently rerunning tests.

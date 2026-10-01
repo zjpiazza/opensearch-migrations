@@ -10,24 +10,40 @@ Upstream Apache-2.0 license is retained in `LICENSE.buildbarn`.
 
 | Component | Pool | Replicas | Requests per replica |
 | --- | --- | ---: | --- |
-| Lightweight worker + runner | `workers` | 6 | 1.05 CPU, 1 GiB + 128 MiB RAM |
-| Integration worker + runner + Docker | `workers` | 3–9 (autoscaled) | 1.25 CPU, 4 GiB + 128 MiB RAM |
+| Lightweight worker + runner | `workers` | 3–9 | 0.55 CPU, 3 GiB + 128 MiB RAM |
+| Standard integration + Docker | `workers` | 2–6 | 1.55 CPU, 9 GiB + 128 MiB RAM |
+| Large integration + Docker | `workers` | 1–3 | 2.55 CPU, 9 GiB + 128 MiB RAM |
 | Scheduler | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Frontend | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Storage | `control-plane` | 1 | 200m CPU, 512 MiB RAM |
 | Prometheus | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Autoscaler job | `control-plane` | at most 1 active | 25m CPU, 64 MiB RAM |
 
-The execution pool has 4-vCPU/16-GB nodes; the owner enabled node autoscaling
-from three to nine nodes on 2026-10-01. Each worker pod offers
-one action slot. Integration workers require separate nodes. At the initial
-three-node size there are two lightweight workers and one integration worker per
-node; the six lightweight replicas remain fixed as the pool expands. Runner CPU requests and limits are one CPU.
-Each integration runner has a 3-GiB memory limit; its Docker sidecar requests
-200m CPU / 1 GiB and may use up to 1 CPU / 6 GiB. Worker coordinators have separate
-requests. This reserves about 3.35 CPU per node before system requests (measured
-at 0.412 CPU/node), against 3.89 allocatable CPU. Worker pods and node counts are separate; the integration maximum requires
-nine execution nodes under the current placement rule. See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
+The execution pool has 4-vCPU/16-GB nodes and owner-configured autoscaling from
+three to nine nodes. Each worker offers one action slot. The client allows 18
+concurrent actions, matching the three pools' combined maximum. Each node can
+host at most one lightweight pod and one Docker-capable pod; integration
+anti-affinity spans both standard and large tiers.
+
+Lightweight runners request half a CPU and can use one CPU. Standard integration
+runners request and are limited to one CPU; large runners request and are limited
+to two. Every runner has 3 GiB RAM, sufficient for the exported 2-GiB Java heap
+plus runtime overhead. Docker sidecars reserve 0.5 CPU / 6 GiB and are capped at
+1.5 CPU / 6 GiB. `start-docker.sh` places nested containers below the sidecar's
+cgroup so those ceilings include their workloads. The integration runner uses
+Buildbarn’s idle/action-boundary cleaner to remove leftover containers, dangling
+images and build cache. Tagged images remain until their layers exceed 20 GiB,
+then unused images are pruned to leave headroom below the 40-GiB Docker volume.
+This bounds accumulation between actions; a single action can still exhaust its
+volume and must be measured. Each coordinator separately
+requests 50m CPU / 128 MiB. A large + lightweight pair requests 3.10 CPU and
+12.25 GiB before node system pods; capacity must include their requests too.
+
+The explicit [routing policy](../../../tools/build/bazel/full-suite/worker-routing.json)
+currently sends 101 targets to lightweight workers, 327 to standard integration,
+and 11 to large integration. Unknown tests default to standard integration.
+Changing platform properties changes action cache keys for affected targets.
+See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
 The three 1-vCPU/2-GB `control-plane` pool nodes are ordinary managed worker nodes
 used for supporting services, distinct from DigitalOcean's managed API servers.
 
@@ -102,21 +118,20 @@ Buildbarn version. Both execution and result reuse were verified despite it.
 ## Worker autoscaling
 
 `bb-autoscaler` runs once per minute as a CronJob. A private Prometheus instance
-scrapes scheduler metrics every 15 seconds. Only `worker-integration` is managed,
-with **minimum 3 / maximum 9** replicas and one action per replica. The six
-lightweight replicas remain fixed. The client currently submits at most nine
-concurrent actions (`--jobs=9`).
+scrapes scheduler metrics every 15 seconds. All three worker Deployments are
+managed independently, using the bounds in the capacity table. The client
+submits at most 18 concurrent actions (`--jobs=18`).
 
 The demand calculation counts scheduled actions minus completed executions,
 retains registered worker capacity while any actions remain, and uses a 15-minute
 high-water mark. This avoids shrinking the Deployment simply because a few long
 tests are left running. Once the queue is idle for the window, the autoscaler can
-return to three workers. Missing scheduler scrape data yields no scaling decision.
+return each pool to its configured minimum. Missing scheduler scrape data yields no scaling decision.
 This is an idle-window policy, not a general drain-aware termination protocol;
 there is still a scrape/reconciliation race if new work arrives during scale-down.
 
-The autoscaler patches only the named integration Deployment. Its ServiceAccount
-has no permission to modify other deployments, nodes, or cloud settings. Its
+The autoscaler patches only the three named worker Deployments. Its ServiceAccount
+has no permission to modify supporting deployments, nodes, or cloud settings. Its
 additional network policy permits HTTPS to this cluster's API service and endpoint
 addresses; update those addresses if migrating this configuration to a new cluster.
 Images are pinned by digest. Prometheus keeps two hours of ephemeral metrics in
@@ -127,9 +142,9 @@ The owner enabled DigitalOcean autoscaling on the `workers` pool in cluster
 pending until an additional node is available. Neither the worker autoscaler nor
 its ServiceAccount changes the node pool directly.
 
-`spec.replicas` is omitted from the integration manifest so future applies do not
-reset the controller's value. For the existing deployment, the last-applied
-annotation was updated without changing its pod template or interrupting tests.
+`spec.replicas` is omitted from all worker manifests so future applies do not
+reset the controller's value. During migration, update last-applied annotations before applying manifests to
+avoid resetting existing replica counts.
 For a new installation the autoscaler establishes the configured minimum after
 scheduler metrics become available.
 

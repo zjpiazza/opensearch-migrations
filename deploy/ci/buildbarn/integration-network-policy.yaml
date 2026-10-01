@@ -1,4 +1,3 @@
-# Registry and image-build downloads for the Docker sidecar. Credentials are not supplied.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -8,13 +7,25 @@ spec:
   podSelector:
     matchLabels:
       app: worker
-      instance: integration
-  policyTypes: [Egress]
+    matchExpressions:
+    - key: instance
+      operator: In
+      values:
+      - integration
+      - integration-large
+  policyTypes:
+  - Egress
   egress:
   - to:
     - ipBlock:
         cidr: 0.0.0.0/0
-        except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16]
+        except:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        - 169.254.0.0/16
     ports:
-    - {protocol: TCP, port: 443}
-    - {protocol: TCP, port: 80}
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80

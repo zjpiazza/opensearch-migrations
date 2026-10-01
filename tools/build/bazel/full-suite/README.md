@@ -131,3 +131,20 @@ The worker image supplies Python and Docker CLI. The exported Amazon Corretto JD
 and Node toolchain match Gradle. Fixed worker image/platform properties separate
 these results from the original WireMock-only execution platform. Tests receive
 no cloud credentials; image downloads use public registries.
+
+## Worker routing
+
+`worker-routing.json` selects lightweight tasks and larger integration classes
+explicitly. Unknown targets retain standard integration workers. All targets
+remain in `all_tests`; this changes placement, not coverage. To change routing
+without rebuilding runtime archives:
+
+```bash
+python3 tools/build/bazel/full-suite/worker_routing.py
+```
+
+`prepare.py` also applies the same policy on every export. The Buildbarn config
+permits 18 in-flight actions across independently autoscaled lightweight (3–9),
+standard integration (2–6), and large integration (1–3) pools. Large runners have
+two CPUs; other runners have a one-CPU limit. Changing execution properties
+invalidates affected action-cache entries. The live monitor inspects all pools.

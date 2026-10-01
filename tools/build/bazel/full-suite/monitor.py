@@ -56,14 +56,15 @@ def probe(pod):
 def poll_workers():
     while True:
         try:
-            pods = json.loads(kubectl('get', 'pods', '-l', 'app=worker,instance=integration', '-o', 'json'))
-            items = [p for p in pods['items'] if not p['metadata'].get('deletionTimestamp')]
+            pods = json.loads(kubectl('get', 'pods', '-l', 'app=worker', '-o', 'json'))
+            items = [p for p in pods['items'] if not p['metadata'].get('deletionTimestamp')
+                     and p.get('status', {}).get('phase') not in ('Failed', 'Succeeded')]
             ready = [p for p in items if any(c['type'] == 'Ready' and c['status'] == 'True'
                                             for c in p.get('status', {}).get('conditions', []))]
             pending = [p['metadata']['name'] for p in items if p not in ready]
             result = []
             errors = []
-            with ThreadPoolExecutor(max_workers=9) as pool:
+            with ThreadPoolExecutor(max_workers=18) as pool:
                 futures = [(p['metadata']['name'], pool.submit(probe, p['metadata']['name'])) for p in ready]
                 for name, future in futures:
                     try:
@@ -138,7 +139,7 @@ HTML = '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewp
 <title>Buildbarn · Live tests</title><style>
 body{font:15px system-ui,sans-serif;background:#111827;color:#e5e7eb;margin:30px auto;max-width:1250px;padding:0 20px}h1{font-size:26px;margin-bottom:5px}p{color:#aeb9cb}.cards{display:flex;gap:14px;flex-wrap:wrap}.card{background:#1f2937;padding:16px 23px;border-radius:10px;min-width:105px}.card b{display:block;font-size:29px}.card span{color:#aeb9cb}progress{width:100%;height:14px;margin:22px 0;accent-color:#34d399}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid #374151;vertical-align:top}small{display:block;color:#9ca3af;word-break:break-word}td.name{overflow-wrap:anywhere}th{color:#9ca3af}input,select{background:#1f2937;color:white;border:1px solid #4b5563;border-radius:6px;padding:9px;margin:10px 10px 12px 0}.PASSED{color:#34d399}.RUNNING{color:#60a5fa}.FAILED,.TIMEOUT,.INCOMPLETE{color:#fb7185}.PENDING{color:#9ca3af}#error{color:#fbbf24}#running{background:#18263c;border-radius:10px;padding:6px 16px;margin-bottom:20px}#running li{padding:6px 0;overflow-wrap:anywhere}.muted{color:#9ca3af;font-size:13px}</style>
 <h1>Buildbarn · Live tests</h1><p id="phase">Connecting…</p><div class="cards" id="cards"></div><progress id="progress" max="439" value="0"></progress>
-<div id="running"><strong>Executing on the integration workers</strong><ul id="active"></ul><div class="muted" id="worker-time"></div></div>
+<div id="running"><strong>Executing across worker pools</strong><ul id="active"></ul><div class="muted" id="worker-time"></div></div>
 <div id="error"></div><input id="search" placeholder="Search test or Gradle task" size="38"><select id="filter"><option value="all">All tests</option><option value="RUNNING">Running</option><option value="failures">Failures</option><option value="PASSED">Passed</option><option value="PENDING">Pending</option></select>
 <table><thead><tr><th>Status</th><th>Test class / Gradle task</th><th>Duration</th><th>Result reuse</th></tr></thead><tbody id="tests"></tbody></table><p class="muted" id="updated"></p>
 <script>

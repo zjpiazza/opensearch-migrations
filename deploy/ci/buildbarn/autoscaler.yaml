@@ -1,4 +1,3 @@
-# Worker scaling only; node-pool autoscaling is configured separately by the owner.
 apiVersion: v1
 kind: Service
 metadata:
@@ -105,6 +104,8 @@ rules:
   - deployments
   resourceNames:
   - worker-integration
+  - worker-integration-large
+  - worker-ubuntu22-04
   verbs:
   - patch
 ---
