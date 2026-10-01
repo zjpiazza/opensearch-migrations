@@ -11,19 +11,23 @@ Upstream Apache-2.0 license is retained in `LICENSE.buildbarn`.
 | Component | Pool | Replicas | Requests per replica |
 | --- | --- | ---: | --- |
 | Lightweight worker + runner | `workers` | 6 | 1.05 CPU, 1 GiB + 128 MiB RAM |
-| Integration worker + runner + Docker | `workers` | 3 | 1.25 CPU, 4 GiB + 128 MiB RAM |
+| Integration worker + runner + Docker | `workers` | 3–9 (autoscaled) | 1.25 CPU, 4 GiB + 128 MiB RAM |
 | Scheduler | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Frontend | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Storage | `control-plane` | 1 | 200m CPU, 512 MiB RAM |
+| Prometheus | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
+| Autoscaler job | `control-plane` | at most 1 active | 25m CPU, 64 MiB RAM |
 
-The execution pool currently has three 4-vCPU/16-GB nodes. Each worker pod offers
-one action slot; topology spreading places two lightweight workers and one
-integration worker on each node. Runner CPU requests and limits are one CPU.
+The execution pool has 4-vCPU/16-GB nodes; the owner enabled node autoscaling
+from three to nine nodes on 2026-10-01. Each worker pod offers
+one action slot. Integration workers require separate nodes. At the initial
+three-node size there are two lightweight workers and one integration worker per
+node; the six lightweight replicas remain fixed as the pool expands. Runner CPU requests and limits are one CPU.
 Each integration runner has a 3-GiB memory limit; its Docker sidecar requests
 200m CPU / 1 GiB and may use up to 1 CPU / 6 GiB. Worker coordinators have separate
 requests. This reserves about 3.35 CPU per node before system requests (measured
-at 0.412 CPU/node), against 3.89 allocatable CPU. Nine workers do not mean nine
-extra nodes. See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
+at 0.412 CPU/node), against 3.89 allocatable CPU. Worker pods and node counts are separate; the integration maximum requires
+nine execution nodes under the current placement rule. See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
 The three 1-vCPU/2-GB `control-plane` pool nodes are ordinary managed worker nodes
 used for supporting services, distinct from DigitalOcean's managed API servers.
 
@@ -95,6 +99,53 @@ These samples have no equivalent local baseline and establish no speedup claim.
 The pinned Bazel 8.4.2 emits a remote API deprecation warning against this
 Buildbarn version. Both execution and result reuse were verified despite it.
 
+## Worker autoscaling
+
+`bb-autoscaler` runs once per minute as a CronJob. A private Prometheus instance
+scrapes scheduler metrics every 15 seconds. Only `worker-integration` is managed,
+with **minimum 3 / maximum 9** replicas and one action per replica. The six
+lightweight replicas remain fixed. The client currently submits at most nine
+concurrent actions (`--jobs=9`).
+
+The demand calculation counts scheduled actions minus completed executions,
+retains registered worker capacity while any actions remain, and uses a 15-minute
+high-water mark. This avoids shrinking the Deployment simply because a few long
+tests are left running. Once the queue is idle for the window, the autoscaler can
+return to three workers. Missing scheduler scrape data yields no scaling decision.
+This is an idle-window policy, not a general drain-aware termination protocol;
+there is still a scrape/reconciliation race if new work arrives during scale-down.
+
+The autoscaler patches only the named integration Deployment. Its ServiceAccount
+has no permission to modify other deployments, nodes, or cloud settings. Its
+additional network policy permits HTTPS to this cluster's API service and endpoint
+addresses; update those addresses if migrating this configuration to a new cluster.
+Images are pinned by digest. Prometheus keeps two hours of ephemeral metrics in
+512 MiB of local storage; historical RFC evidence is saved separately in the repo.
+
+The owner enabled DigitalOcean autoscaling on the `workers` pool in cluster
+`bazel`, minimum 3 / maximum 9. Integration pod anti-affinity makes extra replicas
+pending until an additional node is available. Neither the worker autoscaler nor
+its ServiceAccount changes the node pool directly.
+
+`spec.replicas` is omitted from the integration manifest so future applies do not
+reset the controller's value. For the existing deployment, the last-applied
+annotation was updated without changing its pod template or interrupting tests.
+For a new installation the autoscaler establishes the configured minimum after
+scheduler metrics become available.
+
+```bash
+kubectl --context do-atl1-bazel -n migrations-buildbarn get cronjob bb-autoscaler
+kubectl --context do-atl1-bazel -n migrations-buildbarn get deployment worker-integration
+kubectl --context do-atl1-bazel -n migrations-buildbarn get jobs --sort-by=.metadata.creationTimestamp
+kubectl --context do-atl1-bazel -n migrations-buildbarn exec deploy/buildbarn-prometheus -- \
+  env TMPDIR=/prometheus promtool test rules /etc/prometheus/autoscaler-rules.test.yaml
+```
+
+The rule tests cover scale-up demand, retaining workers during the tail of a run,
+idle-window expiry, and missing-metrics handling. The initial live autoscaler job
+successfully requested nine replicas from the real queue. Suspending the CronJob
+stops further scaling decisions while preserving current replicas.
+
 ## Storage and access
 
 One storage instance has a 10-GiB CAS volume and two 1-GiB metadata-cache volumes;
@@ -122,5 +173,5 @@ Scale the execution Deployment to zero to stop accepting new work. To remove the
 experiment, delete the `migrations-buildbarn` namespace; this also deletes the PVCs
 and, with the selected storage class, their backing volumes. Do this only when
 cached data is no longer wanted. Clear the `workload=bazel:NoSchedule` pool taint
-only when the pool should accept other workloads again. No cluster/node count or
-autoscaling changes are part of this experiment.
+only when the pool should accept other workloads again. The node autoscaling bounds are owned separately; removing the namespace does
+not disable the owner-configured pool autoscaler.

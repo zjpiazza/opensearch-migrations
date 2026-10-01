@@ -10,6 +10,7 @@ resources:
 - worker-ubuntu22-04.yaml
 - worker-integration.yaml
 - integration-network-policy.yaml
+- autoscaler.yaml
 configMapGenerator:
 - name: buildbarn-config
   files:
@@ -24,3 +25,11 @@ configMapGenerator:
   - config/common.libsonnet
   - config/runner-ubuntu22-04.jsonnet
   - config/worker-integration.jsonnet
+- name: buildbarn-prometheus-config
+  files:
+  - config/prometheus.yaml
+  - config/autoscaler-rules.yaml
+  - config/autoscaler-rules.test.yaml
+- name: buildbarn-autoscaler-config
+  files:
+  - config/autoscaler.jsonnet

@@ -19,7 +19,7 @@ args = parser.parse_args()
 args.seed = args.seed.resolve()
 args.comparisons = args.comparisons.resolve()
 inventory = json.loads((ROOT / 'build/full-suite/inventory.json').read_text())['targets']
-workers = {'running': [], 'checked_at': None, 'error': None}
+workers = {'running': [], 'checked_at': None, 'error': None, 'ready': 0, 'total': 0, 'pending': []}
 lock = threading.Lock()
 
 # Inspect only the exported wrapper's declared spec and process start time.
@@ -57,10 +57,23 @@ def poll_workers():
     while True:
         try:
             pods = json.loads(kubectl('get', 'pods', '-l', 'app=worker,instance=integration', '-o', 'json'))
-            with ThreadPoolExecutor(max_workers=3) as pool:
-                result = list(pool.map(probe, [p['metadata']['name'] for p in pods['items']]))
+            items = [p for p in pods['items'] if not p['metadata'].get('deletionTimestamp')]
+            ready = [p for p in items if any(c['type'] == 'Ready' and c['status'] == 'True'
+                                            for c in p.get('status', {}).get('conditions', []))]
+            pending = [p['metadata']['name'] for p in items if p not in ready]
+            result = []
+            errors = []
+            with ThreadPoolExecutor(max_workers=9) as pool:
+                futures = [(p['metadata']['name'], pool.submit(probe, p['metadata']['name'])) for p in ready]
+                for name, future in futures:
+                    try:
+                        result.extend(future.result())
+                    except Exception:
+                        errors.append(name)
             with lock:
-                workers.update(running=[row for group in result for row in group], checked_at=time.time(), error=None)
+                workers.update(running=result, checked_at=time.time(),
+                               error=('Worker polling unavailable: ' + ', '.join(errors)) if errors else None,
+                               ready=len(ready), total=len(items), pending=pending)
         except Exception as error:
             with lock:
                 workers['error'] = type(error).__name__ + ': worker polling unavailable'
@@ -132,9 +145,9 @@ body{font:15px system-ui,sans-serif;background:#111827;color:#e5e7eb;margin:30px
 let data;const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const duration=s=>s==null?'—':`${Math.floor(s/60)}m ${Math.floor(s%60)}s`;
 function render(){if(!data)return;const c=data.counts;const bad=data.completed-(c.PASSED||0);$('phase').textContent=data.run_label+' · '+duration(data.elapsed_seconds)+' elapsed'+(data.finished?' · finished':'');
-$('cards').innerHTML=[[data.completed+'/'+data.total,'Completed'],[c.PASSED||0,'Passed'],[bad,'Failed / incomplete'],[c.RUNNING||0,'Running'],[data.cached,'Cached results']].map(([n,l])=>`<div class="card"><b>${esc(n)}</b><span>${l}</span></div>`).join('');$('progress').value=data.completed;$('progress').max=data.total;
+$('cards').innerHTML=[[data.completed+'/'+data.total,'Completed'],[c.PASSED||0,'Passed'],[bad,'Failed / incomplete'],[c.RUNNING||0,'Running'],[data.workers.ready+'/'+data.workers.total,'Ready workers'],[data.cached,'Cached results']].map(([n,l])=>`<div class="card"><b>${esc(n)}</b><span>${l}</span></div>`).join('');$('progress').value=data.completed;$('progress').max=data.total;
 $('active').innerHTML=data.workers.running.map(r=>`<li><b>${esc(r.class||r.task)}</b> · ${duration(r.seconds)}<small>${esc(r.task)} · ${esc(r.worker)}</small></li>`).join('')||'<li>No active test process reported.</li>';
-$('worker-time').textContent=data.workers.checked_at?'Workers checked '+new Date(data.workers.checked_at*1000).toLocaleTimeString()+' · every 10 seconds':'';
+$('worker-time').textContent=data.workers.checked_at?'Workers checked '+new Date(data.workers.checked_at*1000).toLocaleTimeString()+' · every 10 seconds'+(data.workers.pending.length?' · '+data.workers.pending.length+' workers starting or waiting for capacity':''):'';
 $('error').textContent=[data.driver_error,data.workers.error].filter(Boolean).join(' · ');
 const q=$('search').value.toLowerCase(),f=$('filter').value;const rank=s=>s==='RUNNING'?0:s==='PASSED'?3:s==='PENDING'?2:1;
 const rows=data.tests.filter(r=>(f==='all'||(f==='failures'?!['RUNNING','PASSED','PENDING'].includes(r.status):r.status===f))&&(r.target+' '+r.task).toLowerCase().includes(q)).sort((a,b)=>rank(a.status)-rank(b.status)||(a.class||a.task).localeCompare(b.class||b.task));

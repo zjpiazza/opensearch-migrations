@@ -7,7 +7,7 @@ metadata:
   name: worker-integration
   namespace: migrations-buildbarn
 spec:
-  replicas: 3
+  # Replicas are owned by bb-autoscaler (minimum 3, maximum 9).
   selector:
     matchLabels:
       app: worker

@@ -408,3 +408,47 @@ Next question:
   worker assignments. It reads the BEP and inspects wrapper process names/specs
   every ten seconds; it does not expose process environments or change workers.
   Verified HTTP responses against live results and checked browser-script syntax.
+
+
+## E-009 — Scale Buildbarn integration workers from scheduler load
+
+- Date: 2026-10-01. User requested `bb-autoscaler` and enabled cluster autoscaling.
+  Verified pool `workers` in cluster `bazel`: minimum 3, maximum 9 nodes. Each node
+  remains `g5-4vcpu-16gb-80gb`. Recommended nine because the current Bazel client
+  submits at most nine concurrent actions and integration pods require separate
+  nodes. This is an initial experimental cap, not an established optimal size.
+- Added the official pinned autoscaler, a small private Prometheus deployment,
+  scheduler metrics service, scoped Role/ServiceAccount and API egress policy.
+  Controller authorization is limited to patching `worker-integration`; it cannot
+  change other deployments, nodes or DigitalOcean settings.
+- Autoscaler source/image: `9e8d8bec87763a812f3817a8df57155314e9688a`;
+  Prometheus `v3.15.0`; both container images pinned by registry digest.
+- Policy: integration replicas 3–9, one action each; six lightweight replicas
+  remain fixed. Queue demand retains registered capacity while actions remain,
+  then permits downscaling after a 15-minute idle window. Failed scheduler scrapes
+  suppress scaling decisions. This does not replace a drain-aware termination
+  design for arbitrary new-work/scale-down races.
+- Validation: Kubernetes server dry-run passed; Prometheus configuration and eight
+  PromQL assertions passed. RBAC checks permit patching the integration deployment
+  and deny patching the frontend. At 21:17:43 UTC the initial live autoscaler job
+  read demand 9 and successfully changed the deployment from three to nine.
+- Existing worker pod templates were not changed or restarted. Removed replicas
+  from the source manifest and updated only its last-applied annotation so future
+  applies do not fight the autoscaler. New worker replicas await node capacity.
+- Benchmark consequence: full-6 is now a run with changing capacity, initially
+  three integration slots and subsequently up to nine. Preserve the transition
+  timing and do not label its elapsed time a fixed-three-worker baseline. Cache
+  reuse and source-change comparisons remain meaningful with allocation reported.
+- Rollback: suspend the `bb-autoscaler` CronJob to stop decisions. Remove its
+  resources/configmaps only after workloads finish; worker replicas and the
+  separately owner-configured node autoscaling bounds need explicit restoration.
+- End-to-end scale-up: Kubernetes emitted `TriggeredScaleUp` for all six new
+  worker pods, requesting pool growth from 3 to 9 (maximum 9). Recurring controller
+  jobs subsequently completed successfully. One job retried while Prometheus was
+  being recreated for the updated rule-test fixture; no worker count was reduced.
+- Live dashboard now separates ready worker capacity from active test processes
+  and reports pods waiting for capacity; pending workers do not suppress live
+  observations from the ready workers.
+- Capacity evidence: [worker autoscaling](evidence/worker-autoscaling.json)
+  records the validated bounds and scale-up events. DigitalOcean confirmed nine
+  desired nodes: three running and six provisioning at this checkpoint.

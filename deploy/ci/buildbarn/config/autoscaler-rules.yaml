@@ -1,0 +1,17 @@
+groups:
+- name: buildbarn-autoscaling
+  interval: 15s
+  rules:
+  - record: buildbarn:tasks_in_flight
+    expr: clamp_min(sum by (instance_name_prefix, platform, size_class) (buildbarn_builder_in_memory_build_queue_tasks_scheduled_total)
+      - sum by (instance_name_prefix, platform, size_class) (buildbarn_builder_in_memory_build_queue_tasks_executing_duration_seconds_count),
+      0)
+  - record: buildbarn:workers_registered
+    expr: clamp_min(sum by (instance_name_prefix, platform, size_class) (buildbarn_builder_in_memory_build_queue_workers_created_total)
+      - sum by (instance_name_prefix, platform, size_class) (buildbarn_builder_in_memory_build_queue_workers_removed_total),
+      0)
+  - record: buildbarn:worker_demand
+    expr: buildbarn:tasks_in_flight + clamp_min(buildbarn:workers_registered * (buildbarn:tasks_in_flight > bool 0) - buildbarn:tasks_in_flight,
+      0)
+  - record: buildbarn:desired_workers
+    expr: max_over_time(buildbarn:worker_demand[15m])
