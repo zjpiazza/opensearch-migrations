@@ -63,6 +63,24 @@ each next phase, and restores the prepared runtime after source-change scenarios
 Keep the authenticated Buildbarn tunnel running. A failed/interrupted seed stops
 the driver; it does not turn a partial run into a cache benchmark.
 
+## Live test dashboard
+
+The local dashboard shows every target, pass/fail status, elapsed test time, cache
+hits and active worker assignments. It reads Bazel events and polls the three
+integration workers; it does not alter tests or cluster resources.
+
+```bash
+python3 tools/build/bazel/full-suite/monitor.py \
+  --seed build/full-suite-evidence/full-6.bep.json \
+  --comparisons build/full-suite-evidence/comparison-1
+```
+
+Open <http://localhost:8765> on the client machine. Results refresh every three
+seconds and worker process observations every ten seconds. The monitor follows
+the latest comparison automatically. It binds only to loopback; the local client
+needs its existing Kubernetes credentials to inspect active workers. A failed
+worker poll is displayed explicitly; its last successful observation may be stale.
+
 ## Coverage and runtime fidelity
 
 `export.gradle` derives both JVM and npm checks from the actual `allTests`

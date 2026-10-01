@@ -403,3 +403,8 @@ Next question:
   harness fixes on the fork at `080c1bef1`. A driver now waits for complete seed
   coverage before running fresh-client unchanged, leaf and shared scenarios; it
   records status and restores generated runtimes after temporary source changes.
+- Monitoring follow-up: added a loopback-only dashboard at `localhost:8765`
+  showing the actual 439 targets, results, durations, cached results and active
+  worker assignments. It reads the BEP and inspects wrapper process names/specs
+  every ten seconds; it does not expose process environments or change workers.
+  Verified HTTP responses against live results and checked browser-script syntax.
