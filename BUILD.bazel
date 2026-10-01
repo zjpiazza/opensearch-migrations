@@ -1,0 +1,4 @@
+test_suite(
+    name = "wiremock_tests",
+    tests = ["//RFS:sink_wiremock_test"],
+)

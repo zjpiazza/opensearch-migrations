@@ -92,3 +92,5 @@ deployment/k8s/aws/cli/dist/
 # to change depending on the environment.
 *.tfvars
 *.tfvars.json
+
+/bazel-*

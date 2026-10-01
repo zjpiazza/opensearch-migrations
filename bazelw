@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""Download the checksum-verified .bazelversion release, then run Bazel.
+
+Usage: ./bazelw test //:bazel_poc_tests
+Downloads live under the ignored build/bazel-tools directory. Requires Python 3.
+Use BAZEL_POC_BINARY to use an already-installed executable instead.
+"""
+
+import hashlib
+import os
+from pathlib import Path
+import platform
+import sys
+import tempfile
+import urllib.request
+
+root = Path(__file__).resolve().parent
+version = (root / ".bazelversion").read_text().strip()
+override = os.environ.get("BAZEL_POC_BINARY")
+if override:
+    executable = Path(override).resolve()
+else:
+    system = {"Linux": "linux", "Darwin": "darwin"}.get(platform.system())
+    arch = {"x86_64": "x86_64", "arm64": "arm64", "aarch64": "arm64"}.get(platform.machine())
+    if not system or not arch:
+        sys.exit("Install Bazel " + version + " and set BAZEL_POC_BINARY for this platform")
+    name = f"bazel-{version}-{system}-{arch}"
+    executable = root / "build" / "bazel-tools" / name
+    if not executable.exists():
+        executable.parent.mkdir(parents=True, exist_ok=True)
+        url = f"https://releases.bazel.build/{version}/release/{name}"
+        with urllib.request.urlopen(url + ".sha256", timeout=60) as response:
+            expected = response.read().decode().split()[0]
+        with urllib.request.urlopen(url, timeout=120) as response:
+            data = response.read()
+        if hashlib.sha256(data).hexdigest() != expected:
+            sys.exit("Bazel download checksum mismatch")
+        with tempfile.NamedTemporaryFile(dir=executable.parent, delete=False) as temporary:
+            temporary.write(data)
+            temp_path = Path(temporary.name)
+        temp_path.chmod(0o755)
+        temp_path.replace(executable)
+
+os.chdir(root)
+os.execv(str(executable), [str(executable), *sys.argv[1:]])

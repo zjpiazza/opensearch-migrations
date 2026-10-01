@@ -1,0 +1,12 @@
+load("@rules_java//java:defs.bzl", "java_plugin")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["maven_install.json"])
+
+java_plugin(
+    name = "lombok",
+    generates_api = True,
+    processor_class = "lombok.launch.AnnotationProcessorHider$AnnotationProcessor",
+    deps = ["@maven//:org_projectlombok_lombok"],
+)
