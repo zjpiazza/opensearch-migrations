@@ -201,3 +201,62 @@ Compatibility, rollout, and rollback:
 RFC claim supported / still unsupported:
 Next question:
 ```
+
+## E-006 — Buildbarn on a dedicated Kubernetes execution pool
+
+- Date: 2026-10-01. Related decisions: D-005, D-006, D-007.
+- User supplied context `do-atl1-bazel` and requested use of the dedicated node
+  pool with more workers than the initial two-worker proposal.
+- Implementation: `experiment/buildbarn-remote-execution`, based on `c172aa63f`.
+  Deployment and reproduction: [Buildbarn README](../../deploy/ci/buildbarn/README.md).
+- Upstream input: Buildbarn deployment commit
+  `d4a6ca38e5f77959b42fccaa34a3320253683bc2`, with pinned container versions.
+- Capacity decision: nine single-slot workers across three 4-vCPU/16-GB nodes;
+  scheduler/frontend/storage on the other three 1-vCPU/2-GB nodes. Reserve the
+  execution node pool using a persistent DigitalOcean NoSchedule taint. Node
+  counts and autoscaling are unchanged.
+- Configuration: private ClusterIP services, authenticated localhost port-forward,
+  namespace network policy, persistent cache volumes, no execution credentials,
+  and explicit Bazel remote strategy with local fallback disabled.
+- Source scope: port the existing narrow WireMock Bazel graph to the refactored
+  layout. This checkpoint establishes remote execution infrastructure; it does
+  not migrate the full integration suite or demonstrate a full-suite speedup.
+- Validation: manifests render and pass client dry-run; all 12 service/worker
+  pods are healthy with zero restarts. Nine execution pods are spread three per
+  dedicated node; all three nodes have the NoSchedule taint. The three cache PVCs
+  are bound. The relocated Bazel target loads and executes successfully remotely.
+- First execution: 117.873 s elapsed, 224 remote actions and no remote cache hits;
+  compilation and the nine-test suite execute remotely. This includes first-run
+  dependency/toolchain preparation and is not a steady-state benchmark.
+- Capacity check: `--nocache_test_results --runs_per_test=9` passes in 9.793 s.
+  Worker action metadata confirms nine test executions on nine distinct pods,
+  three per node. These are copies of the same nine-test suite, not 81 distinct
+  scenarios. Individual suite execution durations range from 4.3 to 5.5 s.
+- Cache check: a fresh client output directory takes 18.162 s, reusing 222 remote
+  actions and executing the test/report actions. A second fresh client then takes
+  11.962 s, with all 224 remote actions cached and zero test execution. Forcing
+  tests in the preceding phases did not seed reusable remote test results; the
+  normal cache-enabled run did. These timings include fresh client analysis and
+  downloads and do not isolate cache lookup latency.
+- Evidence: [Buildbarn validation](evidence/buildbarn-validation.json), including
+  test success counts, execution strategy, cache counts, and worker identities.
+  Raw build events and action logs remain ignored because they can carry client
+  environment details. [Reproduction](../../deploy/ci/buildbarn/README.md#validation).
+- Setup findings: dropping all worker-coordinator capabilities prevented access
+  to the runner-owned Unix socket. Restoring only DAC_OVERRIDE to that sidecar
+  fixed it; the test runner still drops all capabilities. The execution platform
+  needed an explicit `platforms` module dependency. Startup socket-not-found
+  messages stopped after runner initialization. The DigitalOcean pool taint was
+  also applied explicitly to existing nodes.
+- Limitations: this retains the nine-test source slice, not the full Gradle graph.
+  No full-suite speedup, automatic JUnit sharding, high availability, or CPU
+  utilization result is established. The new cluster lacks the Metrics API.
+  Bazel 8.4.2 reports a deprecated remote API version against this Buildbarn
+  version; execution and caching nonetheless pass. GitHub runner integration is
+  separate; this validation uses the local client and an authenticated tunnel.
+- Conclusion: the dedicated nine-slot Kubernetes execution pool and cross-client
+  remote result reuse are demonstrated. Next, migrate a representative expensive
+  integration group with unchanged assertions and compare equivalent workloads.
+- Rollback: scale workers to zero or remove the experiment namespace/PVCs when
+  cache data is no longer wanted. Pool reservation removal is a separate change;
+  see the deployment README. No node count or autoscaling settings were changed.

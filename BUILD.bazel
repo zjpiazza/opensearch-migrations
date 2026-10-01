@@ -1,0 +1,4 @@
+test_suite(
+    name = "wiremock_tests",
+    tests = ["//libs/migration-engine:sink_wiremock_test"],
+)

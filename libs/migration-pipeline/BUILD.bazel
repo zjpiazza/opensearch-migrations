@@ -1,0 +1,28 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+# Production sources needed by the HTTP sink contract experiment.
+# Gradle remains the build for the complete module.
+java_library(
+    name = "http_contract",
+    srcs = [
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/GlobalMetadataSink.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/GlobalMetadataSnapshot.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/IndexMetadataSnapshot.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/model/BatchResult.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/model/CollectionMetadata.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/model/Document.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/model/Partition.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/model/ProgressCursor.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/sink/DocumentSink.java",
+    ],
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = [
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
+        "@maven//:com_fasterxml_jackson_core_jackson_annotations",
+        "@maven//:org_projectlombok_lombok",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:io_projectreactor_reactor_core",
+    ],
+    visibility = ["//visibility:public"],
+)

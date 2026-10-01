@@ -1,0 +1,7 @@
+# Adapted from buildbarn/bb-deployments d4a6ca38e5f77959b42fccaa34a3320253683bc2.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: migrations-buildbarn
+  labels:
+    app.kubernetes.io/part-of: migrations-buildbarn

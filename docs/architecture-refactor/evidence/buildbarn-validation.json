@@ -1,0 +1,734 @@
+{
+  "experiment": "E-006",
+  "date": "2026-10-01",
+  "upstream_buildbarn_commit": "d4a6ca38e5f77959b42fccaa34a3320253683bc2",
+  "context": "do-atl1-bazel",
+  "namespace": "migrations-buildbarn",
+  "worker_replicas": 9,
+  "worker_node_count": 3,
+  "worker_slots_per_pod": 1,
+  "runner_cpu_per_pod": 1,
+  "phases": [
+    {
+      "test_status": "PASSED",
+      "test_runs": 1,
+      "cached_test_runs": 0,
+      "wall_time_ms": "117894",
+      "action_runners": {
+        "remote": 224
+      },
+      "remote_cache_hits": 0,
+      "actions": [
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:zip",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/auth/aws:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-pipeline:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/runtime:lib",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-model:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:lib",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms:lib",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/search-client:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:wiremock_test_classes",
+          "mnemonic": "Javac",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        }
+      ],
+      "phase": "first",
+      "bazel_elapsed_seconds": 117.873,
+      "test_results": [
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "a5ff25c84a8d6805920bee6683f35a185a648a2d07cd25704fe87247198d2d2f",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        }
+      ]
+    },
+    {
+      "test_status": "PASSED",
+      "test_runs": 9,
+      "cached_test_runs": 0,
+      "wall_time_ms": "9783",
+      "action_runners": {
+        "remote": 18
+      },
+      "remote_cache_hits": 0,
+      "actions": [
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        }
+      ],
+      "phase": "concurrent",
+      "bazel_elapsed_seconds": 9.793,
+      "test_results": [
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "a9211df010ce00ddbb38c2572ae963b7ef06ede38d0d6fd3ccf5ccb2048c28a4",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "16f4c0f2d8373f07a88464a92a03a7adbd3500d63c4a6b1309fe88e2d86dc7c5",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "ed94d9ecd21a909dabea2354c1eb40eb07d39b9ba68e2c00b032a90c889b1bae",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "d5cacb17e094a42657bb86bd0124195daeec28eec7d9c7124c508c3bf70a6d7d",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "6b1c4142480856f9f763bbb8db20066f387033f80a0d1dc0e15d2b92687479f6",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "31080558b7f75a1f2ce4ef316080c984a8d26de7b50c81c9db0326bc7c8e03d0",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "0b0ef02aa8da75771a708054b385fb78ff963211dc88b213ad46729b36db7e7a",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "b35d867401f0978869a8f6b65cd0a198cebbcfd7a082f2ba52b8d020cc467655",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        },
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "8ada6762be8c1214cecb49723b227e7de5136f44f7e64cc20efd2ec1c565cfb9",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        }
+      ]
+    },
+    {
+      "test_status": "PASSED",
+      "test_runs": 1,
+      "cached_test_runs": 0,
+      "wall_time_ms": "16338",
+      "action_runners": {
+        "remote cache hit": 222,
+        "remote": 2
+      },
+      "remote_cache_hits": 222,
+      "actions": [
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote",
+          "cache_hit": false,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:zip",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/auth/aws:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-pipeline:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/runtime:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-model:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/search-client:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:wiremock_test_classes",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        }
+      ],
+      "phase": "cache-client",
+      "bazel_elapsed_seconds": 18.162,
+      "test_results": [
+        {
+          "status": "PASSED",
+          "strategy": "remote",
+          "log_sha256": "c34332fd86aa724da46971b61df6032e619f93afca1166ceac781a12a05d59b1",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        }
+      ]
+    },
+    {
+      "test_status": "PASSED",
+      "test_runs": 1,
+      "cached_test_runs": 1,
+      "wall_time_ms": "10663",
+      "action_runners": {
+        "remote cache hit": 224
+      },
+      "remote_cache_hits": 224,
+      "actions": [
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:sink_wiremock_test",
+          "mnemonic": "TestRunner",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external:rules_jvm_external",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/zip:zip",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "@@rules_jvm_external+//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/auth/aws:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-pipeline:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/runtime:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-model:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/transforms:lib",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/search-client:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:http_contract",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        },
+        {
+          "target": "//libs/migration-engine:wiremock_test_classes",
+          "mnemonic": "Javac",
+          "runner": "remote cache hit",
+          "cache_hit": true,
+          "exit_code": 0
+        }
+      ],
+      "phase": "cache-verified",
+      "bazel_elapsed_seconds": 11.962,
+      "test_results": [
+        {
+          "status": "PASSED",
+          "strategy": "remote cache hit",
+          "log_sha256": "c34332fd86aa724da46971b61df6032e619f93afca1166ceac781a12a05d59b1",
+          "successful_tests": 9,
+          "skipped_tests": 0
+        }
+      ]
+    }
+  ],
+  "test_worker_placement": [
+    {
+      "worker": {
+        "node": "workers-3x503c",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-9lkbx"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.468225436Z",
+      "end": "2026-10-01T19:47:18.369172997Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x5037",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-9rjmf"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.498457074Z",
+      "end": "2026-10-01T19:47:17.900258252Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503m",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-g2qjx"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.359645517Z",
+      "end": "2026-10-01T19:47:18.853044414Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503c",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-8cjdd"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.439066232Z",
+      "end": "2026-10-01T19:47:18.678857736Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x5037",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-8p6qc"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.049182115Z",
+      "end": "2026-10-01T19:47:17.912205608Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503m",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-dccr5"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:12.790267814Z",
+      "end": "2026-10-01T19:47:18.272484152Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503m",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-65dpr"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.649148221Z",
+      "end": "2026-10-01T19:47:18.597489389Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503m",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-65dpr"
+      },
+      "invocation": "d4e83b40-f015-45ff-a36d-75677fa12ce4",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:47.416268221Z",
+      "end": "2026-10-01T19:47:51.370347673Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x5037",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-69hv2"
+      },
+      "invocation": "e7e91f5e-b293-4aee-9cdd-1ed50cdb75d0",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:46:47.292527028Z",
+      "end": "2026-10-01T19:46:51.328416060Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x5037",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-69hv2"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:10.916758576Z",
+      "end": "2026-10-01T19:47:15.256585927Z"
+    },
+    {
+      "worker": {
+        "node": "workers-3x503c",
+        "pod": "worker-ubuntu22-04-6f4cd7b8b9-8swgt"
+      },
+      "invocation": "4182383d-a5cd-4bb7-ab68-bbfe4e24e3bd",
+      "target": "//libs/migration-engine:sink_wiremock_test",
+      "exit_code": 0,
+      "start": "2026-10-01T19:47:13.606584504Z",
+      "end": "2026-10-01T19:47:19.004663160Z"
+    }
+  ],
+  "limitations": [
+    "Existing nine-test WireMock source slice only; nine copies validate capacity, not new coverage.",
+    "First run includes fresh client analysis/toolchain preparation and empty remote action cache; no equivalent local performance baseline was measured.",
+    "Forced test runs did not seed reusable remote test results here; a normal cache-enabled run was required before independent-client reuse.",
+    "Single storage and scheduler replicas; no failover or pod-restart recovery experiment.",
+    "Bazel 8.4.2 emits a deprecated remote API version warning against this Buildbarn version but the execution/cache checks passed.",
+    "Metrics API was not installed on this new cluster; no CPU utilization or throttling measurement is claimed."
+  ]
+}

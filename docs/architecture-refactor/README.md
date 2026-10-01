@@ -16,6 +16,8 @@ existing deployment paths remain proposals.
 - [Decisions](decisions.md): accepted directions, alternatives, and open choices.
 - [Journal](journal.md): dated checkpoints, evidence, limitations, and next steps.
 - [Evidence](evidence/): compact benchmark records retained beyond CI artifact expiry.
+- [Buildbarn experiment](../../deploy/ci/buildbarn/README.md): dedicated Kubernetes
+  execution pool, placement, reproduction, and E-006 validation.
 
 ## Implemented checkpoint: source layout
 

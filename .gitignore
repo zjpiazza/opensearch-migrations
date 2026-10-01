@@ -98,3 +98,6 @@ apps/cli/dist/
 !tools/build/
 !tools/build/**
 tools/build/**/build/
+
+# Bazel convenience symlinks and local execution output.
+/bazel-*
