@@ -157,3 +157,10 @@ find . -name Pipfile -not -path "*/cdk.out/*"  | while read pipfile; do
   (cd "$dir" && PIPENV_IGNORE_VIRTUALENVS=1 PIPENV_VENV_IN_PROJECT=1 pipenv install)
 done
 ```
+
+## Architecture refactor experiments
+
+The [architecture refactor record](docs/architecture-refactor/README.md) tracks
+the proposed repository layout, decision status, experiment checkpoints, and
+retained measurements. Update it with each meaningful refactor step so future
+RFCs can trace recommendations to implementation and evidence.

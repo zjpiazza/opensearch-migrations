@@ -1,0 +1,57 @@
+{
+  "run_id": "36907056869",
+  "run_attempt": "1",
+  "server_pid": 1734,
+  "server_identity": "1734:19396",
+  "worker_pids": [
+    4429
+  ],
+  "worker_identities": [
+    "4429:31452"
+  ],
+  "boot_id": "52fa5086-092b-46f8-a5ae-b9d4872c3381",
+  "phases": [
+    {
+      "phase": "baseline",
+      "wall_seconds": 22.83,
+      "cached": false,
+      "tests": 9,
+      "worker_pids": [
+        4429
+      ],
+      "worker_identities": [
+        "4429:31452"
+      ],
+      "javac_actions": 13
+    },
+    {
+      "phase": "source-change",
+      "wall_seconds": 2.659,
+      "cached": false,
+      "tests": 9,
+      "worker_pids": [
+        4429
+      ],
+      "worker_identities": [
+        "4429:31452"
+      ],
+      "javac_actions": 1
+    },
+    {
+      "phase": "unchanged",
+      "wall_seconds": 0.166,
+      "cached": true,
+      "tests": 9,
+      "worker_pids": [
+        4429
+      ],
+      "worker_identities": [
+        "4429:31452"
+      ],
+      "javac_actions": 0
+    }
+  ],
+  "previous_run": null,
+  "server_reused_across_jobs": false,
+  "workers_reused_across_jobs": false
+}
