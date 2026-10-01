@@ -452,3 +452,7 @@ Next question:
 - Capacity evidence: [worker autoscaling](evidence/worker-autoscaling.json)
   records the validated bounds and scale-up events. DigitalOcean confirmed nine
   desired nodes: three running and six provisioning at this checkpoint.
+- Scale-up verified at 2026-10-01T21:24:12.753503+00:00: all nine integration workers and all nine
+  execution nodes were Ready. Existing three worker pods retained zero restarts.
+  A full-manifest server dry-run confirmed subsequent applies preserve the
+  autoscaler-owned nine replicas. The benchmark continued to 61 passing targets.
