@@ -507,3 +507,28 @@ Next question:
   changed inputs. Record preparation and Bazel times separately. The queued driver
   deliberately stops on a failed seed; full-6 had three failed targets at this
   checkpoint, so an all-green cache result is not yet established.
+
+## E-011 — Explain the 43-minute PipelineEndToEndTest target
+
+- Date: 2026-10-01. Inspected completed full-6 JUnit reports and source without
+  changing the running suite. The dashboard entry is a whole class/task target:
+  four parameterized methods across seven migration pairs, 28 cases in total.
+- JUnit launcher elapsed time was 2,595.981 seconds (43 minutes 16 seconds).
+  Twenty-five passing cases accounted for 794.404 seconds (13 minutes 14 seconds).
+  Three `pipelineWithComplexData` invocations, indexes 3, 6 and 7, each exhausted
+  the existing ten-minute timeout, accounting for 30 minutes. The longest passing
+  case took 131.452 seconds. [Per-case evidence](evidence/pipeline-e2e-duration.json).
+- All 28 cases have successful executions in the Gradle baseline. The current
+  43-minute failure is therefore not a demonstrated healthy execution cost.
+  Timeout stacks show interrupted Reactor blocking waits; their root cause is
+  still unresolved. Do not equate a timeout stack with proof of CPU starvation.
+- When this target must execute, adding workers cannot divide it automatically:
+  the current bridge schedules a class/task as one action. After fixing the
+  timeouts and verifying remote cache behavior, evaluate smaller targets grouped
+  by migration pair or method. Preserve all assertions and parameter coverage,
+  and measure duplicated image/fixture setup: the class currently shares a
+  snapshot fixture cache, which can make overly fine splitting more expensive.
+- A successful remote cache hit can avoid execution of the whole target on
+  unchanged inputs. A cache miss still pays its execution cost. Keep concurrency
+  unchanged as requested; this entry records a later optimization candidate,
+  not an achieved speedup or a decision to alter this run.
