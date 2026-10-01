@@ -532,3 +532,36 @@ Next question:
   unchanged inputs. A cache miss still pays its execution cost. Keep concurrency
   unchanged as requested; this entry records a later optimization candidate,
   not an achieved speedup or a decision to alter this run.
+- Diagnosis follow-up: all three failures stop inside snapshot unpacking. The
+  failing pairs are OS 1.3.20 → OS 2.19.4, ES 7.10.2 → OS 3.7.0, and ES 6.8.23 →
+  OS 3.7.0. Target containers started and accepted index creation before each
+  stall. The unpacker logged 9/10, 9/10, and 12/13 individual file starts, then
+  stopped progressing until the enclosing test timeout.
+- `SnapshotShardUnpacker.unpackFilesInParallel` schedules file tasks on the shared
+  Reactor bounded-elastic scheduler, then blocks its caller on `latch.await()`.
+  Here that caller already occupies a thread of the same scheduler. Reactor can
+  queue a child task behind the blocked caller when the backing-thread cap is
+  reached; idle threads elsewhere do not necessarily rescue that assigned task.
+  The live runner JVM reports one effective CPU, giving the default pool ten
+  backing threads. The unpacker permits sixteen concurrent file tasks.
+- Reproduced the defect with the **unchanged exported production unpacker**, the
+  same JDK and dependency jars, and thirteen synthetic one-byte inline snapshot
+  files. No Docker, network, cloud provider, or source changes were involved.
+  With `-XX:ActiveProcessorCount=1`, one of three attempts remained stuck after
+  twelve files; its thread dump points at the unpacker's `latch.await()` on
+  `boundedElastic-1`. With four visible CPUs (pool cap forty), all three attempts
+  completed. A three-second diagnostic watchdog interrupts the stuck attempt;
+  this is not a modified production timeout. Timing affects reproduction.
+- [Reproducer and recorded logs](evidence/unpack-starvation/run.py). Run with an
+  existing full-suite export using `python3
+  docs/architecture-refactor/evidence/unpack-starvation/run.py`.
+  [Reactor scheduler documentation](https://projectreactor.io/docs/core/3.7.2/api/reactor/core/scheduler/Schedulers.html)
+  describes the processor-derived cap and fixed assignment of backing threads.
+- Conclusion: a reproduced production scheduling defect is the strong explanation
+  for these three stalls, exposed by the experiment's smaller JVM CPU allocation.
+  Original failing-process thread dumps were not captured, and a corrected full
+  E2E rerun is still required for definitive case-level confirmation. Four-CPU
+  diagnostic success is not a complete E2E comparison or a guaranteed workaround.
+  The robust fix should remove the wait for child work on the caller's own shared
+  pool (for example, asynchronous composition); simply lengthening timeouts does
+  not resolve the dependency cycle. No live sizing/concurrency changes made.

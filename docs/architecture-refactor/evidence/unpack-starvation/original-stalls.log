@@ -1,0 +1,37 @@
+2026-10-01 21:03:21,302 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-25] Starting parallel unpacking of 10 files (0 MB) for shard 0 with concurrency 16
+2026-10-01 21:03:21,302 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-23] Unpacking - Blob Name: v__y5bL5vDbRtmHGwntOYyz2A, Lucene Name: _1.si
+2026-10-01 21:03:21,302 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-28] Unpacking - Blob Name: __WifJCu2oSaOEGdAkcKCMuQ, Lucene Name: _0_1_Lucene80_0.dvd
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-36] Unpacking - Blob Name: __6SkhLydJT1yyHurWO2p9vA, Lucene Name: _0_1.fnm
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-24] Unpacking - Blob Name: v__-9ZkvCyCRE2tMiQizLagMA, Lucene Name: segments_3
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-27] Unpacking - Blob Name: __srUEfMebTCWMFgz3HZ3EJQ, Lucene Name: _0.cfs
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-26] Unpacking - Blob Name: v__D_yEZmegTpivofeuC5r9Tg, Lucene Name: _0.si
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-38] Unpacking - Blob Name: __Nc2vSLfCTJ2s4Pc41nPPAg, Lucene Name: _0.cfe
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-39] Unpacking - Blob Name: __4-q6XjFfTxGO5LDayV8ntw, Lucene Name: _0_1_Lucene80_0.dvm
+2026-10-01 21:03:21,303 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-40] Unpacking - Blob Name: __7GV-q0tySw-pTl3HnG9ktQ, Lucene Name: _1.cfs
+2026-10-01 21:03:21,305 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-39] Shard 0 unpack progress: 5/10 files
+2026-10-01 21:14:00,173 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-41] Starting parallel unpacking of 10 files (0 MB) for shard 0 with concurrency 16
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-47] Unpacking - Blob Name: __dNONgh1OQzGxLbuzLXpZSw, Lucene Name: _0.cfs
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-46] Unpacking - Blob Name: __vjf05ARmQ6u4FCgU7mYw6Q, Lucene Name: _0.cfe
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-43] Unpacking - Blob Name: __6h5uMQ-lS6-sWkinmzvbxw, Lucene Name: _1.cfe
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-42] Unpacking - Blob Name: v__lCT0vcZjQRamvOrY6S4p_g, Lucene Name: segments_3
+2026-10-01 21:14:00,176 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-44] Unpacking - Blob Name: v__txalZzJLTD2HeyGjtNywtQ, Lucene Name: _1.si
+2026-10-01 21:14:00,176 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-56] Unpacking - Blob Name: v__FE13zI6ESFCv-RZxRPshlw, Lucene Name: _0.si
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-45] Unpacking - Blob Name: __BwBHh8nDS4eXaW_lSeLGQQ, Lucene Name: _0_1_Lucene80_0.dvm
+2026-10-01 21:14:00,174 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-54] Unpacking - Blob Name: __Pju_zyfSS-akiIg_uCgdfQ, Lucene Name: _0_1.fnm
+2026-10-01 21:14:00,176 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-45] Shard 0 unpack progress: 5/10 files
+2026-10-01 21:14:00,176 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-46] Unpacking - Blob Name: __mpQYe01mSAmVrOjVB9Dvtw, Lucene Name: _0_1_Lucene80_0.dvd
+2026-10-01 21:24:12,138 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-58] Starting parallel unpacking of 13 files (0 MB) for shard 0 with concurrency 16
+2026-10-01 21:24:12,138 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-59] Unpacking - Blob Name: __caYVDS8iRLS2ssWpOA2qyg, Lucene Name: _1_1.fnm
+2026-10-01 21:24:12,138 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-60] Unpacking - Blob Name: __RvGgux0KT_q9oY6Iek_-BA, Lucene Name: _1.cfs
+2026-10-01 21:24:12,138 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-57] Unpacking - Blob Name: __IBF5loGIRm-niL91z-VZSQ, Lucene Name: _1_1_Lucene70_0.dvd
+2026-10-01 21:24:12,139 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-63] Unpacking - Blob Name: __OuCrDtZpStChMPf-FjBvqg, Lucene Name: _0.cfe
+2026-10-01 21:24:12,139 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-63] Unpacking - Blob Name: __lcmMh6UUT121NKFrajlbkw, Lucene Name: _0.cfs
+2026-10-01 21:24:12,139 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-63] Shard 0 unpack progress: 5/13 files
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-63] Unpacking - Blob Name: __UfKH8BTBQim6J2pGquYDyA, Lucene Name: _0.si
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-66] Unpacking - Blob Name: __td-6aC-5R7iPbLfbQPoP0Q, Lucene Name: _1_1_Lucene70_0.dvm
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-65] Unpacking - Blob Name: __ol58BrMcSFOPO_FYMv1UMA, Lucene Name: segments_3
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-64] Unpacking - Blob Name: __boai7fr_TBmjZtpzly8aZA, Lucene Name: _2.si
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-57] Unpacking - Blob Name: __fiZJA7Q0SpadIGzYyM-HkA, Lucene Name: _1.cfe
+2026-10-01 21:24:12,141 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-57] Shard 0 unpack progress: 10/13 files
+2026-10-01 21:24:12,140 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-60] Unpacking - Blob Name: __o31rvAlCQoiUqEHJ3yzKcg, Lucene Name: _2.cfs
+2026-10-01 21:24:12,142 INFO o.o.m.b.c.SnapshotShardUnpacker [boundedElastic-59] Unpacking - Blob Name: __DkHLDyM5TC6DY4TRCn9ahA, Lucene Name: _2.cfe
