@@ -1,4 +1,4 @@
-# Adapted from buildbarn/bb-deployments d4a6ca38e5f77959b42fccaa34a3320253683bc2.
+# Six lightweight slots; three additional container-capable slots are in worker-integration.yaml.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +8,7 @@ metadata:
     prometheus.io/port: '80'
     prometheus.io/scrape: 'true'
 spec:
-  replicas: 9
+  replicas: 6
   selector:
     matchLabels:
       app: worker
@@ -81,11 +81,11 @@ spec:
         resources:
           requests:
             cpu: '1'
-            memory: 3Gi
+            memory: 1Gi
             ephemeral-storage: 2Gi
           limits:
             cpu: '1'
-            memory: 3Gi
+            memory: 1Gi
             ephemeral-storage: 12Gi
       initContainers:
       - name: bb-runner-installer

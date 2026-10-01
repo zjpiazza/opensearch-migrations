@@ -10,16 +10,20 @@ Upstream Apache-2.0 license is retained in `LICENSE.buildbarn`.
 
 | Component | Pool | Replicas | Requests per replica |
 | --- | --- | ---: | --- |
-| Execution worker + runner | `workers` | 9 | 1.05 CPU, 3 GiB + 128 MiB RAM |
+| Lightweight worker + runner | `workers` | 6 | 1.05 CPU, 1 GiB + 128 MiB RAM |
+| Integration worker + runner + Docker | `workers` | 3 | 1.25 CPU, 4 GiB + 128 MiB RAM |
 | Scheduler | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Frontend | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
 | Storage | `control-plane` | 1 | 200m CPU, 512 MiB RAM |
 
 The execution pool currently has three 4-vCPU/16-GB nodes. Each worker pod offers
-one action slot; topology spreading places three workers on each node. Runner CPU
-requests and limits are one CPU. Buildbarn worker overhead has a separate request.
-This leaves approximately 0.74 allocatable CPU per node before existing system
-requests (measured at 0.412 CPU/node). Nine workers do not mean nine extra nodes.
+one action slot; topology spreading places two lightweight workers and one
+integration worker on each node. Runner CPU requests and limits are one CPU.
+Each integration runner has a 3-GiB memory limit; its Docker sidecar requests
+200m CPU / 1 GiB and may use up to 1 CPU / 6 GiB. Worker coordinators have separate
+requests. This reserves about 3.35 CPU per node before system requests (measured
+at 0.412 CPU/node), against 3.89 allocatable CPU. Nine workers do not mean nine
+extra nodes. See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
 The three 1-vCPU/2-GB `control-plane` pool nodes are ordinary managed worker nodes
 used for supporting services, distinct from DigitalOcean's managed API servers.
 
@@ -96,14 +100,19 @@ Buildbarn version. Both execution and result reuse were verified despite it.
 One storage instance has a 10-GiB CAS volume and two 1-GiB metadata-cache volumes;
 the CAS block file is 8 GiB. All services are ClusterIP with no public ingress or
 load balancer. Kubernetes authentication controls port-forward access. Namespace
-network policy permits only internal traffic and cluster DNS. The runner is
+network policy permits internal traffic and cluster DNS. Integration pods also
+have explicitly approved public HTTP/HTTPS egress for image downloads; private
+and link-local destination ranges are excluded from that additional rule. The runner is
 unprivileged, with no host mounts or service-account token. The coordinator
 sidecar retains `DAC_OVERRIDE` to access the runner-owned socket and action outputs;
 the test runner drops all capabilities.
 
 This is a trusted-code experiment, not a multi-tenant execution service. Worker
 and runner share a pod and writable build directory; test actions can reach
-internal Buildbarn services. No cloud credentials are supplied to test actions.
+internal Buildbarn services. Integration pods include privileged Docker sidecars with an isolated 40-GiB
+emptyDir image store and shared action directory, but no host socket or host
+filesystem mounts. Those privileges weaken host isolation and were explicitly
+approved for this experiment. No cloud credentials are supplied to test actions.
 A production installation needs its own access/isolation and availability design.
 Caches persist across pod restarts; the scheduler and storage are single replicas.
 

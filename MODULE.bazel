@@ -44,3 +44,11 @@ maven.install(
 )
 # Keep our dependency graph separate from rule sets' own Maven dependencies.
 use_repo(maven, maven = "migrations_maven")
+
+# Opt-in generated runtimes for the full-suite execution experiment.
+# Populate with tools/build/bazel/full-suite/prepare.py before using @full_suite.
+local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
+local_repository(
+    name = "full_suite",
+    path = "build/full-suite",
+)

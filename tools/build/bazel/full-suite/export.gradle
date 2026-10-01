@@ -1,0 +1,67 @@
+import groovy.json.JsonOutput
+import org.gradle.api.tasks.testing.Test
+
+// Opt-in bridge: build the actual Gradle test prerequisites, then export their
+// resolved runtimes/configuration. No test task executes during preparation.
+gradle.projectsEvaluated {
+    def root = gradle.rootProject
+    def collectGraph = {
+        def seen = [] as Set
+        def visit
+        visit = { t ->
+            if (seen.add(t)) t.taskDependencies.getDependencies(t).each { visit(it) }
+        }
+        visit(root.tasks.getByName('allTests'))
+        seen
+    }
+    def isNpmCheck = { t ->
+        t.class.name.contains('NpmTask') &&
+            (t.name.toLowerCase().startsWith('test') || t.name.startsWith('typeCheck'))
+    }
+    def exportedGraph
+    root.tasks.register('exportBazelTestRuntime') {
+        group = 'verification'
+        description = 'Prepare and export every allTests runtime for the Bazel experiment'
+        dependsOn {
+            def graph = collectGraph()
+            exportedGraph = graph
+            graph.findAll { !(it instanceof Test) && !isNpmCheck(it) && it.name != 'allTests' &&
+                !it.taskDependencies.getDependencies(it).any { dep -> dep instanceof Test || isNpmCheck(dep) } }
+        }
+        doLast {
+            def graph = exportedGraph
+            def jvm = graph.findAll { it instanceof Test }.sort { it.path }.collect { t ->
+                if (!t.filter.includePatterns.empty || !t.filter.excludePatterns.empty) {
+                    throw new GradleException("Unimplemented Gradle method filters: ${t.path}")
+                }
+                def opts = t.options
+                [task: t.path, enabled: t.enabled, project: root.relativePath(t.project.projectDir),
+                 workingDirectory: root.relativePath(t.workingDir),
+                 classpath: t.classpath.files.findAll { it.exists() }.collect { it.absolutePath },
+                 testClasses: t.testClassesDirs.files.findAll { it.exists() }.collect { it.absolutePath },
+                 candidateClasses: t.candidateClassFiles.files.collect { it.absolutePath }.sort(),
+                 properties: t.systemProperties.collectEntries { k,v -> [(k.toString()):v.toString()] },
+                 jvmArgs: t.jvmArgs, minHeapSize: t.minHeapSize, maxHeapSize: t.maxHeapSize,
+                 includeTags: opts.hasProperty('includeTags') ? opts.includeTags : [],
+                 excludeTags: opts.hasProperty('excludeTags') ? opts.excludeTags : [],
+                 includeEngines: opts.hasProperty('includeEngines') ? opts.includeEngines : [],
+                 excludeEngines: opts.hasProperty('excludeEngines') ? opts.excludeEngines : [],
+                 javaHome: t.javaLauncher.get().metadata.installationPath.asFile.absolutePath,
+                 jacocoEnabled: t.extensions.findByName('jacoco')?.enabled ?: false]
+            }
+            def npm = graph.findAll { isNpmCheck(it) }.sort { it.path }.collect { t ->
+                def node = t.project.extensions.getByName('node')
+                [task:t.path, args:t.args.get(),
+                 workingDirectory:root.relativePath(t.workingDir.getOrElse(node.nodeProjectDir.get()).asFile),
+                 nodeHome:node.resolvedNodeDir.get().asFile.absolutePath]
+            }
+            def out = root.file('build/full-suite-export.json')
+            out.parentFile.mkdirs()
+            out.text = JsonOutput.prettyPrint(JsonOutput.toJson([
+                root:root.projectDir.absolutePath, java:jvm, npm:npm,
+                graph:graph.sort { it.path }.collect { [task:it.path,type:it.class.name] }
+            ])) + '\n'
+            logger.lifecycle("Exported ${jvm.size()} JVM tasks and ${npm.size()} npm checks to ${out}")
+        }
+    }
+}

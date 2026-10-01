@@ -24,6 +24,10 @@ public class TestResources {
     public static final Snapshot SNAPSHOT_ES_7_10_WO_SOFT;
 
     private static Path findRfsDir() {
+        String projectRoot = System.getProperty("project.root");
+        if (projectRoot != null) {
+            return Paths.get(projectRoot, "libs", "migration-engine");
+        }
         Path cwd = Paths.get(System.getProperty("user.dir"));
         // If we're already in RFS, use cwd directly
         if (cwd.getFileName().toString().equals("RFS")) {

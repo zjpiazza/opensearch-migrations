@@ -334,7 +334,7 @@ public class SearchClusterContainer extends GenericContainer<SearchClusterContai
         for (int attempt = 1; attempt <= MAX_BUILD_RETRIES; attempt++) {
             try {
                 Process p = new ProcessBuilder(
-                    rootPath.resolve("gradlew").toString(),
+                    System.getProperty("test.image.builder", rootPath.resolve("gradlew").toString()),
                     ":custom-es-images:" + taskName
                 ).directory(rootPath.toFile()).inheritIO().start();
                 if (!p.waitFor(BUILD_TIMEOUT_MINUTES, TimeUnit.MINUTES)) {

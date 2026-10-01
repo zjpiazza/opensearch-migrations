@@ -1,4 +1,3 @@
-# Adapted from buildbarn/bb-deployments d4a6ca38e5f77959b42fccaa34a3320253683bc2.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: migrations-buildbarn
@@ -9,6 +8,8 @@ resources:
 - scheduler.yaml
 - storage.yaml
 - worker-ubuntu22-04.yaml
+- worker-integration.yaml
+- integration-network-policy.yaml
 configMapGenerator:
 - name: buildbarn-config
   files:
@@ -18,3 +19,8 @@ configMapGenerator:
   - config/scheduler.jsonnet
   - config/storage.jsonnet
   - config/worker-ubuntu22-04.jsonnet
+- name: buildbarn-integration-config
+  files:
+  - config/common.libsonnet
+  - config/runner-ubuntu22-04.jsonnet
+  - config/worker-integration.jsonnet

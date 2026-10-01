@@ -260,3 +260,115 @@ Next question:
 - Rollback: scale workers to zero or remove the experiment namespace/PVCs when
   cache data is no longer wanted. Pool reservation removal is a separate change;
   see the deployment README. No node count or autoscaling settings were changed.
+
+## E-007 — Full-suite hardware baseline
+
+- Date: 2026-10-01. This supersedes E-006's proposed representative-group scope:
+  the user requested the coverage of **all 30 Gradle shards** for comparison.
+- Baseline: [fork CI run 36907315958](https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958).
+  All 30 Gradle jobs succeeded and started within three seconds of each other.
+  The longest job took 68m54s, including 57m37s in the Gradle test step. Total
+  allocated job time was 24.09 runner-hours; this is not CPU utilization.
+- GitHub specification: this is a public repository using `ubuntu-22.04`.
+  [GitHub's current reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+  lists 4 vCPU, 16 GB RAM and 14 GB SSD per runner. Initial aggregate allocation
+  was therefore 120 vCPU and 480 GB RAM. The workflow sets Gradle's maximum
+  workers to `nproc - 1`; runner CPU allocation is not a test JVM count.
+- Buildbarn hardware: three `g5-4vcpu-16gb-80gb` execution nodes provide nominal
+  totals of 12 vCPU and 48 GB RAM. Each exposes 3.89 CPU and about 13.33 GiB RAM
+  as Kubernetes allocatable resources, before pod requests are subtracted.
+  Nine execution containers each have a 1 CPU / 3 GiB limit: 9 CPU / 27 GiB total,
+  with three containers per node. Worker coordinators and system pods consume
+  additional resources. Three separate 1-vCPU/2-GB support nodes host services.
+- Interpretation: GitHub had ten times the nominal execution-node CPU capacity,
+  or about 13.3 times the CPU allocated to current Buildbarn test containers.
+  Nine worker pods are not nine independent machines. CPU models, actual CPU
+  utilization and storage performance have not been matched or measured.
+- Benchmark method: compare the full Gradle shard coverage and Bazel execution
+  on the same hardware/resource budget; retain the existing GitHub run as the
+  operational baseline. Report preparation, forced test execution, cached-result
+  reuse, total wall time, failures and coverage separately. Hold source revision,
+  test configuration and dependency versions constant. Coverage includes the
+  non-Java tests invoked by `allTests`, not only the Java test classes.
+- Remaining work: export or port the complete test graph, reconcile test reports
+  across all shards, and provide container support and suitable memory budgets
+  for the real search-engine/Testcontainers tests. Current execution containers
+  lack Docker support. No full-suite Bazel run or full-suite speedup is claimed.
+- Evidence: [hardware and per-shard timings](evidence/full-suite-hardware-baseline.json),
+  reduced from GitHub Jobs API results and live Kubernetes node/deployment data.
+  Raw API responses remain in ignored `build/full-suite-evidence/`.
+- This checkpoint changes documentation only; no cloud capacity or worker limits
+  were changed. Rollback is removal of this checkpoint and its evidence file.
+- Clarification following user feedback: equal hardware is a diagnostic control,
+  not a prerequisite for demonstrating better CI. The primary practical question
+  is whether the existing smaller Buildbarn pool can match or beat the GitHub
+  baseline by reusing results and executing only affected work. CPU ratios alone
+  cannot answer that question, and do not predict warm-cache latency.
+- Incremental benchmark cases: populate the remote cache once, then use fresh
+  clients for an unchanged revision, a leaf implementation change, and a shared
+  dependency change. Request the entire suite in every case. Compare wall time,
+  execution counts, the time represented by reused actions, and the longest
+  uncached dependency chain; raw action hit percentage alone is insufficient.
+  Also retain a full execution run for correctness and worst-case capacity.
+  Changes must be substantive and representative; an unchanged rerun alone
+  cannot establish typical pull-request latency.
+- Existing Gradle baseline already enables `org.gradle.caching=true` and restores
+  Gradle state with `setup-gradle`, plus Docker image caches. Pull-request jobs
+  use read-only Gradle cache access; main-branch pushes may write. Any claimed
+  improvement must account for this existing caching. Fine-grained targets and
+  correctly declared inputs determine how much additional reuse Bazel achieves.
+
+## E-008 — Execute the complete Gradle test workload through Bazel
+
+- Date: 2026-10-01. Scope explicitly includes all 30 shards' coverage.
+- Implementation: opt-in [Gradle runtime export and Bazel bridge](../../tools/build/bazel/full-suite/README.md).
+  Gradle prepares existing compiled runtimes, Javadoc, resources, npm dependencies
+  and the generated GraalPy fixture. Bazel receives declared runtime inputs and
+  schedules individual JUnit class/task combinations and the six npm checks.
+  This measures test scheduling/result reuse; it is not a native Bazel build of
+  the full Java/polyglot dependency graph. Preparation remains separately timed.
+- Discovery: 123 Gradle JVM task definitions, 112 with candidate class files;
+  JUnit filters select 433 class/task combinations across 55 tasks. Six npm checks
+  bring the complete request to 439 Bazel test targets. Normal/slow tag settings,
+  memory-leak settings, isolated tasks and the additional WireMock task retain
+  separate configurations. Striping parameters are omitted so every case runs.
+- Coverage baseline: downloaded reports from all 30 successful fork jobs. Their
+  HTML union has 4,574 distinct successful case rows, 5,055 reported successful
+  executions and 138,856 skipped entries. All 433 successful class/task pairs
+  exactly match discovery, with no missing or extra pairs. This is discovery
+  parity, not yet successful runtime/parameterized-case parity. See
+  [discovery evidence](evidence/full-suite-discovery.json).
+- Runtime placement: six lightweight 1-CPU/1-GiB runners and three integration
+  1-CPU/3-GiB runners, each integration runner paired with a Docker daemon limited
+  to 1 CPU/6 GiB. Two lightweight and one integration pod per dedicated node;
+  no new nodes. Initial bridge targets use integration slots conservatively.
+  Each Docker daemon has a separate 40-GiB emptyDir, localhost API and the same
+  action-volume path as its runner, enabling Testcontainers bind mounts.
+- Authorization: automatic review initially rejected privileged Docker sidecars
+  and public HTTP/HTTPS egress. The user explicitly approved the prepared
+  configuration before deployment. No host socket/host filesystem mounts or
+  execution credentials were added. All three sidecars ran a disposable Alpine
+  container successfully. This remains trusted-code infrastructure.
+- Preparation findings: fixed an exporter cross-project task-state-lock error;
+  full prerequisites then passed (486 tasks, 480 up-to-date on the retry).
+  Fixed replacement of read-only copied JDK files. The bridge's JUnit console
+  version matches the Gradle runtime (Platform 1.14.0/Jupiter 5.14.0).
+- Fixture compatibility: snapshot paths now use `project.root` with the relocated
+  `libs/migration-engine` path. An optional `test.image.builder` hook runs the
+  existing ES Dockerfile/version/build arguments without nested Gradle startup;
+  ordinary Gradle behavior remains the default. These are fixture changes, not
+  replacement assertions or mocked search engines.
+- Infrastructure findings: Buildbarn requires lexicographically ordered platform
+  properties. Fixed integration-worker registration and set rolling updates to
+  allow one unavailable pod (required with one integration pod per node).
+  Integration configuration has a separate ConfigMap to avoid restarting the
+  scheduler/cache when tuning those workers. Local kubectl forwarding dropped
+  connections during setup; a supervised tunnel is used for this experiment.
+- Cache limitations: existing Docker tags, ES downloads and unpinned Pydantic
+  preparation are external state. Declared runtime artifacts capture the prepared
+  Python/npm/Java contents, but container-image immutability is not yet enforced.
+  Container test-result reuse is experimental; production needs pinned inputs or
+  exclusion of affected actions, alongside scheduled forced executions.
+- Execution and performance: the complete 439-target run has started. Record
+  final success/failure, case comparison and cache/incremental measurements below
+  when available. No full-suite speedup is established by this checkpoint yet.
