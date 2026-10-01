@@ -1,0 +1,5 @@
+{
+  "namespace": "ma",
+  "workflow": "migration-workflow",
+  "gates": ["begin", "migratemetadata.example", "documentbackfill.example"]
+}

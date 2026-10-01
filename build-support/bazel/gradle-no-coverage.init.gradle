@@ -1,0 +1,11 @@
+// Benchmark control only: production Gradle configuration remains unchanged.
+gradle.projectsEvaluated {
+    gradle.rootProject.allprojects {
+        tasks.withType(Test).configureEach {
+            def coverage = extensions.findByName('jacoco')
+            if (coverage != null) {
+                coverage.enabled = false
+            }
+        }
+    }
+}

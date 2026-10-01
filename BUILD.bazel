@@ -1,0 +1,23 @@
+filegroup(
+    name = "k8s_integration_resources",
+    srcs = glob(["deployment/k8s/**"], exclude = ["**/build/**", "**/__pycache__/**"]),
+    visibility = ["//visibility:public"],
+)
+
+test_suite(
+    name = "bazel_poc_tests",
+    tests = [
+        ":bazel_poc_java_tests",
+        "//libraries/testAutomation:tests",
+        "//build-support/bazel/components:approval_integration_test",
+    ],
+)
+
+test_suite(
+    name = "bazel_poc_java_tests",
+    tests = [
+        "//coreUtilities:tests",
+        "//transformation:tests",
+        "//transformation/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:tests",
+    ],
+)

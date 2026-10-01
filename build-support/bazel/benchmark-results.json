@@ -1,0 +1,562 @@
+{
+  "scope": "121 existing Java tests; 43 existing mocked Kubernetes Python tests validated separately",
+  "methodology": "Compare the same 121 existing Java tests with Gradle and Bazel.\n\nRun: python3 build-support/bazel/benchmark.py --repetitions 3\nSet BAZEL_POC_BINARY to reuse an installed Bazel 8.4.2 executable.\nLogs, build events, and JSON results are saved under build/bazel-benchmark.\n\nDependencies and daemons are warmed before measurement. 'rebuild' forces Gradle\ntasks and cleans Bazel outputs with its action cache disabled; neither includes\ninitial downloads. 'execute' reruns tests but allows compiled outputs to be reused.\n'unchanged' permits both systems to reuse successful results. 'edit' temporarily\nchanges a URIHelper exception message and restores the source in a finally block.\n\nThis compares existing Gradle defaults against the experimental Bazel slice, not\nidentical compiler instrumentation: Gradle includes JaCoCo, custom Error Prone\nchecks and shared fixture dependencies not yet ported to Bazel. Java vendors can\ndiffer. The Python mock suites are validated separately, outside the Java timings.\n",
+  "platform": "Linux-6.12.101+deb13-amd64-x86_64-with-glibc2.41",
+  "logical_cpus": 16,
+  "commit": "82db9bff53a323e1136009d9397697b7a0f04e5a",
+  "gradle_test_counts": {
+    "coreUtilities": 95,
+    "transformation": 22,
+    "transformation/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface": 4
+  },
+  "bazel_test_counts": {
+    "coreUtilities/JsonCommandLineParserConvertersTest/test.log": 10,
+    "coreUtilities/ScopedInstrumentationExceptionSignalingTest/test.log": 4,
+    "coreUtilities/IInstrumentationAttributesTest/test.log": 1,
+    "coreUtilities/ArgLogUtilsTest/test.log": 5,
+    "coreUtilities/PruferTreeGeneratorTest/test.log": 1,
+    "coreUtilities/CommonScopedMetricInstrumentsTest/test.log": 1,
+    "coreUtilities/URIHelperTest/test.log": 7,
+    "coreUtilities/RootOtelContextTest/test.log": 6,
+    "coreUtilities/TrackedFutureTest/test.log": 1,
+    "coreUtilities/JsonCommandLineParserTest/test.log": 36,
+    "coreUtilities/EnvVarParameterPullerTest/test.log": 19,
+    "coreUtilities/TextTrackedFutureTest/test.log": 1,
+    "coreUtilities/OnlineRadixSorterTest/test.log": 3,
+    "transformation/VersionTest/test.log": 5,
+    "transformation/VersionMatchersTest/test.log": 7,
+    "transformation/UnboundVersionMatchersTest/test.log": 6,
+    "transformation/FlavorTest/test.log": 2,
+    "transformation/TemplateMatchClausePatternTest/test.log": 2,
+    "transformation/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface/ThreadSafeTransformerWrapperTest/test.log": 4
+  },
+  "median_seconds": {
+    "gradle:unchanged": 1.938,
+    "bazel:unchanged": 0.11,
+    "gradle:execute": 7.802,
+    "bazel:execute": 3.144,
+    "gradle:rebuild": 14.108,
+    "bazel:rebuild": 9.33,
+    "gradle:edit": 5.877,
+    "bazel:edit": 2.778,
+    "bazel:fresh-output-cache": 5.708,
+    "bazel:mixed-unchanged": 0.18,
+    "gradle:execute-no-coverage": 4.16
+  },
+  "runs": [
+    {
+      "tool": "gradle",
+      "scenario": "unchanged",
+      "seconds": 1.938,
+      "exit_code": 0,
+      "log": "03-gradle-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "unchanged",
+      "seconds": 0.154,
+      "exit_code": 0,
+      "log": "04-bazel-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/04-bazel-unchanged.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 19
+    },
+    {
+      "tool": "bazel",
+      "scenario": "unchanged",
+      "seconds": 0.096,
+      "exit_code": 0,
+      "log": "05-bazel-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/05-bazel-unchanged.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 19
+    },
+    {
+      "tool": "gradle",
+      "scenario": "unchanged",
+      "seconds": 1.951,
+      "exit_code": 0,
+      "log": "06-gradle-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "unchanged",
+      "seconds": 1.896,
+      "exit_code": 0,
+      "log": "07-gradle-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "unchanged",
+      "seconds": 0.11,
+      "exit_code": 0,
+      "log": "08-bazel-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/08-bazel-unchanged.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 19
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute",
+      "seconds": 7.985,
+      "exit_code": 0,
+      "log": "09-gradle-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "execute",
+      "seconds": 3.144,
+      "exit_code": 0,
+      "log": "10-bazel-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--nocache_test_results",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/10-bazel-execute.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "bazel",
+      "scenario": "execute",
+      "seconds": 3.14,
+      "exit_code": 0,
+      "log": "11-bazel-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--nocache_test_results",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/11-bazel-execute.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute",
+      "seconds": 7.721,
+      "exit_code": 0,
+      "log": "12-gradle-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute",
+      "seconds": 7.802,
+      "exit_code": 0,
+      "log": "13-gradle-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "execute",
+      "seconds": 3.232,
+      "exit_code": 0,
+      "log": "14-bazel-execute.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--nocache_test_results",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/14-bazel-execute.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "gradle",
+      "scenario": "rebuild",
+      "seconds": 15.889,
+      "exit_code": 0,
+      "log": "15-gradle-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun-tasks",
+        "--no-build-cache"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "rebuild",
+      "seconds": 9.639,
+      "exit_code": 0,
+      "log": "17-bazel-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/17-bazel-rebuild.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "bazel",
+      "scenario": "rebuild",
+      "seconds": 9.269,
+      "exit_code": 0,
+      "log": "19-bazel-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/19-bazel-rebuild.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "gradle",
+      "scenario": "rebuild",
+      "seconds": 14.108,
+      "exit_code": 0,
+      "log": "20-gradle-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun-tasks",
+        "--no-build-cache"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "rebuild",
+      "seconds": 13.734,
+      "exit_code": 0,
+      "log": "21-gradle-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun-tasks",
+        "--no-build-cache"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "rebuild",
+      "seconds": 9.33,
+      "exit_code": 0,
+      "log": "23-bazel-rebuild.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/23-bazel-rebuild.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 0
+    },
+    {
+      "tool": "gradle",
+      "scenario": "edit",
+      "seconds": 5.894,
+      "exit_code": 0,
+      "log": "26-gradle-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "edit",
+      "seconds": 2.829,
+      "exit_code": 0,
+      "log": "27-bazel-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/27-bazel-edit.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 6
+    },
+    {
+      "tool": "bazel",
+      "scenario": "edit",
+      "seconds": 2.696,
+      "exit_code": 0,
+      "log": "28-bazel-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/28-bazel-edit.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 6
+    },
+    {
+      "tool": "gradle",
+      "scenario": "edit",
+      "seconds": 5.831,
+      "exit_code": 0,
+      "log": "29-gradle-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "edit",
+      "seconds": 5.877,
+      "exit_code": 0,
+      "log": "30-gradle-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        ":coreUtilities:test",
+        ":transformation:test",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test"
+      ]
+    },
+    {
+      "tool": "bazel",
+      "scenario": "edit",
+      "seconds": 2.778,
+      "exit_code": 0,
+      "log": "31-bazel-edit.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/31-bazel-edit.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 6
+    },
+    {
+      "tool": "bazel",
+      "scenario": "fresh-output-cache",
+      "seconds": 5.708,
+      "exit_code": 0,
+      "log": "34-bazel-fresh-output-cache.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "--output_base=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/fresh-worker",
+        "test",
+        "//:bazel_poc_java_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/34-bazel-fresh-output-cache.bep.json"
+      ],
+      "test_targets": 19,
+      "cached_targets": 19
+    },
+    {
+      "tool": "bazel",
+      "scenario": "mixed-unchanged",
+      "seconds": 0.18,
+      "exit_code": 0,
+      "log": "36-bazel-mixed-unchanged.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/bazelw",
+        "--output_user_root=/home/d3adb0y/code/opensearch-migrations/build/bazel-state",
+        "test",
+        "//:bazel_poc_tests",
+        "--disk_cache=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/action-cache",
+        "--build_event_json_file=/home/d3adb0y/code/opensearch-migrations/build/bazel-benchmark/20261001-090946/36-bazel-mixed-unchanged.bep.json"
+      ],
+      "test_targets": 21,
+      "cached_targets": 21
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute-no-coverage",
+      "seconds": 4.201,
+      "exit_code": 0,
+      "log": "control-1-gradle-no-coverage.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        "--init-script",
+        "/home/d3adb0y/code/opensearch-migrations/build-support/bazel/gradle-no-coverage.init.gradle",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute-no-coverage",
+      "seconds": 4.16,
+      "exit_code": 0,
+      "log": "control-2-gradle-no-coverage.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        "--init-script",
+        "/home/d3adb0y/code/opensearch-migrations/build-support/bazel/gradle-no-coverage.init.gradle",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    },
+    {
+      "tool": "gradle",
+      "scenario": "execute-no-coverage",
+      "seconds": 4.103,
+      "exit_code": 0,
+      "log": "control-3-gradle-no-coverage.log",
+      "command": [
+        "/home/d3adb0y/code/opensearch-migrations/gradlew",
+        "--console=plain",
+        "--max-workers=4",
+        "--init-script",
+        "/home/d3adb0y/code/opensearch-migrations/build-support/bazel/gradle-no-coverage.init.gradle",
+        ":coreUtilities:test",
+        "--rerun",
+        ":transformation:test",
+        "--rerun",
+        ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+        "--rerun"
+      ]
+    }
+  ],
+  "raw_logs_directory": "build/bazel-benchmark/20261001-090946",
+  "limitations": [
+    "Proof of concept: 121 Java test cases and 43 mocked Kubernetes Python cases; not the full repository or the 107-minute end-to-end workflow.",
+    "Three repetitions for paired Java measurements; dependency downloads and daemon startup excluded. Shared-cache fresh-output and mixed-cache runs measured once.",
+    "Bazel and Gradle use Java 21 but different JDK distributions/patch releases. Gradle includes shared test fixture dependencies and different compiler checks.",
+    "Default Gradle timings include JaCoCo; a separate three-run execute-no-coverage control measures its effect. Bazel coverage/reporting parity is not implemented.",
+    "Shared disk cache recovery demonstrates cross-output-base reuse, not network remote-cache latency or remote execution.",
+    "Bazel Java test targets share a module test-classes jar, so edits invalidate at module granularity."
+  ],
+  "bazel_jdk": {
+    "IMPLEMENTOR": "Azul Systems, Inc.",
+    "JAVA_VERSION": "21.0.6"
+  },
+  "gradle_jdk": {
+    "IMPLEMENTOR": "Amazon.com Inc.",
+    "JAVA_VERSION": "21.0.11"
+  }
+}

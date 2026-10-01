@@ -1,0 +1,19 @@
+load("@rules_python//python:defs.bzl", "py_test")
+load("@console_pypi//:requirements.bzl", "requirement")
+
+py_test(
+    name = "approval_integration_test",
+    srcs = ["test_approval_integration.py", "//build-support/bazel:pytest_main.py"],
+    main = "//build-support/bazel:pytest_main.py",
+    args = ["$(location test_approval_integration.py)"],
+    data = ["approval_scenario.json"],
+    deps = [
+        "//migrationConsole/lib/console_link:approval",
+        requirement("pytest"),
+        requirement("click"),
+        requirement("kubernetes"),
+    ],
+    tags = ["block-network"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)
