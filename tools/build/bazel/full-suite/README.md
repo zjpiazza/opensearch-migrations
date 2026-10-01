@@ -68,9 +68,9 @@ coverage data are retained in Bazel undeclared outputs.
 The generated inventory contains 433 JVM class/task combinations plus six npm
 checks at this checkpoint. All 433 combinations match the successful class/task
 union from the 30 original GitHub shards. Discovery matching alone does not prove
-runtime case equivalence. Baseline HTML reports contain 4,574 distinct successful
-case rows, including parameterized display names; runtime comparison must account
-for JUnit XML naming and disabled/aborted cases.
+runtime case equivalence. Baseline HTML reports contain 4,794 distinct successful
+cases, keyed by task, class, method and parameter index. Five additional cases
+were disabled. Runtime comparison uses the same method identities in JUnit XML.
 
 ```bash
 python3 tools/build/bazel/full-suite/coverage.py \

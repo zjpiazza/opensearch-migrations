@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Materialize declared Gradle fixtures and execute one exported test target."""
 import json
+import gzip
+from collections import deque
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tarfile
+import xml.etree.ElementTree as ET
 
 
 def main():
@@ -39,6 +41,9 @@ def main():
         cp = [str(work / p) if directory else str(bundle / p) for p, directory in spec['classpath']]
         cp.insert(0, str(bundle / spec['console']))
         props = {k: v.replace('@ROOT@', str(work)) for k, v in spec['properties'].items()}
+        # Java does not derive user.home from HOME. Graal and fixtures extract
+        # runtime resources there; the worker UID's default home is unwritable.
+        props['user.home'] = env['HOME']
         props['java.io.tmpdir'] = str(work / '.tmp')
         Path(props['java.io.tmpdir']).mkdir(exist_ok=True)
         command = [str(java), *spec['jvmArgs'], '-ea']
@@ -54,9 +59,29 @@ def main():
                           ('includeEngines','include-engine'),('excludeEngines','exclude-engine')]:
             for value in spec[key]: command.append('--' + flag + '=' + value)
     print('Gradle task:', spec['task'], 'class:', sys.argv[2], flush=True)
-    result = subprocess.run(command, cwd=cwd, env=env)
-    (output / 'invocation.json').write_text(json.dumps({'task':spec['task'], 'class':sys.argv[2], 'exit_code':result.returncode}))
-    return result.returncode
+    # Preserve complete diagnostics without making Bazel transfer the same large
+    # stdout twice (test.log and its fallback synthetic test.xml).
+    tail = deque(maxlen=4)
+    with gzip.open(output / 'test-output.log.gz', 'wb', compresslevel=1) as log:
+        with subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT) as child:
+            for chunk in iter(lambda: child.stdout.read(16384), b''):
+                log.write(chunk)
+                tail.append(chunk)
+            code = child.wait()
+    print(b''.join(tail).decode('utf-8', errors='replace')[-8000:], flush=True)
+    reports = ET.Element('testsuites')
+    for report in sorted((output / 'junit').glob('*.xml')):
+        reports.append(ET.parse(report).getroot())
+    if not list(reports) or (code and not reports.findall('.//failure') and not reports.findall('.//error')):
+        suite = ET.SubElement(reports, 'testsuite', name=spec['task'], tests='1', failures=str(int(code != 0)))
+        case = ET.SubElement(suite, 'testcase', name=sys.argv[2] or spec['task'], classname=spec['task'])
+        if code:
+            ET.SubElement(case, 'failure', message='Process exit code ' + str(code)).text = (
+                'See test-output.log.gz for complete diagnostics.')
+    ET.ElementTree(reports).write(os.environ['XML_OUTPUT_FILE'], encoding='utf-8', xml_declaration=True)
+    (output / 'invocation.json').write_text(json.dumps({'task':spec['task'], 'class':sys.argv[2], 'exit_code':code}))
+    return code
 
 
 if __name__ == '__main__':

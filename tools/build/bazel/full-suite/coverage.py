@@ -22,11 +22,13 @@ for archive in sorted(args.reports.glob('*.zip')):
             project,task,cls=m.groups(); task=':'+project.replace('/',':')+':'+task
             html=z.read(name).decode()
             section=html.split('<h2>Tests</h2>',1)[1].split('</table>',1)[0]
+            has_method_column = '<th>Method name</th>' in section
             rows=re.findall(r'<tr>(.*?)</tr>',section,re.S)
             for row in rows:
                 cells=re.findall(r'<td class="([^"]+)">(.*?)</td>',row,re.S)
                 if not cells: continue
-                status,test=cells[0]; test=unescape(re.sub('<[^>]+>','',test))
+                status,test=cells[1 if has_method_column else 0]
+                test=unescape(re.sub('<[^>]+>','',test))
                 key=(task,cls,test)
                 counts[status]+=1
                 baseline.setdefault(key,set()).add(status)

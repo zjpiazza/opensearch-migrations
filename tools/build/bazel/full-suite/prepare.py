@@ -70,6 +70,9 @@ def main():
     console = tools / 'junit-platform-console-standalone-1.14.0.jar'
     if not console.exists():
         urllib.request.urlretrieve('https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/1.14.0/junit-platform-console-standalone-1.14.0.jar', console)
+    expected_console_sha256 = '097022055fe55a34b33b868be077629190d4a1c66c571478338686074ccf6e97'
+    if hashlib.sha256(console.read_bytes()).hexdigest() != expected_console_sha256:
+        raise RuntimeError('JUnit Console SHA-256 mismatch: ' + str(console))
     java_home = Path(manifest['java'][0]['javaHome'])
     if (tools / 'jdk').exists():
         shutil.rmtree(tools / 'jdk')

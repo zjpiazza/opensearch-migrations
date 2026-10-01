@@ -333,7 +333,7 @@ Next question:
   memory-leak settings, isolated tasks and the additional WireMock task retain
   separate configurations. Striping parameters are omitted so every case runs.
 - Coverage baseline: downloaded reports from all 30 successful fork jobs. Their
-  HTML union has 4,574 distinct successful case rows, 5,055 reported successful
+  HTML union has 4,794 distinct successful cases, 5,055 reported successful
   executions and 138,856 skipped entries. All 433 successful class/task pairs
   exactly match discovery, with no missing or extra pairs. This is discovery
   parity, not yet successful runtime/parameterized-case parity. See
@@ -372,3 +372,18 @@ Next question:
 - Execution and performance: the complete 439-target run has started. Record
   final success/failure, case comparison and cache/incremental measurements below
   when available. No full-suite speedup is established by this checkpoint yet.
+
+- Validation follow-up: compare Gradle's method-name column (including parameter
+  index) with JUnit XML method names. Display labels merged distinct methods; the
+  corrected baseline is 4,794 passing cases plus five disabled cases. The 5,055
+  successful executions include 261 redundant WireMock executions (nine cases
+  repeated across the other 29 shards). Class/task discovery remains unchanged.
+- Reporting overhead: a passing replay class produced 126 MiB of stdout, then
+  Bazel duplicated it into a 126 MiB synthetic XML report. The wrapper now retains
+  complete gzip-compressed diagnostics and supplies the actual compact JUnit XML.
+  This is a harness/reporting improvement, not faster test execution.
+- Interrupted validation: full-4 stopped intentionally after 72 passing targets
+  for the reporting fix; full-5 was interrupted before completion. Neither is a
+  complete timing result. GraalPython failed when Java used the worker UID's
+  unwritable default home. A diagnostic with writable user.home passed; the
+  wrapper now sets Java user.home to the same action-local directory as HOME.
