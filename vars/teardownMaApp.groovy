@@ -4,7 +4,7 @@
  * Delegates to 'pipenv run app --delete-only', which runs the
  * customer-facing sequence (workflow reset -> helm uninstall -> PVCs ->
  * namespace). Call this FIRST. Safe for kind and EKS.
- * See libraries/testAutomation/testAutomation/test_runner.py::cleanup_deployment.
+ * See tests/automation/testAutomation/test_runner.py::cleanup_deployment.
  *
  * Uses sh(returnStatus:) so Python failures don't cascade past the rest
  * of the Jenkins post block.
@@ -16,7 +16,7 @@ def call(Map config = [:]) {
     def kubeContext = config.kubeContext
     if (!kubeContext) { error("teardownMaApp: 'kubeContext' is required") }
 
-    dir('libraries/testAutomation') {
+    dir('tests/automation') {
         sh "pipenv install --deploy"
         sh "kubectl --context=${kubeContext} -n ma get pods || true"
 

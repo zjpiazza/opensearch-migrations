@@ -6,7 +6,6 @@
  * Detailed information about configuring a multi-project build in Gradle can be found
  * in the user manual at https://docs.gradle.org/8.0.2/userguide/multi_project_builds.html
  */
-import java.nio.file.Paths
 
 pluginManagement {
     settings.apply from: new File(settingsDir, 'gradle/repositories.gradle')
@@ -18,75 +17,123 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
 }
 
-void addSubProjects(String path, File dir) {
-    if (!dir.isDirectory()) {
-        return
-    }
-    if (dir.name == 'buildSrc') {
-        return
-    }
-    if (!new File(dir, 'build.gradle').exists()) {
-        return
-    }
-    if (findProject(dir) != null) {
-        return
-    }
-
-    final String projectName = "${path}:${dir.name}"
-    include projectName
-
-    project(projectName).projectDir = dir
-
-    for (File subdir : dir.listFiles()) {
-        addSubProjects(projectName, subdir)
-    }
-}
-
+// Keep public Gradle task and publication identities stable during source relocation.
 rootProject.name = 'OpensearchMigrations'
-include 'awsUtilities'
-include 'coreUtilities'
-include 's3Common'
-include 'deployment:migration-assistant-solution'
-include 'libraries:kafkaCommandLineFormatter'
-include 'libraries:kafkaUtils'
-include 'transformation'
-include 'transformation:standardJavascriptTransforms'
-include 'testHelperFixtures'
-include 'searchClusterTestFixtures'
-include 'RFS'
-include 'RfsCommon'
-include 'RfsHttp'
-include 'SearchSnapshotExtractor'
-include 'SnapshotReader'
-include 'SnapshotReaderGcs'
-include 'RfsPipeline'
-include 'SolrReader'
-include 'CreateSnapshot'
-include 'dashboardsSanitizer'
-include 'DataGenerator'
-include 'MetadataMigration'
-include 'DocumentsFromSnapshotMigration'
-include 'migrationConsole'
-include 'TrafficCapture:captureKafkaOffloader'
-include 'TrafficCapture:captureOffloader'
-include 'TrafficCapture:captureProtobufs'
-include 'TrafficCapture:dockerSolution'
-include 'TrafficCapture:nettyWireLogging'
-include 'TrafficCapture:trafficCaptureProxyServer'
-include 'TrafficCapture:trafficReplayer'
-include 'TrafficCapture:tupleSink'
-include 'TrafficCapture:transformationShim'
-include 'TrafficCapture:SolrTransformations'
-include 'buildImages'
-include 'custom-es-images'
-include 'deployment:k8s'
-include 'deployment:k8s:aws'
-include 'deployment:k8s:migrationCompanion'
-project(':deployment:k8s:aws').projectDir = file('deployment/k8s/aws')
-project(':deployment:k8s:migrationCompanion').projectDir = file('deployment/k8s/migrationCompanion')
 
-
-addSubProjects(':transformation', Paths.get(rootProject.projectDir.getPath(), 'transformation', 'transformationPlugins').toFile())
+include ':CreateSnapshot'
+project(':CreateSnapshot').projectDir = file('apps/snapshot')
+include ':DataGenerator'
+project(':DataGenerator').projectDir = file('tests/performance/data-generator')
+include ':DocumentsFromSnapshotMigration'
+project(':DocumentsFromSnapshotMigration').projectDir = file('apps/backfill')
+include ':MetadataMigration'
+project(':MetadataMigration').projectDir = file('apps/metadata')
+include ':RFS'
+project(':RFS').projectDir = file('libs/migration-engine')
+include ':RfsCommon'
+project(':RfsCommon').projectDir = file('libs/migration-model')
+include ':RfsHttp'
+project(':RfsHttp').projectDir = file('libs/search-client')
+include ':RfsPipeline'
+project(':RfsPipeline').projectDir = file('libs/migration-pipeline')
+include ':SearchSnapshotExtractor'
+project(':SearchSnapshotExtractor').projectDir = file('libs/snapshot/lucene')
+include ':SnapshotReader'
+project(':SnapshotReader').projectDir = file('libs/snapshot/search')
+include ':SnapshotReaderGcs'
+project(':SnapshotReaderGcs').projectDir = file('libs/snapshot/gcs')
+include ':SolrReader'
+project(':SolrReader').projectDir = file('libs/snapshot/solr')
+include ':TrafficCapture:SolrTransformations'
+project(':TrafficCapture:SolrTransformations').projectDir = file('libs/traffic/SolrTransformations')
+include ':TrafficCapture'
+project(':TrafficCapture').projectDir = file('libs/traffic')
+include ':TrafficCapture:captureKafkaOffloader'
+project(':TrafficCapture:captureKafkaOffloader').projectDir = file('libs/traffic/captureKafkaOffloader')
+include ':TrafficCapture:captureOffloader'
+project(':TrafficCapture:captureOffloader').projectDir = file('libs/traffic/captureOffloader')
+include ':TrafficCapture:captureProtobufs'
+project(':TrafficCapture:captureProtobufs').projectDir = file('libs/traffic/captureProtobufs')
+include ':TrafficCapture:dockerSolution'
+project(':TrafficCapture:dockerSolution').projectDir = file('deploy/local/docker-compose')
+include ':TrafficCapture:nettyWireLogging'
+project(':TrafficCapture:nettyWireLogging').projectDir = file('libs/traffic/nettyWireLogging')
+include ':TrafficCapture:trafficCaptureProxyServer'
+project(':TrafficCapture:trafficCaptureProxyServer').projectDir = file('apps/capture-proxy')
+include ':TrafficCapture:trafficReplayer'
+project(':TrafficCapture:trafficReplayer').projectDir = file('apps/replayer')
+include ':TrafficCapture:transformationShim'
+project(':TrafficCapture:transformationShim').projectDir = file('apps/transformation-shim')
+include ':TrafficCapture:tupleSink'
+project(':TrafficCapture:tupleSink').projectDir = file('libs/traffic/tupleSink')
+include ':awsUtilities'
+project(':awsUtilities').projectDir = file('libs/auth/aws')
+include ':buildImages'
+project(':buildImages').projectDir = file('tools/build/images')
+include ':coreUtilities'
+project(':coreUtilities').projectDir = file('libs/runtime')
+include ':custom-es-images'
+project(':custom-es-images').projectDir = file('tests/fixtures/images/elasticsearch')
+include ':dashboardsSanitizer'
+project(':dashboardsSanitizer').projectDir = file('apps/dashboards')
+include ':deployment:k8s:aws'
+project(':deployment:k8s:aws').projectDir = file('deploy/aws')
+include ':deployment:k8s'
+project(':deployment:k8s').projectDir = file('deploy/kubernetes')
+include ':deployment:k8s:migrationCompanion'
+project(':deployment:k8s:migrationCompanion').projectDir = file('tools/release/migration-companion')
+include ':deployment:migration-assistant-solution'
+project(':deployment:migration-assistant-solution').projectDir = file('deploy/distributions/aws-solution')
+include ':libraries:kafkaCommandLineFormatter'
+project(':libraries:kafkaCommandLineFormatter').projectDir = file('libs/kafka/kafkaCommandLineFormatter')
+include ':libraries:kafkaUtils'
+project(':libraries:kafkaUtils').projectDir = file('libs/kafka/kafkaUtils')
+include ':migrationConsole'
+project(':migrationConsole').projectDir = file('apps/console')
+include ':s3Common'
+project(':s3Common').projectDir = file('libs/storage/s3')
+include ':searchClusterTestFixtures'
+project(':searchClusterTestFixtures').projectDir = file('tests/fixtures/search-clusters')
+include ':testHelperFixtures'
+project(':testHelperFixtures').projectDir = file('tests/fixtures/java')
+include ':transformation'
+project(':transformation').projectDir = file('libs/transforms')
+include ':transformation:standardJavascriptTransforms'
+project(':transformation:standardJavascriptTransforms').projectDir = file('libs/transforms/standardJavascriptTransforms')
+include ':transformation:transformationPlugins'
+project(':transformation:transformationPlugins').projectDir = file('libs/transforms/transformationPlugins')
+include ':transformation:transformationPlugins:jsonMessageTransformers'
+project(':transformation:transformationPlugins:jsonMessageTransformers').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonGraalTransformerBase'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonGraalTransformerBase').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonGraalTransformerBase')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformer'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformer').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJMESPathMessageTransformer')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformerProvider'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformerProvider').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJMESPathMessageTransformerProvider')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformer'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformer').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJSTransformer')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformerProvider'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformerProvider').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJSTransformerProvider')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformer'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformer').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJoltMessageTransformer')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformerProvider'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformerProvider').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonJoltMessageTransformerProvider')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerLoaders'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerLoaders').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerLoaders')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformer'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformer').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonPythonTransformer')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformerProvider'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformerProvider').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonPythonTransformerProvider')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformerVenvExample'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformerVenvExample').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonPythonTransformerVenvExample')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformer'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformer').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonTypeMappingsSanitizationTransformer')
+include ':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider'
+project(':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider').projectDir = file('libs/transforms/transformationPlugins/jsonMessageTransformers/jsonTypeMappingsSanitizationTransformerProvider')
+project(':deployment').projectDir = file('deploy')
+project(':libraries').projectDir = file('libs/kafka')
 
 if (System.getenv().containsKey("OS_MIGRATIONS_GRADLE_SCAN_TOS_AGREE_AND_ENABLED")) {
     develocity {

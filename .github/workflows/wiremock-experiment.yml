@@ -26,7 +26,7 @@ jobs:
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
       - name: Measure Gradle playback and unchanged reuse
-        run: python3 RFS/src/test/wiremock/benchmark.py
+        run: python3 libs/migration-engine/src/test/wiremock/benchmark.py
         env:
           DOCKER_HOST: unix:///tmp/wiremock-no-docker.sock
       - name: Check formatting and documentation
@@ -39,6 +39,6 @@ jobs:
           path: |
             build/wiremock-ci-results/
             build/reports/profile/
-            RFS/build/test-results/wiremockTest/
-            RFS/build/reports/tests/wiremockTest/
+            libs/migration-engine/build/test-results/wiremockTest/
+            libs/migration-engine/build/reports/tests/wiremockTest/
           retention-days: 14

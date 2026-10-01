@@ -1,0 +1,292 @@
+package org.opensearch.migrations;
+
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.opensearch.migrations.bulkload.transformers.Transformer;
+import org.opensearch.migrations.bulkload.transformers.TransformerToIJsonTransformerAdapter;
+import org.opensearch.migrations.cli.Transformers;
+import org.opensearch.migrations.transform.TransformationLoader;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Slf4j
+@UtilityClass
+public class MetadataTransformationRegistry {
+    // Log appender name is in from the apps/metadata/src/main/resources/log4j2.properties
+    public static final String TRANSFORM_LOGGER_NAME = "TransformerRun";
+    private static final Logger TRANSFORM_LOGGER = LoggerFactory.getLogger(TRANSFORM_LOGGER_NAME);
+
+    public static final String NOOP_TRANSFORMATION_CONFIG = "[" +
+        "  {" +
+        "    \"NoopTransformerProvider\":\"\"" +
+        "  }" +
+        "]";
+
+    private static final List<TransformerConfigs> BAKED_IN_TRANSFORMER_CONFIGS = List.of(
+        TransformerConfigs.builder()
+            .filename("js/es-string-text-keyword-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                UnboundVersionMatchers.isBelowES_6_X,
+                UnboundVersionMatchers.isBelowES_5_X.negate()
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("Field Data Type Deprecation - string")
+                .descriptionLine("Convert field data type string to text/keyword")
+                .build())
+            .build(),
+        TransformerConfigs.builder()
+            .filename("js/es-vector-knn-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                    UnboundVersionMatchers.isGreaterOrEqualES_7_X,
+                    UnboundVersionMatchers.anyOS
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("dense_vector to knn_vector")
+                .descriptionLine("Convert field data type dense_vector to OpenSearch knn_vector")
+                .build())
+            .build(),
+        // Any source whose target is OpenSearch: pre-OS index-level knn params
+        // are rejected on create-index, so lift them onto field-level method
+        // config. No-op when absent (see the js file for the full rationale).
+        TransformerConfigs.builder()
+            .filename("js/es-knn-index-to-field-level-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                    v -> true,
+                    UnboundVersionMatchers.anyOS
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("Index-level knn settings to field-level method")
+                .descriptionLine("Lift index.knn.* settings onto knn_vector field method config")
+                .build())
+            .build(),
+        TransformerConfigs.builder()
+            .filename("js/knn-to-serverless-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                    v -> true,
+                    UnboundVersionMatchers.isAmazonServerlessOpenSearch
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("knn_vector to Serverless-compatible Faiss HNSW")
+                .descriptionLine("Convert knn_vector fields to Faiss HNSW for OpenSearch Serverless compatibility")
+                .build())
+            .build(),
+        TransformerConfigs.builder()
+            .filename("js/knn-nmslib-to-faiss-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                    UnboundVersionMatchers.anyOS.and(UnboundVersionMatchers.isGreaterOrEqualOS_3_x.negate()),
+                    UnboundVersionMatchers.isGreaterOrEqualOS_3_x
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("nmslib to faiss engine")
+                .descriptionLine("Convert nmslib knn_vector engine to faiss (nmslib deprecated in OS 3.0)")
+                .build())
+            .build(),
+        TransformerConfigs.builder()
+            .filename("js/metadataUpdater.js")
+            .context(
+                "{" +
+                "  \"rules\": [" +
+                "    {" +
+                "      \"when\": { \"type\": \"flattened\" }," +
+                "      \"set\": { \"type\": \"flat_object\" }," +
+                "      \"remove\": [\"index\"]" +
+                "    }" +
+                "  ]" +
+                "}")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                UnboundVersionMatchers.isGreaterOrEqualES_7_3,
+                UnboundVersionMatchers.equalOrGreaterThanOS_2_7
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("flattened to flat_object")
+                .descriptionLine("Convert field data type flattened to OpenSearch flat_object")
+                .build())
+            .build(),
+        TransformerConfigs.builder()
+            .filename("js/solr-field-type-metadata.js")
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                UnboundVersionMatchers.anySolr,
+                v -> true
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("Solr field type conversion")
+                .descriptionLine("Convert Solr field types to OpenSearch equivalents")
+                .build())
+            .build(),
+        // Pre-emptively strip / rename analyzer, tokenizer, char_filter and token-filter
+        // references that we know the target cluster will reject. Driven by the
+        // AnalysisCompatibility table; the config is computed per (source, target) pair.
+        TransformerConfigs.builder()
+            .filename("js/analysis-component-removal.js")
+            .contextProvider(AnalysisCompatibility::buildContextJsonOrNull)
+            .isRelevantForVersions(AnalysisCompatibility::hasRulesFor)
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("Analysis component compatibility")
+                .descriptionLine("Strip or rename removed/renamed analyzer/tokenizer/filter names")
+                .build())
+            .build(),
+        // Resolve legacy multiple-types-per-index mappings (ES <7) into a single type by
+        // unioning the type mappings. Auto-applied for any source at ES 6 or below migrating
+        // to a target at ES 6 or above (including any OpenSearch). This supersedes the old Java
+        // IndexMappingTypeRemoval rule + --multi-type-behavior flag: the TypeMappingsSanitization
+        // transformer unions by default and runs ahead of the version transformer (see
+        // MigratorEvaluatorBase.selectTransformer), so version rules see single-type mappings.
+        TransformerConfigs.builder()
+            // Sentinel filename: this entry emits its own provider config via providerConfigProvider
+            // (TypeMappingSanitizationTransformerProvider) rather than a JsonJSTransformerProvider.
+            .filename("<TypeMappingSanitizationTransformerProvider>")
+            .providerConfigProvider(MetadataTransformationRegistry::typeMappingSanitizationProviderConfig)
+            .isRelevantForVersions(andSourceTargetVersionPredicate(
+                UnboundVersionMatchers.isBelowES_7_X,
+                UnboundVersionMatchers.isGreaterOrEqualES_6_X.or(UnboundVersionMatchers.anyOS)
+            ))
+            .transformerInfo(Transformers.TransformerInfo.builder()
+                .name("Multi-type mapping union")
+                .descriptionLine("Union legacy multiple-types-per-index mappings into a single type")
+                .build())
+            .build()
+    );
+
+    /**
+     * Build the full TypeMappingSanitizationTransformerProvider config for the given (source, target)
+     * pair. The provider supplies union-by-default regex mappings on its own; we only need to inject
+     * the source version so the JS transform can reason about include_type_name semantics.
+     */
+    private static String typeMappingSanitizationProviderConfig(Version sourceVersion, Version targetVersion) {
+        return "{" +
+            "  \"TypeMappingSanitizationTransformerProvider\": {" +
+            "    \"sourceProperties\": {" +
+            "      \"version\": {" +
+            "        \"major\": " + sourceVersion.getMajor() + "," +
+            "        \"minor\": " + sourceVersion.getMinor() +
+            "      }" +
+            "    }" +
+            "  }" +
+            "}";
+    }
+
+    private static BiPredicate<Version, Version> andSourceTargetVersionPredicate(
+        Predicate<Version> sourcePredicate,
+        Predicate<Version> targetPredicate
+    ) {
+        return (source, target) -> sourcePredicate.test(source) && targetPredicate.test(target);
+    }
+
+    @Getter
+    @Builder
+    private static class TransformerConfigs {
+        @NonNull private Transformers.TransformerInfo transformerInfo;
+        @NonNull private String filename;
+        /** Static JSON context. */
+        private String context;
+        /** Dynamic context computed from (source, target). May return null to skip the transform. */
+        private BiFunction<Version, Version, String> contextProvider;
+        /**
+         * Emits the entire provider config JSON for this entry, bypassing the default
+         * JsonJSTransformerProvider wrapper. Used by transforms that resolve through a dedicated
+         * provider (e.g. TypeMappingSanitizationTransformerProvider). May return null to skip.
+         */
+        private BiFunction<Version, Version, String> providerConfigProvider;
+        @NonNull private BiPredicate<Version, Version> isRelevantForVersions;
+
+        /**
+         * Resolves the context. Returns the static context if no provider is set;
+         * if a provider is set and returns null, the transform should be skipped.
+         */
+        ContextResolution resolveContext(Version sourceVersion, Version targetVersion) {
+            if (contextProvider != null) {
+                String dynamic = contextProvider.apply(sourceVersion, targetVersion);
+                return dynamic == null ? ContextResolution.none() : ContextResolution.of(dynamic);
+            }
+            return ContextResolution.of(context); // static context (may itself be null = empty bindings)
+        }
+    }
+
+    /** Wrapper to differentiate "skip this transform" from "null context = empty bindings". */
+    private static final class ContextResolution {
+        final boolean shouldSkip;
+        final String context;
+        private ContextResolution(boolean shouldSkip, String context) { this.shouldSkip = shouldSkip; this.context = context; }
+        static ContextResolution none() { return new ContextResolution(true, null); }
+        static ContextResolution of(String context) { return new ContextResolution(false, context); }
+    }
+
+    public static Transformers getCustomTransformationByClusterVersions(Version sourceVersion, Version targetVersion) {
+        var transformersBuilder = Transformers.builder();
+        var bakedInTransformers = BAKED_IN_TRANSFORMER_CONFIGS
+            .stream().filter(config ->
+                config.isRelevantForVersions.test(sourceVersion, targetVersion))
+            .toList();
+        transformersBuilder.transformerInfos(bakedInTransformers.stream().map(TransformerConfigs::getTransformerInfo).collect(Collectors.toList()));
+        var config = getAggregateJSTransformer(bakedInTransformers, sourceVersion, targetVersion);
+        logTransformerConfig("Default breaking changes transform config", config);
+        transformersBuilder.transformer(configToTransformer(config));
+        return transformersBuilder.build();
+    }
+
+    private static String getAggregateJSTransformer(
+            List<TransformerConfigs> transformerConfigs,
+            Version sourceVersion,
+            Version targetVersion) {
+        if (transformerConfigs.isEmpty()) return NOOP_TRANSFORMATION_CONFIG;
+        var rendered = transformerConfigs.stream()
+            .map(c -> {
+                // Entries with a providerConfigProvider emit their entire provider config
+                // (e.g. TypeMappingSanitizationTransformerProvider) instead of the default
+                // JsonJSTransformerProvider wrapper.
+                if (c.getProviderConfigProvider() != null) {
+                    return c.getProviderConfigProvider().apply(sourceVersion, targetVersion);
+                }
+                var resolution = c.resolveContext(sourceVersion, targetVersion);
+                return resolution.shouldSkip ? null : getJSTransform(c.getFilename(), resolution.context);
+            })
+            .filter(java.util.Objects::nonNull)
+            .collect(Collectors.toList());
+        if (rendered.isEmpty()) return NOOP_TRANSFORMATION_CONFIG;
+        return rendered.stream().collect(Collectors.joining(",", "[", "]"));
+    }
+
+    private static String getJSTransform(String filename, String context) {
+        var bindings = context == null ? "{}" : context.replace("\"", "\\\"");
+        return  "{" +
+            "  \"JsonJSTransformerProvider\":{" +
+            "    \"initializationResourcePath\":\"" + filename + "\"," +
+            "    \"bindingsObject\": \"" + bindings + "\"" +
+            "  }" +
+            "}";
+    }
+
+    public static Transformer configToTransformer(String config) {
+        var transformer =  new TransformationLoader().getTransformerFactoryLoader(config);
+        return new TransformerToIJsonTransformerAdapter(transformer);
+    }
+
+    public static void logTransformerConfig(String title, String transformerConfig) {
+        log.atInfo().setMessage("{}:\n{}")
+            .addArgument(title)
+            .addArgument(transformerConfig).log();
+        try {
+            var mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT);
+            var jsonNode = mapper.readTree(transformerConfig);
+            var formattedTransformConfig = mapper.writeValueAsString(jsonNode);
+            TRANSFORM_LOGGER.atInfo().setMessage("{}\n{}")
+                .addArgument(title)
+                .addArgument(formattedTransformConfig).log();
+        } catch (Exception e) {
+            TRANSFORM_LOGGER.atError().setMessage("Unable to format transform config").setCause(e).log();
+        }
+    }
+}

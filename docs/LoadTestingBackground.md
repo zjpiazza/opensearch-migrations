@@ -9,9 +9,9 @@ separately.
 
 The pipeline is the "live capture and replay" (change-data-capture) path used to mirror traffic
 from a source cluster onto a target cluster during a migration. For the component-level design, see
-[`TrafficCaptureAndReplayDesign.md`](./TrafficCaptureAndReplayDesign.md),
-[`replayerArchitecture.md`](./replayerArchitecture.md), and
-[`ScalingTrafficCaptureAndReplayer.md`](./ScalingTrafficCaptureAndReplayer.md). This document is
+[`TrafficCaptureAndReplayDesign.md`](TrafficCaptureAndReplayDesign.md),
+[`replayerArchitecture.md`](replayerArchitecture.md), and
+[`ScalingTrafficCaptureAndReplayer.md`](ScalingTrafficCaptureAndReplayer.md). This document is
 concerned specifically with how to load-test that pipeline.
 
 ---
@@ -167,7 +167,7 @@ Specifically:
    scaling behaviour before and as that feature is built out. Because Kafka is partitioned by
    `connectionId`, key questions are whether adding proxy or replayer instances preserves
    per-connection ordering and whether consumer-group rebalancing is handled without gaps or
-   duplicate replays. See [`ScalingTrafficCaptureAndReplayer.md`](./ScalingTrafficCaptureAndReplayer.md)
+   duplicate replays. See [`ScalingTrafficCaptureAndReplayer.md`](ScalingTrafficCaptureAndReplayer.md)
    for the current scaling design.
 
 ---
@@ -252,7 +252,7 @@ Each component below is tagged accordingly.
   and explicit control over whether a sequence is pinned to one connection (`connectionId`) or
   spread across several
 
-**Existing building blocks in this repo:** the [`DataGenerator`](../DataGenerator) module already
+**Existing building blocks in this repo:** the [`DataGenerator`](../tests/performance/data-generator) module already
 produces OpenSearch workloads (`HTTP_LOGS`, `GEONAMES`, `NESTED`, `NYC_TAXIS`) via
 `./gradlew DataGenerator:run`, and the Migration Console wraps **OpenSearch Benchmark** (e.g.
 `runTestBenchmarks.sh`) to drive traffic through the Capture Proxy. These cover bulk data
@@ -344,7 +344,7 @@ queries, aggregations, and scroll/`search_after` paging. The pipeline must hold 
 different real-world workloads, so we define three profiles. Each profile is a different mix of
 operation types and body sizes, and each one stresses a different part of the pipeline.
 
-The [`DataGenerator`](../DataGenerator) module supplies document corpora and index mappings for four
+The [`DataGenerator`](../tests/performance/data-generator) module supplies document corpora and index mappings for four
 workloads (`HTTP_LOGS`, `GEONAMES`, `NESTED`, `NYC_TAXIS`), but its `Workload` interface generates
 **documents only — no queries**; producing query traffic is the new traffic generator's job. All
 four corpora are queryable. `NYC_TAXIS` is in fact one of the richest for search and aggregation —
@@ -455,17 +455,17 @@ and OpenSearch Benchmark tooling where it fits.
 
 ## Related Documents
 
-- [`TrafficCaptureAndReplayDesign.md`](./TrafficCaptureAndReplayDesign.md) — overall capture/replay
+- [`TrafficCaptureAndReplayDesign.md`](TrafficCaptureAndReplayDesign.md) — overall capture/replay
   design and the `TrafficStream`/`TrafficObservation` protocol.
-- [`replayerArchitecture.md`](./replayerArchitecture.md) — Traffic Replayer internals: connection
+- [`replayerArchitecture.md`](replayerArchitecture.md) — Traffic Replayer internals: connection
   accumulation, Kafka commit tracking, partition revocation, backpressure.
-- [`ScalingTrafficCaptureAndReplayer.md`](./ScalingTrafficCaptureAndReplayer.md) — scaling and
+- [`ScalingTrafficCaptureAndReplayer.md`](ScalingTrafficCaptureAndReplayer.md) — scaling and
   backpressure design for the proxy and replayer.
-- [`Architecture.md`](./Architecture.md) — end-to-end migration architecture and where this pipeline
+- [`Architecture.md`](Architecture.md) — end-to-end migration architecture and where this pipeline
   fits.
-- [`../TrafficCapture/README.md`](../TrafficCapture/README.md) — module overview for the
+- [`../TrafficCapture/README.md`](../libs/traffic/README.md) — module overview for the
   TrafficCapture tools (`trafficCaptureProxyServer`, `trafficReplayer`, `captureKafkaOffloader`, …).
-- [`../DataGenerator`](../DataGenerator) — existing OpenSearch workload data generation.
+- [`../DataGenerator`](../tests/performance/data-generator) — existing OpenSearch workload data generation.
 
 ---
 
@@ -512,15 +512,15 @@ But Solr is not *wholly* outside the capture/replay pipeline — two distinct pi
 one is genuinely out:
 
 - **The `transformationShim` binary is *not* part of capture/replay.** It is a standalone live Netty
-  reverse proxy ([`transformationShim`](../TrafficCapture/transformationShim),
+  reverse proxy ([`transformationShim`](../apps/transformation-shim),
   `MultiTargetRoutingHandler`) for synchronous Solr→OpenSearch shadow/cutover validation; the Traffic
   Replayer neither depends on nor invokes it. (It warrants its own load-testing document.)
 - **The Solr *transforms* are usable by the Traffic Replayer.** The JS transforms in
-  [`SolrTransformations`](../TrafficCapture/SolrTransformations) are shared: the shim loads them via
+  [`SolrTransformations`](../libs/traffic/SolrTransformations) are shared: the shim loads them via
   `SolrTransformerProvider`, and the replayer can load the same files via the generic
   `JsonJSTransformerProvider` (`--transformerConfig`) to replay captured Solr traffic. This is an
   emerging capability (cf. the in-progress `solrMigrationDevSandbox` and Solr-advisor work) with two
-  documented limits ([`LIMITATIONS.md`](../TrafficCapture/SolrTransformations/docs/LIMITATIONS.md)):
+  documented limits ([`LIMITATIONS.md`](../libs/traffic/SolrTransformations/docs/LIMITATIONS.md)):
   **`CURSOR-REPLAY`** — opaque `cursorMark` tokens replay only the first page (the live shim handles
   pagination; offline replay cannot) — and **`SOLRCONFIG-REPLAYER`** — solrConfig must be supplied as
   pre-built JSON, no XML auto-parsing.

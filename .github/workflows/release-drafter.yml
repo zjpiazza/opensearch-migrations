@@ -55,7 +55,7 @@ jobs:
           driver: docker-container
           # Keep debug on while we troubleshoot this new registry setup
           buildkitd-flags: --debug
-          # This has to match the -Pbuilder flag for buildImages/build.gradle
+          # This has to match the -Pbuilder flag for tools/build/images/build.gradle
           name: local-remote-builder
           install: true
           # ALLOW ACCESS TO HOST NETWORK (Required to see localhost:5000 for docker registry)
@@ -201,15 +201,15 @@ jobs:
       - name: Deploy Helm chart and copy generated workflow schema
         if: ${{ !github.event.act }}
         run: |
-          chmod +x ./deployment/k8s/generateWorkflowSchemaArtifact.sh
+          chmod +x ./deploy/kubernetes/generateWorkflowSchemaArtifact.sh
           KUBE_CONTEXT=kind-release-schema-verification \
           IMAGE_REPOSITORY_PREFIX=opensearchstaging \
           IMAGE_TAG=${{ steps.get_data.outputs.version }} \
           OUTPUT_PATH="${PWD}/workflowMigration.schema.json" \
-          ./deployment/k8s/generateWorkflowSchemaArtifact.sh
+          ./deploy/kubernetes/generateWorkflowSchemaArtifact.sh
       - name: Generate Solutions Artifact
         run: |
-          ./deployment/migration-assistant-solution/package-artifacts.sh
+          ./deploy/distributions/aws-solution/package-artifacts.sh
       - name: Upload unified schema artifact
         if: ${{ !github.event.act }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -240,7 +240,7 @@ jobs:
       - name: Upload Solutions Artifact to S3
         if: ${{ !github.event.act }}
         run: |
-          aws s3 cp deployment/migration-assistant-solution/build/artifact.zip \
+          aws s3 cp deploy/distributions/aws-solution/build/artifact.zip \
             s3://cornerstone-amazonaws/SO0290/${{ steps.get_data.outputs.version }}/${{ github.sha }}/artifact.zip \
             --content-type application/zip \
             --metadata branch=${{ github.ref_name }},\
@@ -256,10 +256,10 @@ jobs:
           solutionversion=${{ steps.get_data.outputs.version }}
       - name: Assemble self-contained aws-bootstrap.sh
         # Production deploy artifact. assemble-bootstrap.sh inlines every
-        # sourced helper into deployment/k8s/aws/dist/aws-bootstrap.sh.
+        # sourced helper into deploy/aws/dist/aws-bootstrap.sh.
         # This is the file operators run via curl-pipe today.
         run: |
-          deployment/k8s/aws/assemble-bootstrap.sh
+          deploy/aws/assemble-bootstrap.sh
       - name: Draft a release
         if: ${{ !github.event.act }}
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd
@@ -268,11 +268,11 @@ jobs:
           prerelease: true
           generateReleaseNotes: true
           artifacts: >-
-            deployment/migration-assistant-solution/cdk.out-minified/*-eks.template.json,
+            deploy/distributions/aws-solution/cdk.out-minified/*-eks.template.json,
             opensearch-migrations-source.tar.gz,
             opensearch-migrations-build.tar.gz,
-            bootstrap-kiro-agent.sh,
-            deployment/k8s/build/helm-package/migration-assistant-${{ steps.get_data.outputs.version }}.tgz,
+            tools/dev/bootstrap-kiro-agent.sh,
+            deploy/kubernetes/build/helm-package/migration-assistant-${{ steps.get_data.outputs.version }}.tgz,
             workflowMigration.schema.json,
-            deployment/k8s/aws/dist/aws-bootstrap.sh,
+            deploy/aws/dist/aws-bootstrap.sh,
             **/*.spdx.json

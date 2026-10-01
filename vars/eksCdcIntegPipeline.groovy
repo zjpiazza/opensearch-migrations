@@ -10,7 +10,7 @@ def call(Map config = [:]) {
     def sourceClusterType = config.sourceClusterType ?: ""
     def targetClusterType = config.targetClusterType ?: ""
     def traceTestIds = config.traceTestIds ?: ""
-    def traceValuesFile = config.traceValuesFile ?: "../../deployment/k8s/charts/aggregates/migrationAssistantWithArgo/valuesTraceXray.yaml"
+    def traceValuesFile = config.traceValuesFile ?: "../../deploy/charts/aggregates/migrationAssistantWithArgo/valuesTraceXray.yaml"
     def traceBackend = config.traceBackend ?: "xray"
     // general-work-pool overrides, verified after the tests; eksCdcAossIntegPipeline covers arm64.
     def workloadsNodePool = config.workloadsNodePool ?: [
@@ -28,7 +28,7 @@ def call(Map config = [:]) {
     def overrideNodePool = { -> params.BUILD && !params.USE_RELEASE_BOOTSTRAP }
     def clusterContextFilePath = "tmp/cluster-context-cdc-integ-${currentBuild.number}.json"
     // Reserved test ID range for the k6 load-test cases. Keep it equal to
-    // LOAD_TEST_ID_PREFIX in libraries/testAutomation/testAutomation/test_runner.py.
+    // LOAD_TEST_ID_PREFIX in tests/automation/testAutomation/test_runner.py.
     def loadTestIdPrefix = "008"
     pipeline {
         agent { label config.workerAgent ?: 'Jenkins-Default-Agent-X64-C5xlarge-Single-Host' }
@@ -174,7 +174,7 @@ def call(Map config = [:]) {
 
                             parallel(
                                 'Deploy Clusters': {
-                                    dir('test') {
+                                    dir('tests/e2e') {
                                         deployClustersStep(
                                             stage: "${maStageName}",
                                             clusterContextFilePath: "${clusterContextFilePath}",
@@ -271,10 +271,10 @@ def call(Map config = [:]) {
                                     sh(
                                         script: """
                                             set -eu
-                                            transforms_dir="migrationConsole/lib/integ_test/integ_test/transform_assets/mountable/${bank}"
+                                            transforms_dir="apps/console/lib/integ_test/integ_test/transform_assets/mountable/${bank}"
                                             content_hash=\$(cd "\${transforms_dir}" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print substr(\$1,1,20)}')
                                             tag="transforms-${bank}-\${content_hash}"
-                                            output=\$(deployment/k8s/package-transforms.sh "\${transforms_dir}" "${env.registryEndpoint}" "\${tag}" --output json)
+                                            output=\$(deploy/kubernetes/package-transforms.sh "\${transforms_dir}" "${env.registryEndpoint}" "\${tag}" --output json)
                                             printf '%s\\n' "\${output}" >&2
                                             pinned_ref=\$(printf '%s\\n' "\${output}" | jq -r '.image // empty')
                                             test -n "\${pinned_ref}"
@@ -299,7 +299,7 @@ def call(Map config = [:]) {
             stage('Perform CDC E2E Tests') {
                 steps {
                     timeout(time: 3, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 sh "pipenv install --deploy"
                                 def traceArgs = ""

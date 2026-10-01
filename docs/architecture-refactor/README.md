@@ -17,6 +17,27 @@ existing deployment paths remain proposals.
 - [Journal](journal.md): dated checkpoints, evidence, limitations, and next steps.
 - [Evidence](evidence/): compact benchmark records retained beyond CI artifact expiry.
 
+## Implemented checkpoint: source layout
+
+E-005 implements the physical layout on `experiment/architecture-refactor`:
+2,926 files moved, with all 3,083 baseline tracked files preserved. Applications,
+libraries, deployment assets, shared tests, and tooling now have separate roots.
+[The exact move map](layout-map.json) records all 55 directory/file mappings and
+56 Gradle project locations. [Validation evidence](evidence/layout-validation.json)
+and [the journal](journal.md#e-005--implement-the-source-layout) record the checks.
+
+This is a transitional layout. `apps/orchestration` keeps the existing TypeScript
+workspace; `apps/console` and `apps/cli` keep both current interfaces. `api/` points
+to existing contracts. The operator, clean library boundaries, and language
+consolidation still need implementation and evidence. `libs/migration-engine`
+and `libs/runtime` retain existing responsibilities and dependencies.
+
+Gradle task IDs, Java packages, published artifact names, and container identities
+remain stable. For example, `./gradlew :RFS:wiremockTest` now builds source in
+`libs/migration-engine`. `buildSrc/`, `gradle/`, `vars/`, and `.github/` retain
+locations required by their tools. External Jenkins job script paths and Cloud
+Build trigger configuration require the changes listed in [tools/README.md](../../tools/README.md).
+
 ## Documentation convention
 
 For every meaningful implementation step, update this record in the same change:

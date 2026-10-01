@@ -829,7 +829,7 @@ or by a `retryPattern=true` parameter on the template.
 
 ### How the workflow is built today
 
-Workflow templates are TypeScript in `orchestrationSpecs/packages/migration-workflow-templates/`.
+Workflow templates are TypeScript in `apps/orchestration/packages/migration-workflow-templates/`.
 `fullMigration.ts` defines the `main` template using a builder DSL. The five top-level
 phases are all in one step-group (parallel):
 

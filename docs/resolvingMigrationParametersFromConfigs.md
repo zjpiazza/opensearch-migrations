@@ -11,15 +11,15 @@ It is written for readers who are new to this repository.
 
 ## Repository Areas
 
-- `orchestrationSpecs/packages/schemas`: TypeScript/Zod schemas for user workflow config, transformed Argo workflow config, and migration resource projection metadata.
-- `orchestrationSpecs/packages/config-processor`: Converts user config into workflow-ready config, creates Kubernetes resource manifests, and emits resolved migration resources.
-- `orchestrationSpecs/packages/migration-workflow-templates`: Builds Argo `WorkflowTemplate` YAML from TypeScript template definitions.
+- `apps/orchestration/packages/schemas`: TypeScript/Zod schemas for user workflow config, transformed Argo workflow config, and migration resource projection metadata.
+- `apps/orchestration/packages/config-processor`: Converts user config into workflow-ready config, creates Kubernetes resource manifests, and emits resolved migration resources.
+- `apps/orchestration/packages/migration-workflow-templates`: Builds Argo `WorkflowTemplate` YAML from TypeScript template definitions.
 - `migrationConsole`: Builds the migration-console image. The image includes generated workflow templates, the config processor bundle, and generated migration CRD/VAP manifests.
-- `deployment/k8s/charts/aggregates/migrationAssistantWithArgo`: Helm chart that installs Migration Assistant and runs hook jobs from the migration-console image.
+- `deploy/charts/aggregates/migrationAssistantWithArgo`: Helm chart that installs Migration Assistant and runs hook jobs from the migration-console image.
 
 Related docs:
 
-- [ConfigValidationFlow.md](../orchestrationSpecs/ConfigValidationFlow.md): validation and transformation from raw user config to workflow-ready config.
+- [ConfigValidationFlow.md](../apps/orchestration/ConfigValidationFlow.md): validation and transformation from raw user config to workflow-ready config.
 - [reconfiguringWorkflows.md](reconfiguringWorkflows.md): state-aware reconfiguration model, VAP approval behavior, and checksum semantics.
 - [WorkflowCrdDesign.md](WorkflowCrdDesign.md): migration CR lifecycle, ownership, and teardown behavior.
 
@@ -139,11 +139,11 @@ The root npm target stages generated migration resources:
 npm run stage-migration-resources -- --outputDirectory <dir>
 ```
 
-The `../migrationConsole/build.gradle` task `buildAndStageMigrationResources` runs that target and writes:
+The `../apps/console/build.gradle` task `buildAndStageMigrationResources` runs that target and writes:
 
 ```text
-../migrationConsole/build/dockerContext/nodeStaging/migrationResources/migrationCrds.yaml
-../migrationConsole/build/dockerContext/nodeStaging/migrationResources/validatingAdmissionPolicies.yaml
+../apps/console/build/dockerContext/nodeStaging/migrationResources/migrationCrds.yaml
+../apps/console/build/dockerContext/nodeStaging/migrationResources/validatingAdmissionPolicies.yaml
 ```
 
 The migration-console Dockerfile copies that staged directory into the image:

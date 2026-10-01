@@ -28,7 +28,7 @@ def call(Map config = [:]) {
             stage('Cleanup Deployment') {
                 steps {
                     timeout(time: 1, unit: 'HOURS') {
-                        dir('test/cleanupDeployment') {
+                        dir('tests/e2e/cleanupDeployment') {
                             script {
                                 sh "pipenv install --deploy --ignore-pipfile"
                                 def command = "pipenv run python3 cleanup_deployment.py --stage ${stage}"

@@ -116,6 +116,74 @@ The current architecture baseline is recorded in [README.md](README.md).
 - Rollback: documentation-only checkpoint; revert its commit independently of
   the existing experiments. Use this branch's Git history to locate the change.
 
+## E-005 — Implement the source layout
+
+- Date: 2026-10-01. Decisions: D-001, D-007, D-008.
+- Baseline: `dc13cadb5`, the documentation checkpoint on
+  `experiment/architecture-refactor`; its parent is the WireMock experiment.
+- Hypothesis: source roots can reflect application/library/deployment/test/tool
+  responsibilities while preserving build identities and current behavior.
+- Implementation: the source-layout commit following the baseline on this branch;
+  [layout-map.json](layout-map.json) records exact relocations. The PR is stacked
+  on `experiment/wiremock-record-replay` so that WireMock changes are not repeated.
+- Change: move 2,926 files, preserve all 3,083 baseline files, assign 56 explicit
+  Gradle locations, update source-dependent CI/packaging/scripts/docs, and add a
+  layout check to PR CI. BuildSrc implementation lives in `tools/build/gradle`
+  behind the root Gradle shim; Jenkins shared-library `vars/` remains at root.
+- Path audit: repaired shell root calculations, Python fixture roots, Rust skill
+  lookup, Helm/Terraform paths, Docker build contexts, CI matrix conditions,
+  release assets, dependency-update locations, and local documentation links.
+  CDK synthesis now declares its actual project tree as inputs, including its
+  entry points and configuration rather than a nonexistent nested source path.
+- Before/after dependencies: unchanged module graph and public artifact names.
+  Existing TypeScript orchestration stays together in `apps/orchestration`.
+  Migration model/runtime cleanup and operator implementation remain future work.
+- Validation: all Java production/test sources compile; nine WireMock cases pass;
+  TypeScript type checks and 50 suites pass (453 tests, two skips); targeted Python
+  checks pass; 211 isolated Rust library tests pass; Helm chart packaging and CDK
+  synthesis succeed. Mocked AWS bootstrap and Jenkins setup checks pass. All 100
+  shell scripts parse, all 167 binary fixtures are byte-identical, and local
+  Markdown links that resolved before relocation still resolve. Repository-wide
+  Spotless and Python lint pass. Six changed workflows pass structural actionlint.
+- Reproduction and compact results: [validation evidence](evidence/layout-validation.json).
+  Install Node workspace dependencies with `npm ci --prefix apps/orchestration`;
+  use Node 24.3.0 for the recorded npm commands. Python checks used a temporary
+  venv with the console Pipfile.lock dependencies and the automation tabulate pin.
+  Raw local logs are intentionally excluded from Git.
+- Test-environment findings: the first Python pass had 244 successes and ten setup
+  errors because the sandbox could not write the existing Gradle distribution
+  lock. Running `pytest -q gradle/tests` with cache access passed all 12 cases.
+  The initial Rust run unexpectedly attempted live ECR calls from
+  `mirror_fails_without_ecr_credentials`: its command mock does not intercept the
+  native SDK. Calls were denied and the run was stopped. Re-running with AWS
+  credential sources disabled passed all 211 library tests. No successful cloud
+  modification was observed. Existing workflow Shellcheck warnings remain;
+  structural actionlint is not a claim of clean Shellcheck.
+- Rust reproduction: from `apps/cli`, unset AWS access/session keys, profile and
+  default profile, web-identity token/role, and container credential URI variables;
+  set `AWS_CONFIG_FILE=/dev/null`, `AWS_SHARED_CREDENTIALS_FILE=/dev/null`, and
+  `AWS_EC2_METADATA_DISABLED=true`; run `cargo test --offline --locked --lib` in a
+  network-restricted environment with the pinned toolchain/dependencies installed.
+- Measurement: one warm local WireMock path smoke run took 2.136 s preparation,
+  4.738 s forced playback (nine tests, 1.604 s test time), and 2.096 s unchanged
+  Gradle reuse. This does not establish a relocation speedup or full-E2E benefit.
+- Limits: no full migration E2E, live cloud deployment, image publication, or
+  external Jenkins/Cloud Build execution was validated. CI results remain separate
+  from these local checks. Existing release-time download URLs retain their
+  published artifact names; source-checkout paths change.
+- Rollout: update external Jenkins script paths from `jenkins/...` to
+  `tools/ci/jenkins/...` and Cloud Build triggers to `tools/ci/cloudbuild.yaml`.
+  Update any downstream source-path consumers using the move map. Gradle commands
+  such as `:RFS:wiremockTest` stay valid.
+- Rollback: revert this source-layout commit and restore external path settings;
+  the preceding documentation checkpoint and separate performance experiments
+  remain available.
+- Conclusion/RFC claim: physical organization is implemented and locally checked.
+  The result makes ownership easier to navigate; it does not remove languages,
+  isolate provider dependencies, replace Argo, or establish faster test execution.
+- Next: extract the migration-model/search-client dependency boundary as a separate
+  change, with equivalent tests and before/after preparation measurements.
+
 ## Template for subsequent checkpoints
 
 ```text

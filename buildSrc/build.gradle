@@ -31,3 +31,6 @@ tasks.withType(Tar).configureEach {
 tasks.withType(Zip).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+// Gradle discovers buildSrc at the root; implementation lives with build tooling.
+sourceSets.main.groovy.srcDirs = ["../tools/build/gradle/src/main/groovy"]

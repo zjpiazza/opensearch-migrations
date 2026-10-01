@@ -228,7 +228,7 @@ def call(Map config = [:]) {
             stage('Deploy AOS Target Cluster') {
                 steps {
                     timeout(time: 45, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 env.sourceVer = sourceVersion ?: env.resolvedSourceVersion
                                 env.targetVer = targetVersion ?: params.TARGET_VERSION
@@ -315,7 +315,7 @@ def call(Map config = [:]) {
             stage('Run BYOS Migration Test') {
                 steps {
                     timeout(time: 12, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 def testIdsArg = ""
                                 def testIdsResolved = testIds ?: params.TEST_IDS

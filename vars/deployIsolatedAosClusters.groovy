@@ -103,7 +103,7 @@ def call(Map config = [:]) {
     }
 
     // 4. Deploy AOS domains via deployClustersStep (handles its own withMigrationsTestAccount)
-    dir('test') {
+    dir('tests/e2e') {
         deployClustersStep(
             stage: stage,
             clusterContextFilePath: clusterContextFilePath,

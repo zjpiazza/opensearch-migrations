@@ -1,0 +1,522 @@
+import org.opensearch.migrations.image.RegistryImageBuildUtils
+import org.opensearch.migrations.image.RegistryImageBuildUtils.Registry
+import org.opensearch.migrations.image.PullThroughCacheHelper
+
+def publishedUrl = rootProject.findProperty('registryEndpoint') ?: 'localhost:5001'
+def intermediateUrl = rootProject.findProperty('intermediateRegistry') ?: publishedUrl
+
+def localContainerRegistryEndpoint =
+        rootProject.findProperty('localContainerRegistryEndpoint')?.toString() ?: 'docker-registry:5000'
+
+def publishedRegistry = new Registry(publishedUrl.toString(), localContainerRegistryEndpoint)
+def intermediateRegistry = new Registry(intermediateUrl.toString(), localContainerRegistryEndpoint)
+
+// ECR pull-through cache: auto-derived from ECR_PULL_THROUGH_ENDPOINT env var in root build.gradle.
+// Can be overridden with: ./gradlew buildImagesToRegistry -PpullThroughCacheEndpoint=123456789.dkr.ecr.us-east-1.amazonaws.com
+def ptcEndpoint = rootProject.findProperty('pullThroughCacheEndpoint')?.toString() ?: ''
+def ptc = new PullThroughCacheHelper(ptcEndpoint)
+
+def publishStyle = (rootProject.findProperty("publishStyle") ?: "paths").toString()
+def publishedRepoByImageName = [
+        migration_console     : "opensearch-migrations-console",
+        traffic_replayer      : "opensearch-migrations-traffic-replayer",
+        capture_proxy         : "opensearch-migrations-traffic-capture-proxy",
+        reindex_from_snapshot : "opensearch-migrations-reindex-from-snapshot",
+        transformation_shim   : "opensearch-migrations-transformation-shim",
+]
+
+def excludeSolr660TestImage = project.hasProperty('excludeSolr660TestImage') // pass -PexcludeSolr660TestImage to include
+// NOTE: the solr 7 image is not included by default for now due to current source, which is apache archive
+def includeSolr773TestImage = project.hasProperty('includeSolr773TestImage') // pass -PincludeSolr773TestImage to include
+def excludeESCustomTestImages = project.hasProperty('excludeESCustomTestImages') // pass -PexcludeESCustomTestImages to exclude custom ES test image builds
+
+def getRepoNameIfPublishing = { Map cfg ->
+    if (publishStyle != 'separateRepos') return null
+    def imageName = cfg.get('imageName')?.toString()
+    if (!imageName) return null
+    return publishedRepoByImageName[imageName]
+}
+
+def correttoBase = ptc.baseImageConfig("docker.io", "library", "amazoncorretto", "21-al2023-headless")
+
+def defaultJvmFlags = ['-XX:MaxRAMPercentage=80.0', '-XX:+ExitOnOutOfMemoryError']
+
+def jibProjects = [
+        "TrafficCapture:trafficReplayer": correttoBase + [
+                imageName     : "traffic_replayer",
+                imageTag      : "latest",
+                jvmFlags      : defaultJvmFlags,
+                extraPermissions: ['/runJavaWithClasspath.sh': '755'],
+                requiredDependencies: [
+                    ":TrafficCapture:trafficReplayer": ["syncVersionFile_traffic_replayer"]
+                ]
+        ],
+        "TrafficCapture:transformationShim": correttoBase + [
+                imageName     : "transformation_shim",
+                imageTag      : "latest",
+                requiredDependencies: [
+                    ":TrafficCapture:transformationShim": ["syncVersionFile_transformation_shim", "stageTransformsForImage"]
+                ]
+        ],
+        "TrafficCapture:trafficCaptureProxyServer": correttoBase + [
+                // purposefully omit '-Dio.netty.handler.codec.http.defaultStrictLineParsing=false'
+                imageName      : "capture_proxy",
+                imageTag       : "latest",
+                jvmFlags      : defaultJvmFlags,
+                extraPermissions: ['/runJavaWithClasspath.sh': '755'],
+                requiredDependencies: [
+                    ":TrafficCapture:trafficCaptureProxyServer": ["generateSelfSignedCerts", "syncVersionFile_capture_proxy"]
+                ]
+        ]
+]
+jibProjects.values().each { cfg ->
+    cfg.repoName = getRepoNameIfPublishing(cfg)
+}
+
+def buildKitProjects = [
+        [
+                serviceName: "elasticsearchTestConsole",
+                contextDir: "deploy/local/docker-compose/src/main/docker/elasticsearchTestConsole",
+                imageName:  "elasticsearch_test_console",
+                imageTag:   "latest",
+                buildArgs: [
+                        BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        RUNTIME_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                ]
+        ],
+        [
+                serviceName: "reindexFromSnapshot",
+                contextDir: "apps/backfill/docker",
+                imageName:  "reindex_from_snapshot",
+                imageTag:   "latest",
+                buildArgs: [
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:21-al2023-headless"),
+                ],
+                requiredDependencies: [
+                        ":DocumentsFromSnapshotMigration:copyDockerRuntimeJars",
+                        ":DocumentsFromSnapshotMigration:syncVersionFile_reindexFromSnapshot"
+                ]
+        ],
+        [
+                serviceName: "migrationConsoleBase",
+                contextDir: "apps/console/build/dockerContext",
+                imageName:  "migration_console_base",
+                buildArgs: [
+                        BASE_IMAGE: RegistryImageBuildUtils.resolveBaseImageForContainer(
+                                intermediateRegistry, "migrations", "elasticsearch_test_console", "latest"),
+                        KAFKA_IMAGE: ptc.rewrite("docker.io/apache/kafka:3.9.2")
+                ],
+                requiredDependencies: [
+                        ":migrationConsole:syncDockerBuildContext",
+                        "buildKit_elasticsearchTestConsole" // All buildKit projects are configured at the root
+                ]
+        ],
+        [
+                serviceName: "migrationConsole",
+                contextDir: "deploy/local/docker-compose/build/docker/migration_console_staging",
+                imageName:  "migration_console",
+                imageTag:   "latest",
+                buildArgs: [
+                        BASE_IMAGE: RegistryImageBuildUtils.resolveBaseImageForContainer(
+                                intermediateRegistry, "migrations", "migration_console_base", "latest")
+                ],
+                requiredDependencies: [
+                        ":TrafficCapture:dockerSolution:syncArtifact_migration_console_staging_noDockerBuild",
+                        "buildKit_migrationConsoleBase" // All buildKit projects are configured at the root
+                ]
+        ]
+]
+
+def k6Entry = [
+    // Load-test-only k6 runtime for the Kubernetes integration. It contains a pinned
+    // k6 executable with the Valkey-compatible xk6-redis extension plus the scenarios,
+    // libs, schemas and presets under /scripts.
+    serviceName: "k6Runner",
+    contextDir: "tests/performance/traffic",
+    imageName:  "k6_runner",
+    imageTag:   "latest",
+    // The xk6 stage compiles k6, so it needs Go module access. Pass the builder's own GOPROXY
+    // through rather than naming a mirror here; empty is identical to unset, which is the Go
+    // default. Networks that block proxy.golang.org set GOPROXY in the environment instead.
+    buildArgs: [
+        GOPROXY: System.getenv("GOPROXY") ?: ""
+    ]
+]
+
+
+
+// custom solr image since solr 6.x does not bring arm64 / multiplatform
+// build loads jar, which needs to be pulled from archive, which can be slow
+def solr660Entry = [
+    serviceName: "customSolr660",
+    contextDir: "tests/fixtures/images/solr/dockerfiles",
+    imageName:  "custom-solr",
+    imageTag:   "6.6.0",
+    buildArgs: [
+           SOLR_VERSION: "6.6.0",
+           SOLR_SHA1: "ab74116e049cfb603b84226e13d0f7c51de9aa23" ,
+           SOLR_ARCHIVE_BASEPATH: "https://artifacts.alfresco.com/nexus/content/repositories/public/org/apache/solr/solr"
+    ]
+]
+def solr773Entry = [
+    serviceName: "customSolr773",
+    contextDir: "tests/fixtures/images/solr/dockerfiles",
+    imageName:  "custom-solr",
+    imageTag:   "7.7.3",
+    buildArgs: [
+           SOLR_VERSION: "7.7.3",
+           SOLR_SHA512: "45461fb86851f8615f02dbc89a942facdd13ab9ca0d984eaf35ec1ed2cef653af738320945749c3130d27d5581a1f0ede34bdaf1ca9afbd4f9a631432d6ada58",
+           SOLR_ARCHIVE_BASEPATH: "https://archive.apache.org/dist/lucene/solr"
+    ]
+]
+// Custom Elasticsearch images for k8s integration tests
+def customESEntries = [
+    [
+                serviceName: "customElasticsearch152",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "1.5.2",
+                buildArgs: [
+                        CORRETTO_VERSION: "8",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:8-alpine"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-8-amazon-corretto",
+                        ES_VERSION: "1.5.2",
+                        TARBALL_URL: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.2.tar.gz"
+                ]
+        ],
+        [
+                serviceName: "customElasticsearch246",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "2.4.6",
+                buildArgs: [
+                        CORRETTO_VERSION: "8",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:8-alpine"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-8-amazon-corretto",
+                        ES_VERSION: "2.4.6",
+                        TARBALL_URL: "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.6/elasticsearch-2.4.6.tar.gz"
+                ]
+        ],
+        [
+                serviceName: "customElasticsearch5616",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "5.6.16",
+                buildArgs: [
+                        CORRETTO_VERSION: "8",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:8-alpine"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-8-amazon-corretto",
+                        ES_VERSION: "5.6.16",
+                        TARBALL_URL: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.tar.gz"
+                ]
+        ],
+        [
+                serviceName: "customElasticsearch6823",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "6.8.23",
+                buildArgs: [
+                        CORRETTO_VERSION: "11",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:11-al2023-headless"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-11-amazon-corretto",
+                        ES_VERSION: "6.8.23",
+                        TARBALL_URL: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.23.tar.gz"
+                ]
+        ],
+        [
+                serviceName: "customElasticsearch710",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "7.10.2",
+                buildArgs: [
+                        CORRETTO_VERSION: "11",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:11-al2023-headless"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-11-amazon-corretto",
+                        ES_VERSION: "7.10.2",
+                        TARBALL_URL: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-linux-ARCH.tar.gz"
+                ]
+        ],
+        [
+                serviceName: "customElasticsearch81914",
+                contextDir: "tests/fixtures/images/elasticsearch/dockerfiles",
+                imageName:  "custom-elasticsearch",
+                imageTag:   "8.19.14",
+                buildArgs: [
+                        CORRETTO_VERSION: "17",
+                        BASE_IMAGE: ptc.rewrite("docker.io/library/amazoncorretto:17-al2023-headless"),
+                        DOWNLOADER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        CONFIG_BUILDER_IMAGE: ptc.rewrite("docker.io/library/amazonlinux:2023"),
+                        JAVA_HOME_PATH: "/usr/lib/jvm/java-17-amazon-corretto",
+                        ES_VERSION: "8.19.14",
+                        TARBALL_URL: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.19.14-linux-ARCH.tar.gz"
+                ]
+        ],
+]
+
+// Test/CI-only images — not built by buildKitAll, use buildKitTestAll instead
+def testBuildKitProjects = [
+    *(excludeSolr660TestImage ? [] : [solr660Entry]),
+    *(includeSolr773TestImage ? [solr773Entry] : []),
+    *(excludeESCustomTestImages ? [] : customESEntries),
+]
+
+// k6 load test only images
+def loadTestBuildKitProjects = [
+        k6Entry
+]
+
+// Test-only images: not required for main MA operations, excluded with -PskipTestImages=true
+if (!rootProject.findProperty('skipTestImages')?.toString()?.toBoolean()) {
+    buildKitProjects << [
+            serviceName: "elasticsearchWithSearchGuard",
+            contextDir: "deploy/local/docker-compose/src/main/docker/elasticsearchWithSearchGuard",
+            imageName:  "elasticsearch_searchguard",
+            buildArgs: [
+                    BASE_IMAGE: RegistryImageBuildUtils.resolveBaseImageForContainer(
+                            intermediateRegistry, "migrations", "custom-elasticsearch", "7.10.2")
+            ],
+            requiredDependencies: [
+                    "buildKit_customElasticsearch710"
+            ]
+    ]
+}
+
+buildKitProjects.each { cfg ->
+    cfg.repoName = getRepoNameIfPublishing(cfg)
+}
+testBuildKitProjects.each { cfg ->
+    cfg.repoName = getRepoNameIfPublishing(cfg)
+}
+loadTestBuildKitProjects.each { cfg ->
+    cfg.repoName = getRepoNameIfPublishing(cfg)
+}
+
+def testBuildKitServiceNames = testBuildKitProjects.collect { "buildKit_${it.serviceName}".toString() } as Set
+def loadTestBuildKitServiceNames = loadTestBuildKitProjects.collect { "buildKit_${it.serviceName}".toString() } as Set
+// Every BuildKit image. Used as the dependency-resolution pool for the bake
+// aggregates and as the imageName -> serviceName map for Jib base-image pinning.
+// It is a lookup set, not a build set — each bake task builds only its
+// selectedProjects plus their transitive buildKit_ prerequisites.
+def allBuildKitProjects = buildKitProjects + testBuildKitProjects + loadTestBuildKitProjects
+
+gradle.projectsEvaluated {
+    def imageHelper = new RegistryImageBuildUtils()
+
+    imageHelper.registerLoginTask(rootProject, publishedRegistry)
+
+    imageHelper.applyBuildKitConfigurations(
+            rootProject,
+            allBuildKitProjects,
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeAll",
+            buildKitProjects,
+            allBuildKitProjects,
+            "multi",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeAll_amd64",
+            buildKitProjects,
+            allBuildKitProjects,
+            "amd64",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeAll_arm64",
+            buildKitProjects,
+            allBuildKitProjects,
+            "arm64",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeTestAll",
+            testBuildKitProjects,
+            allBuildKitProjects,
+            "multi",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeTestAll_amd64",
+            testBuildKitProjects,
+            allBuildKitProjects,
+            "amd64",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.registerBuildKitBakeAggregateTask(
+            rootProject,
+            "buildKitBakeTestAll_arm64",
+            testBuildKitProjects,
+            allBuildKitProjects,
+            "arm64",
+            publishedRegistry,
+            intermediateRegistry
+    )
+    imageHelper.applyJibConfigurations(
+            rootProject,
+            jibProjects,
+            publishedRegistry,
+            intermediateRegistry,
+            allBuildKitProjects
+    )
+}
+
+tasks.register("jibAll") {
+    group = "build"
+    description = "Build all Jib multi-arch images in all subprojects"
+    dependsOn rootProject.subprojects.collect { proj ->
+        proj.tasks.matching { it.name == "jib" }
+    }.flatten()
+}
+
+tasks.register("jibAll_amd64") {
+    group = "build"
+    description = "Build all Jib amd64 images in all subprojects"
+    dependsOn rootProject.subprojects.collect { proj ->
+        proj.tasks.matching { it.name == "jib_amd64" }
+    }.flatten()
+}
+
+tasks.register("jibAll_arm64") {
+    group = "build"
+    description = "Build all Jib arm64 images in all subprojects"
+    dependsOn rootProject.subprojects.collect { proj ->
+        proj.tasks.matching { it.name == "jib_arm64" }
+    }.flatten()
+}
+
+tasks.register("buildKitAll") {
+    group = "build"
+    description = "Build all BuildKit multi-arch images (excludes test and load test images)"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") &&
+                !it.name.endsWith("_amd64") &&
+                !it.name.endsWith("_arm64") &&
+                !testBuildKitServiceNames.contains(it.name) &&
+                !loadTestBuildKitServiceNames.contains(it.name)
+    }
+}
+
+tasks.register("buildKitAll_amd64") {
+    group = "build"
+    description = "Build all BuildKit amd64 images (excludes test and load test images)"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_amd64") &&
+                !testBuildKitServiceNames.contains(it.name.replaceAll('_amd64$', '')) &&
+                !loadTestBuildKitServiceNames.contains(it.name.replaceAll('_amd64$', ''))
+    }
+}
+
+tasks.register("buildKitAll_arm64") {
+    group = "build"
+    description = "Build all BuildKit arm64 images (excludes test and load test images)"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_arm64") &&
+                !testBuildKitServiceNames.contains(it.name.replaceAll('_arm64$', '')) &&
+                !loadTestBuildKitServiceNames.contains(it.name.replaceAll('_arm64$', ''))
+    }
+}
+
+tasks.register("buildKitLoadTestAll") {
+    group = "build"
+    description = "Build all load test BuildKit multi-arch images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") &&
+                !it.name.endsWith("_amd64") &&
+                !it.name.endsWith("_arm64") &&
+                loadTestBuildKitServiceNames.contains(it.name)
+    }
+}
+
+tasks.register("buildKitTestAll") {
+    group = "build"
+    description = "Build all test BuildKit multi-arch images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") &&
+                !it.name.endsWith("_amd64") &&
+                !it.name.endsWith("_arm64") &&
+                testBuildKitServiceNames.contains(it.name)
+    }
+}
+
+tasks.register("buildKitLoadTestAll_amd64") {
+    group = "build"
+    description = "Build all load test BuildKit amd64 images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_amd64") &&
+                loadTestBuildKitServiceNames.contains(it.name.replaceAll('_amd64$', ''))
+    }
+}
+
+tasks.register("buildKitTestAll_amd64") {
+    group = "build"
+    description = "Build all test BuildKit amd64 images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_amd64") &&
+                testBuildKitServiceNames.contains(it.name.replaceAll('_amd64$', ''))
+    }
+}
+
+tasks.register("buildKitLoadTestAll_arm64") {
+    group = "build"
+    description = "Build all load test BuildKit arm64 images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_arm64") &&
+                loadTestBuildKitServiceNames.contains(it.name.replaceAll('_arm64$', ''))
+    }
+}
+
+tasks.register("buildKitTestAll_arm64") {
+    group = "build"
+    description = "Build all test BuildKit arm64 images"
+    dependsOn rootProject.tasks.matching {
+        it.name.startsWith("buildKit_") && it.name.endsWith("_arm64") &&
+                testBuildKitServiceNames.contains(it.name.replaceAll('_arm64$', ''))
+    }
+}
+
+tasks.register("buildImagesToRegistry") {
+    group = "build"
+    description = "Build all multi-arch images to registry: ${publishedRegistry}"
+    println "buildImagesToRegistry will build images to registry: ${publishedRegistry}"
+    dependsOn(rootProject.tasks.named("buildKitBakeAll"))
+    dependsOn("jibAll")
+}
+
+tasks.register("buildImagesToRegistry_amd64") {
+    group = "build"
+    description = "Build all amd64 images to registry: ${publishedRegistry}"
+    println "buildImagesToRegistry_amd64 will build amd64 images to registry: ${publishedRegistry}"
+    dependsOn(rootProject.tasks.named("buildKitBakeAll_amd64"))
+    dependsOn("jibAll_amd64")
+}
+
+tasks.register("buildImagesToRegistry_arm64") {
+    group = "build"
+    description = "Build all arm64 images to registry: ${publishedRegistry}"
+    println "buildImagesToRegistry_arm64 will build arm64 images to registry: ${publishedRegistry}"
+    dependsOn(rootProject.tasks.named("buildKitBakeAll_arm64"))
+    dependsOn("jibAll_arm64")
+}

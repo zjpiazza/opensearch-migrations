@@ -154,7 +154,7 @@ def call(Map config = [:]) {
             stage('Deploy Source & AOSS Target') {
                 steps {
                     timeout(time: 60, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 withMigrationsTestAccount(region: params.REGION) { accountId ->
                                     def jenkinsRoleArn = "arn:aws:iam::${accountId}:role/JenkinsDeploymentRole"
@@ -244,7 +244,7 @@ def call(Map config = [:]) {
             stage('Perform CDC AOSS Tests') {
                 steps {
                     timeout(time: 2, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 sh "pipenv install --deploy"
                                 withMigrationsTestAccount(region: params.REGION, duration: 14400) { accountId ->

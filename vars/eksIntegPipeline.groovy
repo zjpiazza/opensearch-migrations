@@ -8,7 +8,7 @@ def call(Map config = [:]) {
     def targetClusterType = config.targetClusterType ?: ""
     def testIds = config.testIds ?: "0001,0002"
     def traceTestIds = config.traceTestIds ?: ""
-    def traceValuesFile = config.traceValuesFile ?: "../../deployment/k8s/charts/aggregates/migrationAssistantWithArgo/valuesTraceXray.yaml"
+    def traceValuesFile = config.traceValuesFile ?: "../../deploy/charts/aggregates/migrationAssistantWithArgo/valuesTraceXray.yaml"
     def traceBackend = config.traceBackend ?: "xray"
     def gitBranchDefault = config.gitBranchDefault ?: 'main'
     def clusterContextFilePath = "tmp/cluster-context-integ-${currentBuild.number}.json"
@@ -134,7 +134,7 @@ def call(Map config = [:]) {
 
                             parallel(
                                 'Deploy Clusters': {
-                                    dir('test') {
+                                    dir('tests/e2e') {
                                         deployClustersStep(
                                             stage: "${maStageName}",
                                             clusterContextFilePath: "${clusterContextFilePath}",
@@ -236,7 +236,7 @@ def call(Map config = [:]) {
             stage('Perform Python E2E Tests') {
                 steps {
                     timeout(time: 2, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 def testIdsArg = ""
                                 def testIdsResolved = testIds ?: params.TEST_IDS

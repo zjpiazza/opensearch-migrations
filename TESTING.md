@@ -1,10 +1,10 @@
 ## Gradle Usage
 
-[Gradle](https://gradle.org/) is used to build this repo, including its java artifacts as well as docker images.  Gradle handles dependencies between projects, compiling java code, running [JUnit](https://junit.org/junit5/) tests, and building docker images.  It can also deploy a demo/test environment via docker-compose for a rapid develop experience (see [dockerSolution](./TrafficCapture/dockerSolution/README.md)).
+[Gradle](https://gradle.org/) is used to build this repo, including its java artifacts as well as docker images.  Gradle handles dependencies between projects, compiling java code, running [JUnit](https://junit.org/junit5/) tests, and building docker images.  It can also deploy a demo/test environment via docker-compose for a rapid develop experience (see [dockerSolution](deploy/local/docker-compose/README.md)).
 
-The Gradle application is packaged within the repository, so one can simply run [gradlew](./gradlew) from the root of the repository.  `./gradlew tasks` will show the tasks available at the top-level.  `.../gradlew tasks` run in any subproject directory will show specific tasks that can be run for that project.  Gradle can publish a scan to `scans.gradle.com` of its logs, performance, etc. at the end of its run, which can be used to diagnose a number of issues from test failures to build performance.
+The Gradle application is packaged within the repository, so one can simply run [gradlew](gradlew) from the root of the repository.  `./gradlew tasks` will show the tasks available at the top-level.  `.../gradlew tasks` run in any subproject directory will show specific tasks that can be run for that project.  Gradle can publish a scan to `scans.gradle.com` of its logs, performance, etc. at the end of its run, which can be used to diagnose a number of issues from test failures to build performance.
 
-This `OpensearchMigrations` Gradle project is composed of many subprojects, defined by [settings.gradle](settings.gradle).  Those projects are configured similarly in the [build.gradle](./build.gradle) file.  Additional settings are defined in the [gradle.properties](./gradle.properties) file.
+This `OpensearchMigrations` Gradle project is composed of many subprojects, defined by [settings.gradle](settings.gradle).  Those projects are configured similarly in the [build.gradle](build.gradle) file.  Additional settings are defined in the [gradle.properties](gradle.properties) file.
 
 ## Tests and Parallelization  
 

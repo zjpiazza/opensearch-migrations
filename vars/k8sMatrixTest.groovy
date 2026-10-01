@@ -103,7 +103,7 @@ def call(Map config = [:]) {
                         def jobs = [:]
                         def results = [:]
 
-                        sh "mkdir -p libraries/testAutomation/reports"
+                        sh "mkdir -p tests/automation/reports"
 
                         sourceVersions.each { source ->
                             targetVersions.each { target ->
@@ -133,7 +133,7 @@ def call(Map config = [:]) {
                                                     projectName: childJobName,
                                                     selector: specific("${result.number}"),
                                                     filter: 'reports/**',
-                                                    target: "libraries/testAutomation/reports",
+                                                    target: "tests/automation/reports",
                                                     flatten: true,
                                                     optional: true
                                             )
@@ -258,7 +258,7 @@ def call(Map config = [:]) {
                 // live at the pipeline level (not inside pytest).
                 catchError(buildResult: null, stageResult: 'UNSTABLE', message: 'Failed to render matrix summary') {
                     timeout(time: 15, unit: 'MINUTES') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             sh '''
                                 pipenv install --deploy
                                 pipenv run app --test-reports-dir='./reports' --output-reports-summary-only

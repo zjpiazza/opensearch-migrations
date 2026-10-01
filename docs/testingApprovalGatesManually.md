@@ -5,7 +5,7 @@ running a full migration pipeline. It reaches both step-approval gates
 (`captureproxysetup`, `documentbackfill`) in seconds.
 
 > Automated coverage already exists: the `Test0003ApprovalGateIntegration` integration test
-> (`migrationConsole/lib/integ_test/integ_test/test_cases/basic_tests.py`) runs the migration with
+> (`apps/console/lib/integ_test/integ_test/test_cases/basic_tests.py`) runs the migration with
 > `skip-approvals=false`, blocks on the real `evaluatemetadata` gate, approves it via
 > `workflow approve step --all`, and verifies the migration completes. Use that for CI/regression
 > coverage. The workflow below is purely a fast, manual dev aid — copy it into a file to run it.

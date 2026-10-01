@@ -1,6 +1,6 @@
 # Implementation Plan — RFS Completion CronJob
 
-Companion to [`rfsCronJobMonitor.md`](./rfsCronJobMonitor.md). Lists what to change, in what order, on the `cronJobRfsChecks` branch.
+Companion to [`rfsCronJobMonitor.md`](rfsCronJobMonitor.md). Lists what to change, in what order, on the `cronJobRfsChecks` branch.
 
 ## Two-commit structure
 
@@ -29,16 +29,16 @@ The script lives **inline** in the manifest builder (matching the pattern of `ge
 
 ## C1 file changes
 
-### `orchestrationSpecs/packages/k8s-types/scripts/generate.ts`
+### `apps/orchestration/packages/k8s-types/scripts/generate.ts`
 Add `JobTemplateSpec` to `additionalTypes`. Run `npm run -w @opensearch-migrations/k8s-types rebuild` to regenerate `src/index.ts` and pick up the friendly alias. Verify diff is alias-only.
 
-### `deployment/k8s/charts/aggregates/migrationAssistantWithArgo/templates/resources/migrationCrds.yaml`
+### `deploy/charts/aggregates/migrationAssistantWithArgo/templates/resources/migrationCrds.yaml`
 
 Add `SnapshotMigration.status.documentBackfill` with:
 - `phase`, `updatedAt`, and `message`.
 - Structured `summary` fields normalized from `console --json backfill status --deep-check`: `percentageCompleted`, `etaMs`, `started`, `finished`, `shardsTotal`, `shardsMigrated`, `shardsInProgress`, and `shardsWaiting`.
 
-### `orchestrationSpecs/packages/migration-workflow-templates/src/workflowTemplates/documentBulkLoad.ts`
+### `apps/orchestration/packages/migration-workflow-templates/src/workflowTemplates/documentBulkLoad.ts`
 
 **Add:**
 - `getRfsDoneCronJobName(sessionName)` name builder.
@@ -70,7 +70,7 @@ Add `SnapshotMigration.status.documentBackfill` with:
 
 If any of these have external callers (other workflow templates, other tests), I'll flag and ask before deleting.
 
-### `orchestrationSpecs/packages/migration-workflow-templates/src/workflowTemplates/fullMigration.ts`
+### `apps/orchestration/packages/migration-workflow-templates/src/workflowTemplates/fullMigration.ts`
 
 In `runSingleSnapshotMigration`:
 - Remove the unconditional `patchSnapshotMigrationCompleted` step on the RFS path.
@@ -78,11 +78,11 @@ In `runSingleSnapshotMigration`:
 
 The `migrateFromSnapshot when:` guard (`currentConfigChecksum != configChecksum`) is unchanged.
 
-### `orchestrationSpecs/packages/migration-workflow-templates/src/workflowTemplates/rfsCoordinatorCluster.ts`
+### `apps/orchestration/packages/migration-workflow-templates/src/workflowTemplates/rfsCoordinatorCluster.ts`
 
 No source changes — the existing `createRfsCoordinator` (idempotent apply) is reused. The `deleteRfsCoordinator` template is no longer called by `setupAndRunBulkLoad`, but may still be used by `testMigrationWithWorkflowCli` or another caller. Grep before deleting.
 
-### `deployment/k8s/charts/aggregates/migrationAssistantWithArgo/templates/resources/workflowRbac.yaml`
+### `deploy/charts/aggregates/migrationAssistantWithArgo/templates/resources/workflowRbac.yaml`
 
 Add `cronjobs` to the existing batch RBAC rule. Verbs: `create get list watch update patch delete`.
 
@@ -93,7 +93,7 @@ Add `cronjobs` to the existing batch RBAC rule. Verbs: `create get list watch up
 
 ## C2 file changes (Python — separate commit, same PR)
 
-`migrationConsole/lib/console_link/console_link/workflow/`:
+`apps/console/lib/console_link/console_link/workflow/`:
 
 - `tree_utils.py`, `commands/status.py`, and TUI tree state helpers: for any RFS `waitForSnapshotMigration` node, read the named `SnapshotMigration` CR via the node's `resourceName` input and render `status.documentBackfill.summary` and `updatedAt`.
 

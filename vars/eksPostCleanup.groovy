@@ -27,7 +27,7 @@
  *   extraVerifyStacks   (optional) additional stack names to verify gone.
  *   timeoutMinutes      (default 75) post-block timeout.
  *   region              (default params.REGION) AWS region.
- *   archiveLogs         (default true) archive libraries/testAutomation/logs.
+ *   archiveLogs         (default true) archive tests/automation/logs.
  *
  * Usage (EKS with independent AOS domains, cluster stack lives outside MA VPC):
  *   eksPostCleanup(
@@ -64,8 +64,8 @@ def call(Map config) {
         script {
             withMigrationsTestAccount(region: region, duration: 4500) { accountId ->
                 if (archiveLogs) {
-                    sh "mkdir -p libraries/testAutomation/logs"
-                    archiveArtifacts artifacts: 'libraries/testAutomation/logs/**', allowEmptyArchive: true
+                    sh "mkdir -p tests/automation/logs"
+                    archiveArtifacts artifacts: 'tests/automation/logs/**', allowEmptyArchive: true
                 }
 
                 def steps = []

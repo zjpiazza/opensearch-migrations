@@ -61,7 +61,7 @@ def call(Map config = [:]) {
             stage('Deployment') {
                 steps {
                     timeout(time: 15, unit: 'MINUTES') {
-                        dir('deployment/migration-assistant-solution') {
+                        dir('deploy/distributions/aws-solution') {
                             script {
                                 env.STACK_NAME_SUFFIX = "${stage}-${params.REGION}"
                                 sh "npm install"
@@ -81,7 +81,7 @@ def call(Map config = [:]) {
             stage('Init Bootstrap') {
                 steps {
                     timeout(time: 90, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 withCredentials([string(credentialsId: 'migrations-test-account-id', variable: 'MIGRATIONS_TEST_ACCOUNT_ID')]) {
                                     withAWS(role: 'JenkinsDeploymentRole', roleAccount: "${MIGRATIONS_TEST_ACCOUNT_ID}", region: params.REGION, duration: 3600, roleSessionName: 'jenkins-session') {
@@ -97,7 +97,7 @@ def call(Map config = [:]) {
             stage('Verify Bootstrap Instance') {
                 steps {
                     timeout(time: 30, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 withCredentials([string(credentialsId: 'migrations-test-account-id', variable: 'MIGRATIONS_TEST_ACCOUNT_ID')]) {
                                     withAWS(role: 'JenkinsDeploymentRole', roleAccount: "${MIGRATIONS_TEST_ACCOUNT_ID}", region: params.REGION, duration: 3600, roleSessionName: 'jenkins-session') {
@@ -113,7 +113,7 @@ def call(Map config = [:]) {
         post {
             always {
                 timeout(time: 30, unit: 'MINUTES') {
-                    dir('deployment/migration-assistant-solution') {
+                    dir('deploy/distributions/aws-solution') {
                         script {
                             withCredentials([string(credentialsId: 'migrations-test-account-id', variable: 'MIGRATIONS_TEST_ACCOUNT_ID')]) {
                                 withAWS(role: 'JenkinsDeploymentRole', roleAccount: "${MIGRATIONS_TEST_ACCOUNT_ID}", region: params.REGION, duration: 3600, roleSessionName: 'jenkins-session') {

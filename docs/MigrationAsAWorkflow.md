@@ -627,7 +627,7 @@ workflow approve retry  kafkacluster.my-cluster    # after manually resetting an
 Gate names may be given with or without the `.vapretry` suffix.
 
 To exercise the approval-gate TUI/CLI by hand during development without running a full migration,
-see [testingApprovalGatesManually.md](./testingApprovalGatesManually.md). Automated coverage lives
+see [testingApprovalGatesManually.md](testingApprovalGatesManually.md). Automated coverage lives
 in the `Test0003ApprovalGateIntegration` integration test.
 
 ### Logging
@@ -860,7 +860,7 @@ This workflow represents one where the user has done granular migrations, one
 snapshot, one index, and one stage at a time. In this case, the user may have
 made changes, and validated the data. They may have run some steps repeatedly
 with different configurations. Those configurations may have included
-transformation/exclusion rules or possibly data sampling parameters, testing
+libs/transforms/exclusion rules or possibly data sampling parameters, testing
 incrementally more data until the last invocation migrated 100% of the data.
 
 In the diagram below, the gray nodes are represent those cloned directly from

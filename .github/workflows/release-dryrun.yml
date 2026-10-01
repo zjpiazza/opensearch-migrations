@@ -141,7 +141,7 @@ jobs:
 
       - name: Assemble self-contained aws-bootstrap.sh
         run: |
-          deployment/k8s/aws/assemble-bootstrap.sh
+          deploy/aws/assemble-bootstrap.sh
 
       - name: Upload source archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -159,19 +159,19 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cfn-templates
-          path: deployment/migration-assistant-solution/cdk.out-minified/*-eks.template.json
+          path: deploy/distributions/aws-solution/cdk.out-minified/*-eks.template.json
 
       - name: Upload Helm chart
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: helm-chart
-          path: deployment/k8s/build/helm-package/migration-assistant-${{ inputs.version }}.tgz
+          path: deploy/kubernetes/build/helm-package/migration-assistant-${{ inputs.version }}.tgz
 
       - name: Upload aws-bootstrap.sh
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: aws-bootstrap
-          path: deployment/k8s/aws/dist/aws-bootstrap.sh
+          path: deploy/aws/dist/aws-bootstrap.sh
 
       - name: Upload Docker images
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

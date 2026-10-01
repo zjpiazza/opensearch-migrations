@@ -13,7 +13,8 @@ not an adoption decision. Acceptance here is not upstream project approval.
 - Alternatives: rename existing folders only; group everything by language;
   split immediately into multiple repositories.
 - Tradeoffs: paths, build labels, CI consumers, docs, and packaging need migration.
-- Evidence: E-004. Implementation and performance impact are not established.
+- Evidence: E-004 audit and E-005 physical layout implementation. Dependency
+  boundary cleanup and performance impact are not established.
 - RFC candidate: repository organization and component boundaries.
 
 ## D-002 — Separate the migration engine from orchestration and providers
@@ -108,3 +109,24 @@ not an adoption decision. Acceptance here is not upstream project approval.
 - Preserve limitations, failed attempts, and superseded conclusions. Keep a
   compact evidence archive independent of temporary CI artifacts.
 - This is a working convention, not an additional approval gate.
+
+## D-008 — Relocate source before changing public identities or behavior
+
+- Status: implemented experiment, 2026-10-01; user authorized implementation and PR.
+- Decision: map the current components into the accepted responsibility groups,
+  with explicit Gradle project directories and updated CI, deployment, and source
+  paths. Keep public Gradle IDs, package names, artifact identities, and commands.
+- Alternative: change module identities, dependencies, languages, orchestration,
+  and filesystem locations together. That makes failures and RFC claims harder
+  to attribute to individual changes.
+- Transitional exceptions: `apps/orchestration`, both current interfaces, and
+  existing dependency edges remain. The root `buildSrc` shim and Jenkins `vars`
+  are framework conventions. `api` documents ownership without duplicating schemas.
+- Evidence: E-005 and `layout-map.json`; existing tests compile/run at new paths.
+- Compatibility cost: source-path consumers must migrate. External Jenkins job
+  script paths and Cloud Build config paths cannot be updated by a repository PR.
+- Rollback: revert the source-layout commit, then restore external path settings.
+  The preceding documentation checkpoint remains independently reviewable.
+- RFC claim supported: the repository can use responsibility-based source roots
+  while preserving current build/module identities. No test speedup or dependency
+  simplification is attributed to file relocation.
