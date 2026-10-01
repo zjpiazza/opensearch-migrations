@@ -565,3 +565,45 @@ Next question:
   The robust fix should remove the wait for child work on the caller's own shared
   pool (for example, asynchronous composition); simply lengthening timeouts does
   not resolve the dependency cycle. No live sizing/concurrency changes made.
+
+## E-012 — Verify remote cache replay before concurrency changes
+
+- Date: 2026-10-01. User requested cache validation first. Live process inspection
+  found that full-6, its continuation driver and local tunnel had stopped. The
+  saved BEP contains 429 passing targets and three failing targets, without a
+  build-finished event. The previous `waiting-for-seed` status was stale; corrected
+  it to report interruption. No completed full-suite result is inferred.
+- Selected exactly the 429 recorded passing targets. This deliberately tests
+  cache mechanics independently of repairing the seed's failures. Ten of the
+  439 targets remain unvalidated; their identities are retained in the evidence.
+- Restored the authenticated frontend tunnel and ran an unchanged-input replay
+  with a fresh, previously nonexistent Bazel output base, disabled disk cache,
+  the same `migrations-pilot` instance and `--experimental_remote_require_cached`.
+  Kept `--config=buildbarn`, nine client jobs, `--test_timeout=7200`, and disabled
+  local fallback. A cache miss must fail instead of executing or seeding a result.
+  Target patterns, full command, BEP, execution log and timing are retained under
+  ignored `build/full-suite-evidence/cache-validation-2/`.
+- Result: **429/429 remote cache hits, zero local test-result hits, zero fresh
+  test executions**, exit code zero. End-to-end client elapsed time was **29.280
+  seconds**; Bazel reported 27.289 seconds. Fresh-client analysis/runfiles setup
+  and downloaded reports are included; Gradle compilation/runtime export are not.
+- Independent checks: all 429 execution records identify `remote cache hit`.
+  Compared 2,566 output files (233,003,630 bytes) against seed outputs using SHA-256:
+  zero mismatches. Reports contain 4,414 unique passing JUnit cases and three
+  skipped cases. The other 380 baseline passing cases are outside this validation;
+  cached XML does not mean those 4,414 cases executed again.
+- Negative control: requested the already-cached `UnboundVersionMatchersTest`
+  from another fresh client with an added declared test environment variable.
+  The action missed the cache and was rejected with `EXECUTION_DENIED` and
+  `Action must be cached due to --experimental_remote_require_cached but it is not`.
+  No test ran. This establishes invalidation for that declared input; the earlier
+  leaf/shared source-change scenarios remain pending.
+- Connection failures are excluded from the result: the first positive attempt
+  found no local tunnel, and the first negative attempt hit a tunnel reset.
+  Retried each from a new output base after restoring connectivity. The successful
+  negative control managed its tunnel for the duration of the command.
+- [Compact evidence and target coverage](evidence/remote-cache-validation.json).
+  Cache reuse works for the validated set, including container integration tests.
+  This is not yet an all-green 439-target benchmark, nor proof that mutable Docker
+  image tags/other external state are fully represented in cache keys. Worker
+  sizing, placement, concurrency, test code and timeouts were unchanged.
