@@ -1142,3 +1142,11 @@ Next question:
   NoStoredSource policy remains unapplied until after the CPU comparison.
 - [Complete coverage](evidence/sharded-standard-complete-summary.json) and
   [all class comparisons](evidence/sharded-standard-complete-comparison.json).
+- Rollout completed with 32 ready standard workers. Restored maxUnavailable=1
+  and maxSurge=0, and verified Docker cpu.max=300000/100000 on a live worker.
+  Started `standard-long-cpu3-1`, driver child PID 2172214, with identical selected
+  targets and generated BUILD hash. Dashboard 8766 now follows this run.
+- This run starts with all 32 pods ready and cold private Docker caches; the first
+  run scaled from two retained pods to 32. Report those differences separately
+  from CPU limits rather than claiming a fully isolated causal comparison.
+  [Launch configuration](evidence/standard-docker-cpu3-launch.json).

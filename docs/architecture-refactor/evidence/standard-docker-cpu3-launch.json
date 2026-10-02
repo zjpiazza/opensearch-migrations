@@ -1,0 +1,39 @@
+{
+  "run": "standard-long-cpu3-1",
+  "started": {
+    "phase": "running",
+    "pid": 2172214,
+    "started_at_epoch": 1790907826.340965,
+    "target_count": 12,
+    "shard_count": 76
+  },
+  "same_targets_and_generated_build": true,
+  "test_classes": 12,
+  "shards": 76,
+  "docker_cpu_before": "1500m",
+  "docker_cpu_after": "3",
+  "docker_memory": "6Gi",
+  "runner_cpu": "1",
+  "runner_memory": "3Gi",
+  "ready_workers_before_launch": 32,
+  "sampled_cpu_max": "300000 100000",
+  "rollout_strategy_after": {
+    "rollingUpdate": {
+      "maxSurge": 0,
+      "maxUnavailable": 1
+    },
+    "type": "RollingUpdate"
+  },
+  "new_pod_count": 32,
+  "worker_nodes": [
+    "bazel-execution-3xkl3w",
+    "bazel-execution-3xktu3",
+    "bazel-execution-3xktu8",
+    "bazel-execution-3xktuu",
+    "bazel-execution-3xktv8",
+    "bazel-execution-3xktvc",
+    "bazel-execution-3xktvu"
+  ],
+  "cache_state": "Fresh standard pods; private Docker caches cold. Remote input/build caches remain available. No test-result reuse. First run included 2 retained workers and a scale-up from 2 to 32; this run starts with 32 ready.",
+  "limitation": "Observed end-to-end difference includes worker readiness and image-cache-state differences. Do not attribute entire difference to CPU limit alone."
+}
