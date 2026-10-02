@@ -8,10 +8,12 @@ from pathlib import Path
 import subprocess
 import sys
 import tarfile
+import time
 import xml.etree.ElementTree as ET
 
 
 def main():
+    started = time.monotonic()
     spec_path = Path(sys.argv[1]).resolve()
     # Every spec lives under specs/ in the generated repository.
     bundle = spec_path.parent.parent
@@ -72,6 +74,8 @@ def main():
     print('Gradle task:', spec['task'], 'class:', sys.argv[2], flush=True)
     # Preserve complete diagnostics without making Bazel transfer the same large
     # stdout twice (test.log and its fallback synthetic test.xml).
+    prepared = time.monotonic()
+    print('Fixture preparation seconds:', round(prepared - started, 3), flush=True)
     tail = deque(maxlen=4)
     with gzip.open(output / 'test-output.log.gz', 'wb', compresslevel=1) as log:
         with subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE,
@@ -80,6 +84,7 @@ def main():
                 log.write(chunk)
                 tail.append(chunk)
             code = child.wait()
+    executed = time.monotonic()
     print(b''.join(tail).decode('utf-8', errors='replace')[-8000:], flush=True)
     reports = ET.Element('testsuites')
     filtered = 0
@@ -106,7 +111,13 @@ def main():
                 'See test-output.log.gz for complete diagnostics.')
     ET.ElementTree(reports).write(os.environ['XML_OUTPUT_FILE'], encoding='utf-8', xml_declaration=True)
     (output / 'invocation.json').write_text(json.dumps({'task':spec['task'], 'class':sys.argv[2], 'exit_code':code,
-                                                      'shard_index':shard_index, 'shard_count':shards, 'cases_owned_by_other_shards':filtered}))
+                                                      'shard_index':shard_index, 'shard_count':shards, 'cases_owned_by_other_shards':filtered,
+                                                      'timing_seconds': {
+                                                          'preparation': round(prepared - started, 3),
+                                                          'execution': round(executed - prepared, 3),
+                                                          'reporting': round(time.monotonic() - executed, 3),
+                                                          'total': round(time.monotonic() - started, 3),
+                                                      }}))
     return code
 
 

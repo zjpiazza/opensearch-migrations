@@ -1033,3 +1033,24 @@ Next question:
   original identities and every container has zero restarts. The transient
   FileSystemResizePending condition cleared through kubelet online expansion.
   [Verified expansion evidence](evidence/docker-pvc-expansion.json).
+
+
+### E-025 — Use idle standard workers while the large-pool tail continues
+
+- User authorized concurrent testing on the standard integration pool. Selected
+  only its 12 configured long classes (76 shard actions), excluding all four
+  sharded large-pool classes. Keep current worker CPU/memory limits unchanged.
+- Prepared an independent runtime in `experimental`; verified 68 runtime archives
+  byte-for-byte against the baseline. Only the image-duration logger changed in
+  the shared fixture archive. The original runtime remains untouched.
+- Added a focused-run driver with fresh output directory, explicit pool selection,
+  forced test execution, recorded process state and automatic selected-case
+  validation. Added wrapper preparation/execution/reporting timings. The actual
+  wrapper/shard contract checks pass for 2/4/8 partitions, including exactly-once
+  cases and failure/disabled-test preservation.
+- This is a shared-cluster throughput experiment: standard and large queues use
+  separate pods but share physical nodes, CAS and networking. Do not attribute
+  all elapsed-time changes to partitioning or claim unchanged contention.
+- Runtime and Docker caches may be warm. LeaseExpirationTest previously had an
+  OOM-associated failure; splitting cases is not proof that its memory need is
+  fixed. Retain failures and compare full case identities, not just passing counts.

@@ -215,3 +215,26 @@ real disabled tests, excluding only cases assigned to a different shard.
 See [long-test analysis](../../../../docs/architecture-refactor/long-test-partitioning.md)
 for observed durations, fixture constraints, validation and pending cluster
 measurements. Local adapter checks are not evidence of integration-test speedup.
+
+
+To fill the standard integration pool with only configured long-test shards:
+
+```bash
+python3 tools/build/bazel/full-suite/run-focused.py --pool integration \
+  --instance migrations-mixed-workers-1 \
+  --baseline /path/to/coverage-baseline.json \
+  --output build/full-suite-evidence/standard-long-sharded-1
+```
+
+This currently selects 12 classes / 76 actions and excludes all large-worker
+classes. It records a fresh client, routing, target inventory and process status,
+forces test execution, then validates complete case coverage without duplicate
+executions. Use a new output directory per run. The wrapper records preparation,
+execution and reporting durations separately in each `invocation.json`.
+
+A separate exported-runtime copy allows this run to coexist with the earlier
+large-pool tail without modifying its inputs. Pools have separate slots but
+share nodes, storage services and network capacity; record overlapping activity
+when interpreting wall time. Compiled runtime reuse is not a compilation-speed
+measurement. Preserve the original runtime and record any refreshed fixture
+helpers before running.
