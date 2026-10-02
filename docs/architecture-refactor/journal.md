@@ -1054,3 +1054,11 @@ Next question:
 - Runtime and Docker caches may be warm. LeaseExpirationTest previously had an
   OOM-associated failure; splitting cases is not proof that its memory need is
   fixed. Retain failures and compare full case identities, not just passing counts.
+- Launched `standard-long-sharded-1` from `0823f7be0`; driver PID 1576515,
+  Bazel invocation `febe77cd-eda9-4966-81c9-cd92bb2963e4`. Evidence lives under
+  `build/full-suite-evidence/standard-long-sharded-1` in the experimental worktree;
+  the focused dashboard is http://localhost:8766 (baseline remains on 8765).
+- Standard workers had scaled down to two retained slots before submission and
+  ramped back toward 32, reaching about 30 executing actions in the first 90s.
+  New workers have cold private Docker caches. Include this startup interval in
+  end-to-end elapsed time; final timings and coverage validation remain pending.
