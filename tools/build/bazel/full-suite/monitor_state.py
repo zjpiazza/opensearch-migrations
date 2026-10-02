@@ -131,6 +131,8 @@ class Monitor:
         bep = max((p for p in candidates if p.exists()), key=lambda p: p.stat().st_mtime, default=self.args.seed)
         run_label = self.args.label if bep == self.args.seed else bep.parent.name.capitalize() + ' comparison'
         events = read_events(bep)
+        interrupted = current in ('interrupted', 'cancelled')
+        terminal = interrupted or any('finished' in e for e in events)
         results = {}
         for event in events:
             if 'testResult' not in event:
@@ -168,9 +170,9 @@ class Monitor:
                     row['seconds'] = (int(summary['lastStopTimeMillis']) - int(summary['firstStartTimeMillis'])) / 1000
             elif running:
                 row.update(status='RUNNING', worker=', '.join(r['worker'] for r in running))
-            elif completed and not any('finished' in e for e in events):
+            elif completed and not terminal:
                 row['status'] = 'IN_PROGRESS'
-            elif any('finished' in e for e in events):
+            elif terminal:
                 row['status'] = 'INCOMPLETE'
             rows.append(row)
         counts = Counter(row['status'] for row in rows)
@@ -189,6 +191,7 @@ class Monitor:
                 'cached_shards': sum(r['cached'] for target, shards in results.items()
                                      if target in selected for r in shards.values()),
                 'cached': sum(r['cached'] for r in rows), 'tests': rows,
-                'elapsed_seconds': ((int(end) / 1000 if end else time.time()) - int(start) / 1000) if start else None,
+                'elapsed_seconds': ((int(end) / 1000 if end else time.time()) - int(start) / 1000)
+                                   if start and (end or not interrupted) else None,
                 'finished': any('finished' in e for e in events), 'workers': live, 'pools': pools,
                 'driver_error': phase.get('error'), 'updated_at': time.time()}

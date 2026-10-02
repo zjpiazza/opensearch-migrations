@@ -1200,3 +1200,29 @@ Next question:
   The test run is still in progress; this is launch validation, not a result.
   [Restart preflight](evidence/long-tests-clean-preflight.json) and
   [fresh-run launch](evidence/long-tests-clean-launch.json).
+
+### E-032 — Identify image throttling and validate a shared image cache
+
+- `long-tests-clean-1` recorded 90/131 shard results and twelve completed standard
+  classes: eight passed and four failed. Logs identify Docker Hub HTTP 429
+  unauthenticated pull-limit failures. No test-result cache hits were recorded.
+- All 32 standard workers became idle while the eight large workers retained
+  queued work. Separate platform routing therefore strands available capacity;
+  a shared Docker-capable queue is the next scheduling experiment to prepare.
+- Deployed an internal Distribution 3.1.2 cache on the services node with a
+  persistent 50-GiB PVC. The independent image-cache overlay does not reconfigure
+  active workers. Verified all Ryuk amd64 blobs by digest and size on two API
+  fetches, then enabled the mirror on one idle standard worker through Docker's
+  supported live reload. Registry logs confirm that real Docker pull reached the
+  mirror and the image ID stayed identical. Existing local layers were warm;
+  this is a routing/integrity check, not a download or suite speedup benchmark.
+- Other workers remain unconfigured. Public image caching does not share custom
+  image builds, and upstream quota/tag revalidation still require measurement.
+- During the subsequent status check the benchmark client and driver were
+  absent, tool session 51121 no longer existed, and no terminal BEP event was
+  written. Exit cause is unknown. Verified zero active remote test processes and
+  marked the saved run interrupted. The TUI now labels unfinished classes
+  incomplete and suppresses an elapsed timer when the stop time is unknown.
+- [Cache and interruption evidence](evidence/image-cache-pilot.json).
+  The run has not been restarted. Persist the cache configuration and improve
+  queue sharing before the next full long-test comparison.
