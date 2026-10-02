@@ -63,7 +63,34 @@ each next phase, and restores the prepared runtime after source-change scenarios
 Keep the authenticated Buildbarn tunnel running. A failed/interrupted seed stops
 the driver; it does not turn a partial run into a cache benchmark.
 
-## Live test dashboard
+## Terminal monitor
+
+Run the TUI in your terminal after starting a focused benchmark:
+
+```bash
+python3 tools/build/bazel/full-suite/tui.py \
+  --run build/full-suite-evidence/long-tests-clean-1
+```
+
+It uses Python's standard-library curses support: no web server, browser or
+additional Python dependencies. The run's saved inventory and selected targets
+determine what is displayed. Results refresh every two seconds; live worker
+observations refresh about every ten seconds using the existing `kubectl`
+credentials for `do-atl1-bazel`. Unavailable or stale worker observations are
+shown explicitly; process counts exclude input transfer and cleanup.
+
+- `1` active shards, `2` class results, `3` failures/incomplete results.
+- Arrow keys or `j`/`k` select; Page Up/Down scroll; Enter shows details and the
+  local test-output directory.
+- `/` filters by target or worker; Escape clears the filter or closes details.
+- `q` closes only the monitor. Tests keep running independently.
+- `--once` prints saved results without contacting Kubernetes, useful in logs or
+  a noninteractive shell. It does not report live worker availability.
+
+`monitor_state.py` provides the shared event/worker reader. The legacy web entry
+point remains available for older commands below; the new run uses the TUI.
+
+## Legacy web dashboard
 
 To measure full test execution without result reuse, use a fresh output directory:
 
@@ -233,6 +260,14 @@ classes. It records a fresh client, routing, target inventory and process status
 forces test execution, then validates complete case coverage without duplicate
 executions. Use a new output directory per run. The wrapper records preparation,
 execution and reporting durations separately in each `invocation.json`.
+
+Use `--pool all` to combine the configured standard and large long-test classes
+in one invocation and one coverage report (16 classes / 131 actions with the
+default shard policy). This still excludes unsharded and short tests. When
+restarting a benchmark, cancel existing clients and verify the scheduler has no
+queued or executing operations before launching the replacement. Preserve old
+results as interrupted evidence; a fresh run does not require deleting reusable
+build inputs or Docker images.
 
 A separate exported-runtime copy allows this run to coexist with the earlier
 large-pool tail without modifying its inputs. Pools have separate slots but

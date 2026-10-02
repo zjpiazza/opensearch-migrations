@@ -1170,3 +1170,25 @@ Next question:
   67 passing and 20 image-build failures out of 87 cases. Do not use that failed
   action as a speed baseline. Metadata EndToEndTest is still running.
 - [Utilization evidence](evidence/standard-docker-cpu3-utilization.json).
+
+### E-031 — Cancel overlapping runs and consolidate terminal monitoring
+
+- User requested cancelling all in-progress tests and starting from scratch.
+  Sent SIGINT to both Bazel clients and waited until Buildbarn reported zero
+  queued and zero executing operations. Saved interrupted results and monitor
+  snapshots; the CPU=3 trial is incomplete and has no whole-run speedup claim.
+- Completed the pending 100-GiB Docker-volume template rollout for all eight
+  large workers while idle. Restored maxUnavailable=1 after rollout. The 32
+  standard workers retain their private caches and Docker CPU=3 trial limit;
+  replacement large workers start with empty private Docker caches.
+- Added `run-focused.py --pool all` for one invocation spanning the 16 configured
+  long classes / 131 shards. Short/unsharded tests stay excluded. Test-result
+  reuse remains disabled; compiled inputs and image/build caches may be reused.
+- User requested a TUI instead of web monitoring. Added standard-library curses
+  views for active shards, class results and failures, filtering and output-path
+  details. The event/worker reader is shared with the legacy web entry point;
+  no web server is needed. Both old web processes were stopped. Quitting the TUI
+  leaves the benchmark running.
+- Verified the reader against the saved 12-class / 76-shard successful run and
+  probes for missing/partial BEP, partial shard completion, cached results,
+  interrupted results and unavailable worker observations.

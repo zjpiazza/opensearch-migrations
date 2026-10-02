@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run only configured long-test shards on one worker pool, with coverage validation."""
+"""Run configured long-test shards on selected worker pools, with coverage validation."""
 import argparse
 import hashlib
 import json
@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[4]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--pool', choices=['integration', 'integration-large'], required=True)
+    parser.add_argument('--pool', choices=['integration', 'integration-large', 'all'], required=True,
+                        help='all combines both integration pools in one invocation')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--instance', required=True)
@@ -21,7 +22,8 @@ def main():
     runtime = ROOT / 'build/full-suite'
     inventory = json.loads((runtime / 'inventory.json').read_text())
     selected = [t for t in inventory['targets'] if t.get('shard_count', 1) > 1
-                and t.get('exec_properties', {}).get('workload') == args.pool]
+                and t.get('exec_properties', {}).get('workload') in
+                ({'integration', 'integration-large'} if args.pool == 'all' else {args.pool})]
     if not selected:
         parser.error('No configured long-test shards on the selected pool; run sharding.py first')
     baseline = args.baseline.resolve(strict=True)

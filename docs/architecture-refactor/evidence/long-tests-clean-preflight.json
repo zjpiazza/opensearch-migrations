@@ -1,0 +1,101 @@
+{
+  "cancelled_at_epoch": 1790908366.0007923,
+  "bazel_clients": [
+    169366,
+    2172214
+  ],
+  "scheduler_queued_operations": 0,
+  "scheduler_executing_operations": 0,
+  "reason": "User requested cancelling all in-progress runs and restarting one clean long-test run.",
+  "workers": [
+    {
+      "pool": "worker-integration",
+      "replicas": 32,
+      "ready": 32,
+      "containers": {
+        "worker": {
+          "limits": {
+            "cpu": "250m",
+            "memory": "384Mi"
+          },
+          "requests": {
+            "cpu": "50m",
+            "memory": "128Mi"
+          }
+        },
+        "runner": {
+          "limits": {
+            "cpu": "1",
+            "ephemeral-storage": "12Gi",
+            "memory": "3Gi"
+          },
+          "requests": {
+            "cpu": "1",
+            "ephemeral-storage": "2Gi",
+            "memory": "3Gi"
+          }
+        },
+        "docker": {
+          "limits": {
+            "cpu": "3",
+            "ephemeral-storage": "40Gi",
+            "memory": "6Gi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "4Gi",
+            "memory": "6Gi"
+          }
+        }
+      },
+      "docker_volume": "40Gi"
+    },
+    {
+      "pool": "worker-integration-large",
+      "replicas": 8,
+      "ready": 8,
+      "containers": {
+        "worker": {
+          "limits": {
+            "cpu": "250m",
+            "memory": "384Mi"
+          },
+          "requests": {
+            "cpu": "50m",
+            "memory": "128Mi"
+          }
+        },
+        "runner": {
+          "limits": {
+            "cpu": "2",
+            "ephemeral-storage": "12Gi",
+            "memory": "3Gi"
+          },
+          "requests": {
+            "cpu": "2",
+            "ephemeral-storage": "2Gi",
+            "memory": "3Gi"
+          }
+        },
+        "docker": {
+          "limits": {
+            "cpu": "1500m",
+            "ephemeral-storage": "40Gi",
+            "memory": "6Gi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "4Gi",
+            "memory": "6Gi"
+          }
+        }
+      },
+      "docker_volume": "100Gi"
+    }
+  ],
+  "next_run": "long-tests-clean-1",
+  "selected_classes": 16,
+  "selected_shards": 131,
+  "cache_policy": "No test-result reuse; retained standard-worker images and build inputs may be reused. Large workers replaced for 100Gi scratch volumes.",
+  "tui_validation": "Actual terminal: views/navigation/details/filtering, resizing from 140x36 to 60x12 and back, then quit; exit 0."
+}
