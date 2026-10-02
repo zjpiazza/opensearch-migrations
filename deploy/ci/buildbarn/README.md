@@ -52,7 +52,8 @@ nested containers via `start-docker.sh`. Each pod retains its own Docker daemon;
 its action-boundary cleaner is unsafe with concurrent actions sharing that daemon.
 
 The v5 nodes still have only an 80-GiB boot disk. Each Docker worker therefore
-uses **12-GiB workspace and 40-GiB Docker generic ephemeral PVCs**, separate from
+uses a **12-GiB workspace PVC** and a **40-GiB Docker PVC** (standard) or
+**100-GiB Docker PVC** (large-worker template), separate from
 node-local storage. The `buildbarn-worker-scratch` StorageClass binds on placement
 and deletes backing volumes when their owning pods/PVCs are deleted. Each worker
 uses two CSI attachments (the observed driver advertises fifteen per node).
@@ -60,6 +61,13 @@ This adds block-storage cost, provisioning delay and different I/O performance;
 measure those effects. Existing CAS/action-cache PVCs are retained across migration.
 The cleaner removes leftover containers and build cache, then prunes unused tagged
 images when retained layers exceed 20 GiB. Single-action peaks can still fill a volume.
+
+The three active long-test Docker PVCs were expanded online from 40 to 100 GiB
+after disk exhaustion. The large-worker template now requests 100 GiB, but its
+live Deployment rollout is deferred until the active baseline completes to avoid
+replacing test workers. Existing other PVCs remain at 40 GiB; changing a pod
+template does not resize them. The Docker container's `ephemeral-storage` limit
+applies to node-local writable layers/logs, not its mounted block-storage PVC.
 
 The explicit [routing policy](../../../tools/build/bazel/full-suite/worker-routing.json)
 sends 101 targets to lightweight workers, 327 to standard integration, and 11 to
@@ -203,8 +211,8 @@ the test runner drops all capabilities.
 
 This is a trusted-code experiment, not a multi-tenant execution service. Worker
 and runner share a pod and writable build directory; test actions can reach
-internal Buildbarn services. Integration pods include privileged Docker sidecars with an isolated 40-GiB
-emptyDir image store and shared action directory, but no host socket or host
+internal Buildbarn services. Integration pods include privileged Docker sidecars with a private Docker PVC
+and shared action directory, but no host socket or host
 filesystem mounts. Those privileges weaken host isolation and were explicitly
 approved for this experiment. No cloud credentials are supplied to test actions.
 A production installation needs its own access/isolation and availability design.

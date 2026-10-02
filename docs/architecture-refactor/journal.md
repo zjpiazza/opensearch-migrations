@@ -1010,3 +1010,26 @@ Next question:
   a speedup. Preserve coverage and measure resource changes independently.
 - [Analysis](long-test-partitioning.md#live-tail-finding-docker-disk-exhaustion) and
   [disk evidence](evidence/long-test-disk-exhaustion.json).
+
+
+### E-024 — Expand the three exhausted Docker PVCs
+
+- User approved expanding the three active large-worker Docker PVCs from 40 to
+  100 GiB each: 180 GiB additional provisioned block storage. Patched PVC requests
+  through Kubernetes; no node changes, pruning, or worker restart was requested.
+- The source large-worker template now requests 100 GiB for future Docker PVCs.
+  Standard workers retain 40 GiB and workspace volumes retain 12 GiB. Rendered
+  Kustomize configuration validates. The live Deployment template rollout is
+  deferred until the active baseline finishes, because rolling replacement
+  would interrupt its remaining actions. Applying this template later can add
+  another 300 GiB when the other five current large-worker slots are replaced.
+- The Docker container's 40-GiB ephemeral-storage limit remains unchanged: it
+  applies to node-local logs and writable layers, not the mounted Docker PVC.
+- The active run now includes a storage intervention. Preserve its disk failures
+  and this timing in the evidence; do not present the final tail duration as an
+  uninterrupted successful baseline. Earlier completed test timings are intact.
+- Verified all three PVC capacities at 100 GiB with no pending conditions. Mounted
+  filesystems report approximately 56 GiB free each. All three pods retain their
+  original identities and every container has zero restarts. The transient
+  FileSystemResizePending condition cleared through kubelet online expansion.
+  [Verified expansion evidence](evidence/docker-pvc-expansion.json).

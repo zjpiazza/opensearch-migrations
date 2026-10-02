@@ -1,0 +1,48 @@
+{
+  "observed_at_utc": "2026-10-02T01:53:13.150110+00:00",
+  "added_provisioned_GiB": 180,
+  "online_expansion": true,
+  "pvcs": [
+    {
+      "pvc": "worker-integration-large-764f8b6b5d-8wvvh-docker",
+      "before": "40Gi",
+      "after": "100Gi",
+      "pod_uid": "ff9cd280-8270-4aba-b6c6-5cfa16c48a49",
+      "pod_created_at": "2026-10-02T00:42:00Z",
+      "container_restarts": {
+        "docker": 0,
+        "runner": 0,
+        "worker": 0
+      },
+      "filesystem_df_kib": "Filesystem           1024-blocks    Used Available Capacity Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-c69ac444-a582-4ab2-8dda-68f3d62d5cba                                                     102888856  39122860  59114968  40% /var/lib/docker\n"
+    },
+    {
+      "pvc": "worker-integration-large-764f8b6b5d-kpkcw-docker",
+      "before": "40Gi",
+      "after": "100Gi",
+      "pod_uid": "c8686210-e076-4116-8753-c90a8b97e827",
+      "pod_created_at": "2026-10-02T00:42:00Z",
+      "container_restarts": {
+        "docker": 0,
+        "runner": 0,
+        "worker": 0
+      },
+      "filesystem_df_kib": "Filesystem           1024-blocks    Used Available Capacity Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-74264028-94c7-48fe-9589-71a9afbcf7a4                                                     102888856  39733864  58503964  40% /var/lib/docker\n"
+    },
+    {
+      "pvc": "worker-integration-large-764f8b6b5d-rv9fh-docker",
+      "before": "40Gi",
+      "after": "100Gi",
+      "pod_uid": "203950ea-3018-4412-88ff-910f7331c898",
+      "pod_created_at": "2026-10-02T00:41:00Z",
+      "container_restarts": {
+        "docker": 0,
+        "runner": 0,
+        "worker": 0
+      },
+      "filesystem_df_kib": "Filesystem           1024-blocks    Used Available Capacity Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-efdb0529-2816-4f52-bf08-76aefea753e2                                                     102888856  39589072  58648756  40% /var/lib/docker\n"
+    }
+  ],
+  "large_worker_template": "100Gi in repository; live rollout deferred until active baseline completes",
+  "benchmark_caveat": "Storage resized during the already disk-constrained uncached run; tail timings include intervention."
+}
