@@ -864,3 +864,27 @@ Next question:
   the active command, BEP cache-hit checks, live dashboard source/label/results,
   Python syntax and diff checks. Final suite timing, coverage and failures remain
   pending; the known npm input-upload problem is separate from caching policy.
+
+### E-018 — Observe saturation; defer hardware benchmarks until suite completion
+
+- User requested matched GitHub versus DigitalOcean CPU, memory and I/O testing,
+  then explicitly deferred that work until the active uncached suite finishes.
+  No synthetic hardware benchmarks have been started. Do not contend with or
+  change the running suite to collect hardware benchmark results.
+- Read-only kubelet cumulative CPU snapshots over 50–51 seconds across seven
+  sixteen-vCPU execution nodes: **44.42 / 112 cores, 39.7% utilization**. Individual
+  nodes averaged 2.96–8.67 cores of sixteen. This is not full CPU saturation.
+- Memory working set totaled **75.22 GiB**, versus **403.36 GiB allocatable**.
+  Worker pod reservations alone totaled **377.5 GiB** (93.6% of allocatable);
+  these reservations are not measured consumption or justified per-test peaks.
+  Total memory usage also contains substantial reclaimable file cache, recorded
+  separately in the per-node samples. Do not size workers from working-set averages.
+- Dashboard checkpoint: **354 passed targets, 36 running, 49 pending, zero cache
+  hits**; 44 workers Ready out of 52 desired. Eight lightweight pods were Pending;
+  scheduling messages report insufficient memory and topology constraints. The
+  current constraint includes reservation/placement policy, despite idle CPU.
+- Preserve this run for comparison. After it finishes, measure matched hardware
+  and per-test resource peaks, then evaluate worker density/CPU limits and topology
+  together. This checkpoint makes no resource changes and initiates no new tests.
+- [Measured utilization](evidence/larger-node-utilization.json); raw snapshots in
+  ignored `build/full-suite-evidence/larger-nodes/utilization-active/`.
