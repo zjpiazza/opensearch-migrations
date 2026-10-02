@@ -1,0 +1,37 @@
+{
+  "observed_at_epoch": 1790910186.6206172,
+  "cluster": "bazel",
+  "pools": [
+    {
+      "name": "bazel-execution",
+      "desired_nodes": 0,
+      "auto_scale": false,
+      "remaining_nodes": []
+    },
+    {
+      "name": "build-services",
+      "desired_nodes": 0,
+      "auto_scale": false,
+      "remaining_nodes": [
+        {
+          "name": "build-services-3xktiw",
+          "status": {
+            "state": "deleting"
+          }
+        }
+      ]
+    }
+  ],
+  "actual_cluster_droplets": [
+    {
+      "name": "build-services-3xktiw",
+      "status": "active"
+    }
+  ],
+  "registered_nodes": 1,
+  "scratch_pvs_remaining": 0,
+  "retained_cache_GiB": 62,
+  "workload_replicas": 0,
+  "worker_autoscaler_suspended": true,
+  "managed_ha_control_plane": true
+}

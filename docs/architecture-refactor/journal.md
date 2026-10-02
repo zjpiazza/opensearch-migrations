@@ -1226,3 +1226,21 @@ Next question:
 - [Cache and interruption evidence](evidence/image-cache-pilot.json).
   The run has not been restarted. Persist the cache configuration and improve
   queue sharing before the next full long-test comparison.
+
+### E-033 — Pause overnight and remove expensive execution capacity
+
+- Owner requested minimum overnight size and continuation in the morning.
+  Suspended bb-autoscaler, scaled all six Deployments and both StatefulSets to
+  zero, and set both DigitalOcean pools to count zero with node autoscaling off.
+- Provider verification confirms all eight 16-vCPU/64-GB execution droplets and
+  all 80 worker scratch volumes are deleted. Four persistent cache claims remain,
+  totaling 62 GiB. Source, exported runtimes and local results are preserved.
+- The final 4-vCPU/16-GB services node still reports deleting, with no attached
+  volumes or application pods. Its managed connectivity-agent pod is protected
+  by a disruption budget. A provider skip-drain request was rejected because the
+  pool desired count is already zero; automatic approval review then rejected
+  direct deletion of that managed pod. Normal provider draining remains active.
+  This final droplet, persistent volumes and the HA control plane remain billable
+  until their applicable lifecycle ends; the standalone VM is unchanged.
+- No automatic resume is scheduled. [Restore instructions](overnight-pause.md)
+  and [verified shutdown state](evidence/overnight-pause.json).
