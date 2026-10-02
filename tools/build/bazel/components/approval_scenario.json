@@ -1,0 +1,5 @@
+{
+  "namespace": "ma",
+  "workflow": "migration-workflow",
+  "snapshot_migration_name": "source1-target1-testsnapshot-migration-0"
+}

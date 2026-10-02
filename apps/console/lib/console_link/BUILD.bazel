@@ -1,0 +1,32 @@
+load("@rules_python//python:defs.bzl", "py_library")
+load("@console_pypi//:requirements.bzl", "requirement")
+
+# Keep the approval component independent of the console image and unrelated CLI commands.
+py_library(
+    name = "approval",
+    srcs = [
+        "console_link/workflow/commands/approve.py",
+        "console_link/workflow/commands/argo_utils.py",
+        "console_link/workflow/commands/autocomplete_workflows.py",
+        "console_link/workflow/commands/crd_utils.py",
+        "console_link/workflow/commands/hints.py",
+        "console_link/workflow/models/utils.py",
+        "console_link/workflow/tree_utils.py",
+    ],
+    imports = ["."],
+    deps = [requirement("click"), requirement("kubernetes"), requirement("rich")],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "workflow_outputs",
+    srcs = [
+        "console_link/workflow/commands/artifact_store.py",
+        "console_link/workflow/commands/autocomplete_k8s_labels.py",
+        "console_link/workflow/commands/log.py",
+        "console_link/workflow/commands/show.py",
+    ],
+    imports = ["."],
+    deps = [":approval", requirement("boto3"), requirement("requests")],
+    visibility = ["//visibility:public"],
+)

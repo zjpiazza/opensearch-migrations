@@ -2,3 +2,29 @@ test_suite(
     name = "wiremock_tests",
     tests = ["//libs/migration-engine:sink_wiremock_test"],
 )
+
+filegroup(
+    name = "k8s_integration_resources",
+    srcs = glob(["deploy/kubernetes/**", "deploy/charts/**", "deploy/aws/**", "apps/cli/**", "tools/release/migration-companion/**"], exclude = ["**/build/**", "**/__pycache__/**"]),
+    visibility = ["//visibility:public"],
+)
+
+test_suite(
+    name = "bazel_poc_tests",
+    tests = [
+        ":bazel_poc_java_tests",
+        "//tests/automation:tests",
+        "//tools/build/bazel/components:approval_integration_test",
+        "//tools/build/bazel/components:approval_contract_test",
+        "//tools/build/bazel/components:workflow_output_integration_test",
+    ],
+)
+
+test_suite(
+    name = "bazel_poc_java_tests",
+    tests = [
+        "//libs/runtime:tests",
+        "//libs/transforms:tests",
+        "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:tests",
+    ],
+)

@@ -2,7 +2,7 @@ load("@rules_java//java:defs.bzl", "java_plugin")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["maven_install.json"])
+exports_files(["pytest_main.py", "requirements_lock.txt", "console_requirements_lock.txt", "maven_install.json"])
 
 java_plugin(
     name = "lombok",

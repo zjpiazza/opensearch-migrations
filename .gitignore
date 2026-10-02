@@ -1,4 +1,5 @@
 .coverage
+/bazel-*
 coverage.xml
 .idea
 .kiro

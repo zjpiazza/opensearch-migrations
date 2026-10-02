@@ -1,0 +1,35 @@
+{
+  "base_commit": "82db9bff53a323e1136009d9397697b7a0f04e5a",
+  "scope": "Existing Test0001SingleDocumentBackfill in fresh kind clusters; local same-session cache experiment",
+  "runs": [
+    {
+      "phase": "execute-es8",
+      "wall_seconds": 707.42418782,
+      "exit_code": 0,
+      "cached_targets": 0
+    },
+    {
+      "phase": "cached-es8",
+      "wall_seconds": 0.10748632800004998,
+      "exit_code": 0,
+      "cached_targets": 1
+    },
+    {
+      "phase": "changed-input-es7",
+      "wall_seconds": 612.2941486020009,
+      "exit_code": 0,
+      "cached_targets": 0
+    }
+  ],
+  "raw_logs_directory": "build/bazel-integration/20261001-150919",
+  "image_build_seconds": 282,
+  "limitations": [
+    "Single observation per phase; dependencies and application images already built.",
+    "Bazel wall time excludes fingerprint preparation, image building and archival of test logs.",
+    "Actual migration is not accelerated. An unchanged test result skips the entire environment lifecycle.",
+    "ES7 changes the declared scenario and verifies invalidation; it is not an execution-speed comparison with ES8.",
+    "Helm chart downloads and third-party image tags are not fully pinned; cache reuse is experimental and session-scoped.",
+    "Local Docker, nftables and tmpfs workaround differ from Jenkins; teardown deletes the entire private cluster.",
+    "Earlier harness bring-up failures are excluded from successful-run timings; no production changes were needed."
+  ]
+}

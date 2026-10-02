@@ -1,4 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_library")
+load("//tools/build/bazel:java_tests.bzl", "junit_tests")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -17,4 +18,15 @@ java_library(
     resources = glob(["src/main/resources/**"], allow_empty = True),
     plugins = ["//tools/build/bazel:lombok"],
     deps = LIB_DEPS,
+)
+
+junit_tests(
+    classes = [
+        "org.opensearch.migrations.FlavorTest",
+        "org.opensearch.migrations.UnboundVersionMatchersTest",
+        "org.opensearch.migrations.VersionMatchersTest",
+        "org.opensearch.migrations.VersionTest",
+        "org.opensearch.migrations.transformation.rules.TemplateMatchClausePatternTest",
+    ],
+    deps = LIB_DEPS + [":lib"],
 )
