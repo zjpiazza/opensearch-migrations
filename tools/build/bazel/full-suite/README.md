@@ -238,3 +238,21 @@ share nodes, storage services and network capacity; record overlapping activity
 when interpreting wall time. Compiled runtime reuse is not a compilation-speed
 measurement. Preserve the original runtime and record any refreshed fixture
 helpers before running.
+
+
+Use `compare-focused.py` during or after a run to compare completed classes with
+an earlier unsharded BEP and the original case baseline:
+
+```bash
+python3 tools/build/bazel/full-suite/compare-focused.py \
+  build/full-suite-evidence/standard-long-sharded-1 \
+  --unsharded-bep /path/to/unsharded/results.bep.json \
+  --baseline /path/to/coverage-baseline.json \
+  --output build/full-suite-evidence/standard-long-sharded-1/comparison.json
+```
+
+It reports elapsed and summed shard time, per-shard wrapper timing and logged
+image builds. A speedup ratio requires both runs to pass, all expected shard
+outputs, no cached results, and exactly the original successful case identities
+without duplicate executions. An unfinished or failed baseline is not a speed
+reference. The driver's whole-run completeness gate remains authoritative.

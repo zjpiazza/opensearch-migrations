@@ -1,8 +1,8 @@
 # Splitting the long integration tests
 
 Status: experiment in progress. The uncached class-level run is still active;
-these are completed-target observations, not the final ranking or a measured
-sharding speedup. Per the user's narrowed scope, subsequent experiments select
+the original table is a partial ranking. The first remote sharding comparisons
+are recorded below; the full selected-class run is still in progress. Per the user's narrowed scope, subsequent experiments select
 only long integration classes. Hardware benchmarks, npm upload failures and
 shorter tests are deferred.
 
@@ -173,3 +173,24 @@ rebuild the same versions on private daemons. Image retention and scratch capaci
 must then be sized for the largest batch. After correcting preparation and disk
 pressure, compare Docker CPU quotas separately. Sharding performance remains
 unmeasured, and dividing the current failing elapsed time by 16 is not a forecast.
+
+
+## First remote comparisons
+
+The standard-pool run has completed LuceneSnapshotSourceEndToEndTest with all
+88 original cases passing exactly once across eleven shards. Class elapsed time
+is 124.413 seconds versus 785.697 seconds unsharded (6.315x observed speedup).
+Summed shard time increases to 836.053 seconds, about 6.4% more aggregate action
+time. EndToEndCompressionTest also completes with all ten cases exactly once:
+240.449 seconds versus 912.066 seconds (3.793x). Neither reused test results.
+These are class results, not completion of the twelve-class experiment.
+
+The old SnapshotReaderEndToEndTest subsequently finished after 82.31 minutes:
+74 cases passed and 37 failed while building custom images. Its runtime includes
+disk exhaustion and online PVC expansion; it is not a successful speed baseline.
+The sharded version must still execute all 111 original cases successfully.
+
+`compare-focused.py` checks each completed class against the original CI case
+identities before emitting a ratio. Missing or duplicated reports suppress that
+ratio. Validation against copies of the actual 88-case result confirmed both
+failure modes. See E-026/E-027 for evidence and measurement caveats.

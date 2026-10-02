@@ -3,7 +3,7 @@
     "Only reviewed Jupiter classes are sharded; dynamic factories fail closed.",
     "fixture-index keeps the same version-provider index together across methods.",
     "independent distributes cases by their full JUnit unique ID when fixtures are per case.",
-    "Counts are experimental and require an uncached whole-suite coverage comparison."
+    "Counts are experimental and require a forced-execution selected-class coverage comparison."
   ],
   "classes": {
     ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.EndToEndTest": {"count": 16, "grouping": "independent"},

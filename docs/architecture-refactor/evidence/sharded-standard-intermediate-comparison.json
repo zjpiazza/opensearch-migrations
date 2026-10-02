@@ -1,0 +1,104 @@
+{
+  "complete_run": false,
+  "caveats": [
+    "Completed classes only; unfinished classes have no speedup estimate.",
+    "Ratios require passing baseline and current class, complete case identities, and no cached results.",
+    "Worker image/input cache state and cluster contention differ. Ratios are observations, not isolated causal estimates.",
+    "Image build durations are inside execution time; sums across shards are not class wall time.",
+    "Final whole-run acceptance remains summarize.py --require-complete."
+  ],
+  "completed_classes": [
+    {
+      "target": "DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.DeltaSnapshotRestoreTest",
+      "task": ":DocumentsFromSnapshotMigration:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.DeltaSnapshotRestoreTest",
+      "shards": 6,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 210.888,
+      "unsharded_seconds": 883.572,
+      "summed_shard_seconds": 898.551,
+      "verified_speedup": 4.19,
+      "cached_shards": 0,
+      "expected_cases": 11,
+      "passing_cases": 11,
+      "case_outcomes": {
+        "passed": 11
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
+      "target": "DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.EndToEndCompressionTest",
+      "task": ":DocumentsFromSnapshotMigration:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.EndToEndCompressionTest",
+      "shards": 5,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 240.449,
+      "unsharded_seconds": 912.066,
+      "summed_shard_seconds": 910.872,
+      "verified_speedup": 3.793,
+      "cached_shards": 0,
+      "expected_cases": 10,
+      "passing_cases": 10,
+      "case_outcomes": {
+        "passed": 10
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
+      "target": "MetadataMigration_isolatedTest__org.opensearch.migrations.CustomTransformationTest",
+      "task": ":MetadataMigration:isolatedTest",
+      "class": "org.opensearch.migrations.CustomTransformationTest",
+      "shards": 5,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 262.112,
+      "unsharded_seconds": 802.65,
+      "summed_shard_seconds": 1031.537,
+      "verified_speedup": 3.062,
+      "cached_shards": 0,
+      "expected_cases": 11,
+      "passing_cases": 11,
+      "case_outcomes": {
+        "passed": 11
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
+      "target": "SnapshotReader_isolatedTest__org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "task": ":SnapshotReader:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "shards": 11,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 124.413,
+      "unsharded_seconds": 785.697,
+      "summed_shard_seconds": 836.053,
+      "verified_speedup": 6.315,
+      "cached_shards": 0,
+      "expected_cases": 88,
+      "passing_cases": 88,
+      "case_outcomes": {
+        "passed": 88
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    }
+  ]
+}

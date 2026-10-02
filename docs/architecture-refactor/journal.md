@@ -1084,3 +1084,18 @@ Next question:
 - [Complete-class evidence](evidence/sharded-lucene-first-result.json),
   [utilization sample](evidence/sharded-standard-utilization.json), and
   [next experiment](../../deploy/ci/buildbarn/experiments/README.md).
+
+
+### E-027 — Make per-class comparison reproducible and coverage-gated
+
+- Added `compare-focused.py` to evaluate completed classes while the remaining
+  run continues. It records elapsed/aggregate time, case sets, cache use, wrapper
+  phases and image builds. Ratios are withheld for failed baselines, missing or
+  duplicate cases, unexpected passing cases, missing shards and cached results.
+- Validated against the actual 88-case Lucene output. Removing one case or
+  duplicating one case in disposable copied XML suppresses the speedup claim.
+- EndToEndCompressionTest completes all ten original cases exactly once in
+  240.449s versus 912.066s unsharded (3.793x). The twelve-class run remains active.
+- The original SnapshotReaderEndToEndTest now finishes FAILED after 82.31 minutes,
+  with 74 passing and 37 image-build failures. Retain this failed baseline and
+  its mid-run storage expansion instead of interpreting it as migration speed.
