@@ -2,6 +2,11 @@
 
 Started: 2026-10-01. Status: exploratory fork work, not an upstream RFC.
 
+`experimental` is the shared integration branch for this work. The original PRs
+and Buildbarn branch are consolidated here with their histories preserved. See
+[the consolidation record](experimental-branch.md) for included commits, conflict
+resolutions, validation, and the workflow for future RFCs.
+
 The objective is to build and measure an ideal version of OpenSearch Migrations,
 then extract independently useful proposals for upstream review. Repository
 structure, component boundaries, orchestration, build tooling, and test strategy

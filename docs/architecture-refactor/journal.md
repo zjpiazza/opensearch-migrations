@@ -979,3 +979,18 @@ Next question:
 - See [test-result caching semantics](https://bazel.build/reference/command-line-reference#flag--cache_test_results)
   and [long-test analysis](long-test-partitioning.md). Hardware and unrelated
   short-test/npm work remain deferred.
+
+
+### E-022 — Consolidate experiments into one working branch
+
+- User requested merging the open experiments into `experimental` rather than
+  accumulating disconnected PR branches. Integrated all four PR heads and the
+  Buildbarn head, retaining commit ancestry and the accepted directory layout.
+- Resolved older path conflicts, combined Python/mock and WireMock/Buildbarn
+  targets, and preserved historical benchmark records. VM setup follows the new
+  branch and its optional benchmark remains manually triggered.
+- Dependency/layout/syntax checks and Bazel analysis of all 25 experiment targets
+  pass. No tests were executed for consolidation; the active long-test baseline
+  remains untouched. Known runtime failures and unmeasured sharding performance
+  remain open, not hidden by the merge.
+- [Included commits, resolution decisions, validation, and future PR workflow](experimental-branch.md).
