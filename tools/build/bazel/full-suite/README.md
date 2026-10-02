@@ -184,18 +184,27 @@ Check the adapter locally using the prepared JDK/JUnit:
 python3 tools/build/bazel/full-suite/verify-sharding.py
 ```
 
-After any active run finishes, regenerate with `prepare.py` to enable the
-configured shard counts, or `prepare.py --unsharded` for a class-level A/B
-baseline. Do not regenerate the runtime while a benchmark is using it.
+After any active run finishes, use `sharding.py` to configure the selected
+classes without repacking compiled runtime archives. `sharding.py --dry-run`
+previews the change, and `sharding.py --unsharded` restores class-level execution.
+Full `prepare.py` exports also apply the shard policy unless `--unsharded` is
+supplied. Do not update the runtime while a benchmark is using it.
 
 For a focused comparison, select an explicit target instead of `all_tests`:
 
 ```bash
-bazel test --config=buildbarn-uncached \
+bazel test --config=buildbarn-rerun-tests \
   @full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.PipelineEndToEndTest
 ```
 
 Capture BEP, execution logs and a fresh output base as for other measurements.
+`buildbarn-rerun-tests` disables test-result reuse while permitting ordinary
+build caching. The older `buildbarn-uncached` configuration additionally rejects
+all remote action results and disables the disk cache. Neither option disables
+Docker's own image/layer cache. Currently those Docker caches are private to
+each worker and images are still built on demand inside the tests. Shared,
+separately prepared images require additional implementation.
+
 Pass the exported target name with `--target` to both `monitor.py` and
 `summarize.py`; repeat the option when comparing several long classes. The
 monitor distinguishes completed classes from running/completed shard tasks.

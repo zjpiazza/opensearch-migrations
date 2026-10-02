@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 
 root = Path(__file__).resolve().parents[4]
 match = re.fullmatch(r':custom-es-images:buildImage_es_(\d+)_(\d+)', sys.argv[1])
@@ -22,4 +23,10 @@ command = ['docker','build','--build-arg','CORRETTO_VERSION='+corretto,'--build-
            '--build-arg','TARBALL_URL='+info['url'],'--build-arg','DOWNLOADER_IMAGE=amazonlinux:2023',
            '--build-arg','CONFIG_BUILDER_IMAGE=amazonlinux:2023','-f',str(context/'Dockerfile'),
            '-t','custom-elasticsearch:'+info['version'],str(context)]
-sys.exit(subprocess.call(command,env=os.environ.copy()))
+started = time.monotonic()
+code = subprocess.call(command,env=os.environ.copy())
+print('FIXTURE_IMAGE_BUILD_RESULT ' + json.dumps({
+    'task': sys.argv[1], 'image': 'custom-elasticsearch:' + info['version'],
+    'elapsed_seconds': round(time.monotonic() - started, 3), 'exit_code': code,
+}), flush=True)
+sys.exit(code)

@@ -31,3 +31,7 @@ test:buildbarn-uncached --config=buildbarn
 test:buildbarn-uncached --noremote_accept_cached
 test:buildbarn-uncached --nocache_test_results
 test:buildbarn-uncached --disk_cache=
+
+# Reuse preparation/build artifacts while forcing every selected test to execute.
+test:buildbarn-rerun-tests --config=buildbarn
+test:buildbarn-rerun-tests --nocache_test_results

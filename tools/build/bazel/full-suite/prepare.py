@@ -17,6 +17,7 @@ import urllib.request
 import zipfile
 
 from worker_routing import properties as worker_properties
+from sharding import build_helper, policy as shard_policy
 
 ROOT = Path(__file__).resolve().parents[4]
 OUT = ROOT / 'build/full-suite'
@@ -82,22 +83,8 @@ def main():
     shutil.copytree(java_home, tools / 'jdk', symlinks=True)
     # Drop non-runtime Gradle installation markers from the exported toolchain.
     subprocess.run([str(java_home/'bin/javac'), '-cp', str(console), '-d', str(tools), str(ROOT/'tools/build/bazel/full-suite/DiscoverTests.java')], check=True)
-    shard_classes = tools / 'shard-classes'
-    if shard_classes.exists():
-        shutil.rmtree(shard_classes)
-    shard_classes.mkdir(exist_ok=True)
-    subprocess.run([str(java_home/'bin/javac'), '-cp', str(console), '-d', str(shard_classes),
-                    str(ROOT/'tools/build/bazel/full-suite/BazelShardCondition.java')], check=True)
-    write(shard_classes/'META-INF/services/org.junit.jupiter.api.extension.Extension',
-          'org.opensearch.migrations.testinfra.BazelShardCondition\n')
-    # Fixed ZIP metadata makes identical preparation produce identical action inputs.
-    with zipfile.ZipFile(tools/'bazel-sharding.jar', 'w') as jar:
-        for entry in sorted(shard_classes.rglob('*')):
-            if entry.is_file():
-                info = zipfile.ZipInfo(entry.relative_to(shard_classes).as_posix(), (1980, 1, 1, 0, 0, 0))
-                info.compress_type = zipfile.ZIP_DEFLATED
-                jar.writestr(info, entry.read_bytes())
-    sharding = {} if args.unsharded else json.loads((ROOT/'tools/build/bazel/full-suite/sharding.json').read_text())['classes']
+    build_helper(java_home, tools)
+    sharding = shard_policy(args.unsharded)
     agent = next(Path.home().glob('.gradle/caches/modules-2/files-2.1/org.jacoco/org.jacoco.agent/0.8.13/*/*.jar'))
     with zipfile.ZipFile(agent) as z: (tools/'jacocoagent.jar').write_bytes(z.read('jacocoagent.jar'))
     tracked = subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')

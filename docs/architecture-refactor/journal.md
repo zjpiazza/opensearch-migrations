@@ -956,3 +956,26 @@ Next question:
   full-suite runtime changed. [Contract evidence](evidence/native-sharding-contract.json).
 - [Analysis and experiment plan](long-test-partitioning.md). Source edits and
   preparation support are not evidence of a measured sharding speedup.
+
+### E-021 — Separate test execution from preparation reuse
+
+- User clarified that image builds should be cached even when tests must rerun.
+  Added `buildbarn-rerun-tests`, which retains build caching and disables only
+  test-result reuse. The earlier baseline disabled all remote action reuse;
+  Docker image/layer caches were still enabled, privately per worker. No worker
+  configuration or active-run flags changed at this checkpoint.
+- Live long-test logs show custom Elasticsearch images being built inside test
+  actions. Some images are new to the assigned daemon; idle cleanup also removes
+  build cache and, above 20 GiB, unused tagged images. Shared/prepared images are
+  a separate optimization, not something the current flags automatically provide.
+- Added `sharding.py` to configure the 16 reviewed long classes without running
+  Gradle or rewriting runtime archives. A disposable-copy check verified that
+  only those 16 BUILD lines change, the helper JAR is reproducible, a second
+  update is byte-identical, and unsharded restoration returns to 439 tasks.
+  This updater has not yet been applied to the active baseline runtime.
+- Added duration/exit-code logging to the image-build helper for its next export.
+  The two Solr transformation JUnit cases were found to contain 452 scenario
+  executions; a 218-scenario binding group per version must itself be batched.
+- See [test-result caching semantics](https://bazel.build/reference/command-line-reference#flag--cache_test_results)
+  and [long-test analysis](long-test-partitioning.md). Hardware and unrelated
+  short-test/npm work remain deferred.

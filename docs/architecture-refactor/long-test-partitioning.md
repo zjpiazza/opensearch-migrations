@@ -70,9 +70,24 @@ hides many TypeScript-defined scenarios inside two dynamic tests. It starts one
 shared OpenSearch container in the factory and stops it only in the last Solr
 version's case. Filtering dynamic cases without changing that ownership can
 leak containers or break shared state. Refactor into independently owned
-version/transform-binding groups, retain each cursor/request sequence, and
-report individual scenario identities before applying sharding. A generic
+version/transform-binding batches, retain each cursor/request sequence, and
+report individual scenario identities before applying sharding. The compiled
+catalog currently contains 226 scenarios for each of Solr 8 and Solr 9, or 452
+scenario executions. Each version has four binding groups of 218, 5, 2 and 1
+scenarios. Splitting only the binding groups would leave the 218-scenario group
+as a bottleneck; that group needs bounded batches with independently owned
+containers. A generic
 parameterized-test adapter must reject this class until that work is done.
+
+Read-only inspection of the remaining targets at roughly 41 minutes confirmed
+ongoing work: SnapshotReaderEndToEndTest was building a custom Elasticsearch
+8.2 image (including package installation), while the backfill EndToEndTest was
+starting Elasticsearch 8.15. This is preparation inside a test action, not only
+migration/assertion time. The fixture image helper now records a structured
+`FIXTURE_IMAGE_BUILD_RESULT` with image, duration and exit code for the next
+export. This does not alter which image is built. Measure this contribution
+before deciding whether separately cached or prebuilt images merit another
+change; no image registry or extra worker service has been deployed.
 
 ## Implemented preparation, not yet deployed
 
@@ -112,9 +127,14 @@ tests have different lifecycle semantics. See the
 ## Next comparison
 
 1. Finish and preserve the active run, including the final long-target ranking.
-2. Run PipelineEndToEndTest's seven shards first with result caching disabled,
+2. Run PipelineEndToEndTest's seven shards first with test-result caching disabled,
    then the selected long targets. Keep worker limits unchanged for the first
    comparison to separate task granularity from resource changes.
+   Use `buildbarn-rerun-tests`: the user clarified that image/build preparation
+   should remain cached. This permits build action reuse while forcing selected
+   tests to execute. Docker image caching was already enabled in the baseline,
+   but is private to each worker; on-demand image creation is not a separate
+   Bazel build action yet. Report worker/image warm state in both comparisons.
 3. Compare actual case identity sets, failures, retries, action setup, total
    worker-seconds and elapsed time. Fail on missing or duplicated executed cases.
 4. Use the long-target measurements to tune Docker CPU and memory. The current
