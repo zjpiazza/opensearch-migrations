@@ -888,3 +888,48 @@ Next question:
   together. This checkpoint makes no resource changes and initiates no new tests.
 - [Measured utilization](evidence/larger-node-utilization.json); raw snapshots in
   ignored `build/full-suite-evidence/larger-nodes/utilization-active/`.
+
+### E-019 — Prioritize service-container limits and long-tail test granularity
+
+- User observed 385/439 targets completed around 6m30s and requested further
+  tuning. Read-only follow-up found 387 passed at 7m04s, zero cache hits, all 32
+  standard integration slots executing, four large tests executing on eight large
+  workers, and all 101 lightweight targets complete. Remaining targets are not
+  equal-cost work: the bridge schedules JUnit classes, including version matrices.
+  Final all-passing wall time and coverage still determine the result.
+- Four long-running test workers sampled: DataGeneratorEndToEndTest,
+  LuceneSnapshotSourceEndToEndTest, SnapshotReaderEndToEndTest and
+  PipelineEndToEndTest. Their test JVM cgroups peaked around 0.35–0.49 GiB in the
+  observation, while all Docker parents reached their six-GiB ceiling. Memory
+  counter peaks include charged file cache and apply to the cgroup's lifetime;
+  they are not sufficient evidence for universal memory reductions.
+- The Docker parent has the same **1.5-CPU quota** in standard and large workers.
+  Corrected parent-cgroup interval samples show throttled quota-period fractions
+  of approximately 81%, 17%, 14%, and **89%** respectively. This is not wall-time
+  loss or a predicted speedup. Test JVM activity was comparatively low. The first
+  raw Docker probe read the unlimited daemon subgroup; exclude it from analysis.
+  One final Pipeline runner probe hit an API TLS timeout and was omitted.
+- A separate Docker sidecar on the ProcessLifecycleTest worker was OOMKilled;
+  that test target subsequently reported FAILED. The four sampled Docker groups
+  recorded memory-limit events without OOM kills themselves. Investigate heavy
+  service-memory budgets before reducing the 6-GiB default to pack more workers.
+  No runtime configuration, concurrency or hardware benchmark changed this run.
+- Next controlled experiments, after the suite and hardware comparison:
+  (1) Docker CPU 1.5 versus 3 versus 4, keeping JVM sizing fixed;
+  (2) profile heavy service memory and compare six versus eight GiB where justified;
+  (3) compatible small/large scheduling and correct Docker classification;
+  (4) split long class/version matrices while preserving assertions and fixture
+  isolation; (5) measure image/PVC/input preparation and per-pool warm retention.
+  The current exporter uses --select-class; adding Bazel shard_count alone would
+  not partition its test cases. Changing sidecar CPU is more directly supported
+  by these observations than adding CPU only to the JUnit launcher.
+- Keep source/coverage, selected cases, effective concurrency, node count and
+  warm-state policy comparable in each A/B run. Report failures/retries alongside
+  wall time, CPU time, queue wait and peak memory. Hardware benchmarks remain
+  explicitly deferred until the active run finishes.
+- [Tuning evidence and proposed experiments](evidence/throughput-tuning-review.json).
+  Kubernetes CPU requests govern scheduling and limits impose throttling; see
+  [resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+  Buildbarn [size-class routing](https://github.com/buildbarn/bb-remote-execution/blob/main/pkg/proto/configuration/bb_scheduler/bb_scheduler.proto)
+  is a candidate for compatible workers, not an automatic promise of work stealing
+  across the current separately labeled platform queues.
