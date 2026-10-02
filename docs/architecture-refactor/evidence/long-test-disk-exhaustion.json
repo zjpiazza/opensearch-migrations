@@ -1,0 +1,35 @@
+{
+  "observed_at_utc": "2026-10-02T01:47:26.708810+00:00",
+  "run": "larger-nodes/uncached-1",
+  "read_only": true,
+  "workers": [
+    {
+      "worker": "worker-integration-large-764f8b6b5d-8wvvh",
+      "code": 0,
+      "output": "Filesystem                Size      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-c69ac444-a582-4ab2-8dda-68f3d62d5cba\n                         39.1G     37.1G         0 100% /var/lib/docker\nFilesystem              Inodes      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-c69ac444-a582-4ab2-8dda-68f3d62d5cba\n                       2621440    325481   2295959  12% /var/lib/docker\nTYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE\nImages          39        1         35.8GB    35.8GB (99%)\nContainers      1         1         0B        0B\nLocal Volumes   0         0         0B        0B\nBuild Cache     237       7         2.983GB   2.983GB\n",
+      "error": ""
+    },
+    {
+      "worker": "worker-integration-large-764f8b6b5d-kpkcw",
+      "code": 0,
+      "output": "Filesystem                Size      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-74264028-94c7-48fe-9589-71a9afbcf7a4\n                         39.1G     37.1G         0 100% /var/lib/docker\nFilesystem              Inodes      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-74264028-94c7-48fe-9589-71a9afbcf7a4\n                       2621440    329800   2291640  13% /var/lib/docker\nTYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE\nImages          43        1         35.73GB   35.72GB (99%)\nContainers      1         1         0B        0B\nLocal Volumes   0         0         0B        0B\nBuild Cache     245       7         3.053GB   3.053GB\n",
+      "error": ""
+    },
+    {
+      "worker": "worker-integration-large-764f8b6b5d-rv9fh",
+      "code": 0,
+      "output": "Filesystem                Size      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-efdb0529-2816-4f52-bf08-76aefea753e2\n                         39.1G     37.1G         0 100% /var/lib/docker\nFilesystem              Inodes      Used Available Use% Mounted on\n/dev/disk/by-id/scsi-0DO_Volume_pvc-efdb0529-2816-4f52-bf08-76aefea753e2\n                       2621440    327313   2294127  12% /var/lib/docker\nTYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE\nImages          38        1         35.81GB   35.81GB (99%)\nContainers      1         1         0B        0B\nLocal Volumes   0         0         0B        0B\nBuild Cache     186       0         2.939GB   2.939GB\n",
+      "error": ""
+    }
+  ],
+  "findings": [
+    "All three remaining workers report /var/lib/docker at 100% with zero available bytes. Inodes are not exhausted.",
+    "Each Docker volume is requested at 40 GiB; df reports 39.1G filesystem size. Workers retain 38 to 43 images and about 3GB build cache.",
+    "Metadata log explicitly reports package-install disk exhaustion. Backfill log reports a failed image build. SnapshotReader is building Elasticsearch 6.7.2.",
+    "Cleanup runs at action boundaries; the version matrices currently remain inside one long action."
+  ],
+  "limitations": [
+    "No duration attribution or sharding speedup has been measured for these unfinished targets.",
+    "No disk cleanup, resource changes, or process interruption was performed."
+  ]
+}

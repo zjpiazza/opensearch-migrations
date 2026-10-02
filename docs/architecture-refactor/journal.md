@@ -994,3 +994,19 @@ Next question:
   remains untouched. Known runtime failures and unmeasured sharding performance
   remain open, not hidden by the merge.
 - [Included commits, resolution decisions, validation, and future PR workflow](experimental-branch.md).
+
+
+### E-023 — Diagnose the three remaining hour-long actions
+
+- User asked how to accelerate the three remaining EndToEnd/SnapshotReader
+  actions. Read-only inspection confirmed all three Docker volumes at 100% with
+  no available space; metadata image preparation explicitly failed for lack of
+  disk. No cleanup, resource change, or interruption was performed.
+- Their sequential version matrices are much larger than one test case. The
+  prepared 16-way-per-class split has not yet been applied to the active run.
+  Cleanup at action boundaries cannot control image growth inside these actions.
+- Prioritize independently scheduled version batches, reusable image preparation,
+  and disk headroom before attributing this tail to test computation or promising
+  a speedup. Preserve coverage and measure resource changes independently.
+- [Analysis](long-test-partitioning.md#live-tail-finding-docker-disk-exhaustion) and
+  [disk evidence](evidence/long-test-disk-exhaustion.json).

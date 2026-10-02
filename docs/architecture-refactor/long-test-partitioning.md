@@ -144,3 +144,32 @@ tests have different lifecycle semantics. See the
 The sum of unchanged sequential case durations divided among workers is only a
 scheduling estimate. Extra fixture generation, image pulls, JVM startup, queueing,
 memory pressure and disk contention can all reduce the realized benefit.
+
+
+## Live tail finding: Docker disk exhaustion
+
+At approximately 65 minutes, all three remaining workers (SnapshotReader,
+metadata EndToEndTest, and backfill EndToEndTest) reported their 40-GiB Docker
+volumes at 100% usage, zero available bytes, with inodes still available. Each
+retained 38–43 images and approximately 3 GB of build cache. Metadata's output
+explicitly reports insufficient space while installing image-build packages;
+backfill also reports an image-build failure. These are contaminated timings,
+not a clean successful migration baseline. [Read-only evidence](evidence/long-test-disk-exhaustion.json).
+
+The current source declares 87 backfill invocations, 120 metadata invocations,
+and 111 SnapshotReader invocations (89 distinct source versions plus two checks
+across 11 supported sources). These counts are derived from providers and test
+methods, not completed-run coverage evidence. Each class currently occupies one
+worker while it cycles through versions. Cleanup runs only at action boundaries,
+so the 20-GiB image threshold does not bound accumulation within a long action.
+
+The prepared 16-way split for each class creates smaller independently scheduled
+batches and more frequent cleanup opportunities. SnapshotReader keeps matching
+source-version indices together across methods to retain fixture reuse. Validate
+actual shard coverage and disk peaks before treating this as a disk-capacity fix.
+Move custom image preparation into separately cached builds backed by shared
+image storage; tests should consume content-pinned images rather than independently
+rebuild the same versions on private daemons. Image retention and scratch capacity
+must then be sized for the largest batch. After correcting preparation and disk
+pressure, compare Docker CPU quotas separately. Sharding performance remains
+unmeasured, and dividing the current failing elapsed time by 16 is not a forecast.
