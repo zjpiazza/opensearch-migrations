@@ -1192,3 +1192,11 @@ Next question:
 - Verified the reader against the saved 12-class / 76-shard successful run and
   probes for missing/partial BEP, partial shard completion, cached results,
   interrupted results and unavailable worker observations.
+- Actual PTY validation passed view switching, selection, details, filtering,
+  140x36→60x12→140x36 resizing and quitting with exit zero.
+- Started `long-tests-clean-1` from commit `9ce0bda15`, using one fresh client.
+  Live TUI verification observed 32 standard plus eight large actions executing,
+  all 40 workers ready, zero test-result cache hits and no worker polling errors.
+  The test run is still in progress; this is launch validation, not a result.
+  [Restart preflight](evidence/long-tests-clean-preflight.json) and
+  [fresh-run launch](evidence/long-tests-clean-launch.json).

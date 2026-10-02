@@ -1,0 +1,43 @@
+{
+  "run": "build/full-suite-evidence/long-tests-clean-1",
+  "source_commit": "9ce0bda1556c733f7f9db22bdf12d8c91c4b22e2",
+  "status": {
+    "phase": "running",
+    "pid": 2468115,
+    "started_at_epoch": 1790908693.9353359,
+    "target_count": 16,
+    "shard_count": 131
+  },
+  "runtime_build_sha256": "d781c4ce5344fb6c591398393143ce86dbbb44b40636defa7f9a027965f7a09e",
+  "tui_verified": {
+    "phase": "running",
+    "total": 16,
+    "shards_total": 131,
+    "cached_shards": 0,
+    "elapsed_seconds": 24.744343042373657,
+    "pools": {
+      "integration": {
+        "ready": 32,
+        "total": 32,
+        "RUNNING": 6,
+        "running_actions": 32,
+        "PENDING": 6
+      },
+      "integration-large": {
+        "ready": 8,
+        "total": 8,
+        "RUNNING": 2,
+        "running_actions": 8,
+        "PENDING": 2
+      },
+      "lightweight": {
+        "ready": 1,
+        "total": 1
+      }
+    }
+  },
+  "active_actions": 40,
+  "worker_poll_error": null,
+  "measurement_scope": "execution of pre-exported Gradle bytecode, not compilation or source re-export",
+  "cache_policy": "test-result reuse disabled; build results, input blobs and private Docker caches may be reused"
+}
