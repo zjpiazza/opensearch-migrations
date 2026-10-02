@@ -1,0 +1,117 @@
+{
+  "target_statuses": {
+    "PASSED": 12
+  },
+  "target_results": 12,
+  "shard_statuses": {
+    "PASSED": 76
+  },
+  "shard_results": 76,
+  "attempt_results": 76,
+  "expected_targets": 12,
+  "expected_shards": 76,
+  "remote_cached_targets": 0,
+  "locally_cached_targets": 0,
+  "wall_time_ms": "1104635",
+  "build_finished": true,
+  "build_exit_code": 0,
+  "reported_junit_case_outcomes": {
+    "passed": 410
+  },
+  "freshly_executed_junit_case_outcomes": {
+    "passed": 410
+  },
+  "unique_passing_junit_cases": 410,
+  "baseline_unique_passing_junit_cases": 410,
+  "baseline_cases_not_passing": [],
+  "additional_passing_cases": [],
+  "missing_output_manifests": [],
+  "duplicate_executed_cases": [],
+  "unexpected_targets": [],
+  "longest_target_attempts_ms": [
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=7",
+      "783973"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=3",
+      "679366"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=2",
+      "668071"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=8",
+      "635562"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=1",
+      "634733"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=5",
+      "576228"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=4",
+      "548337"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:MetadataMigration_isolatedTest__org.opensearch.migrations.SnapshotConfigurationTest#shard=2",
+      "535075"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.LeaseExpirationTest#shard=4",
+      "447255"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.SnapshotConfigurationTest#shard=6",
+      "446251"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:MetadataMigration_isolatedTest__org.opensearch.migrations.SnapshotConfigurationTest#shard=1",
+      "428157"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.SnapshotConfigurationTest#shard=2",
+      "426223"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest#shard=6",
+      "407734"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:MetadataMigration_isolatedTest__org.opensearch.migrations.SnapshotConfigurationTest#shard=6",
+      "401961"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:RFS_isolatedTest__org.opensearch.migrations.bulkload.workcoordination.WorkCoordinatorTest#shard=4",
+      "397552"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.SnapshotConfigurationTest#shard=1",
+      "369830"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:RFS_isolatedTest__org.opensearch.migrations.bulkload.workcoordination.WorkCoordinatorTest#shard=3",
+      "369638"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.RoutingShardColocationTest#shard=4",
+      "350417"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.SnapshotConfigurationTest#shard=4",
+      "332914"
+    ],
+    [
+      "@@+_repo_rules+full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.SnapshotConfigurationTest#shard=3",
+      "328020"
+    ]
+  ],
+  "limitation": "Cached XML describes the reused execution; counts do not imply fresh test execution. Case identity is Gradle task, class, method and parameter index. Coverage uses the latest attempt of each shard.",
+  "driver_elapsed_seconds": 1105.691,
+  "scope": "12 selected standard-pool long classes only; concurrent original large-pool run; 1.5-CPU Docker quota",
+  "worker_image_warm_state": "2 retained workers and 30 replacement workers during initial scale-up; private image cache state mixed"
+}

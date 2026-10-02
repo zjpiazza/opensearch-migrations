@@ -1119,3 +1119,26 @@ Next question:
 - The comparison report now verifies seven completed classes against their
   original case sets. Preserve the full twelve-class completeness gate before
   accepting the run. [Intermediate results](evidence/sharded-standard-intermediate-comparison.json).
+
+
+### E-029 — Complete the first long-shard run and deploy the CPU trial
+
+- The standard run finishes in 1105.691s driver wall time (18m26s). All 12
+  selected classes / 76 shards / 410 original cases pass without cached results,
+  missing outputs, missing/additional cases or duplicate execution. The driver
+  and `--require-complete` validation both return zero.
+- NoStoredSourceMigrationTest completes all 86 cases in 784s versus 3265.158s
+  unsharded (4.165x class elapsed improvement). The whole-run wall time also
+  includes node/pod startup and waiting before a class's first shard starts.
+  Individual verified class ratios range 2.63x–6.315x. The previously failed
+  LeaseExpirationTest passes all six cases but has no successful baseline ratio.
+- Applied the prepared standard Docker CPU limit change to three after the pool
+  became idle. To avoid serial replacement overhead, temporarily set standard
+  Deployment maxUnavailable to eight with zero surge; restore to one before
+  testing. Large-worker resources and its active baseline remain unchanged.
+- Next run must use the same 12 classes / 76 shards and compiled inputs. New
+  standard pods lose their private caches; record rollout and image warm state
+  separately. No CPU-limit improvement has been measured yet. The 24-shard
+  NoStoredSource policy remains unapplied until after the CPU comparison.
+- [Complete coverage](evidence/sharded-standard-complete-summary.json) and
+  [all class comparisons](evidence/sharded-standard-complete-comparison.json).

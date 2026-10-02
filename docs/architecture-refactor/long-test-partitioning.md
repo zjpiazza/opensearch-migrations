@@ -1,10 +1,9 @@
 # Splitting the long integration tests
 
-Status: experiment in progress. The uncached class-level run is still active;
-the original table is a partial ranking. The first remote sharding comparisons
-are recorded below; the full selected-class run is still in progress. Per the user's narrowed scope, subsequent experiments select
-only long integration classes. Hardware benchmarks, npm upload failures and
-shorter tests are deferred.
+Status: the first standard-pool sharded run is complete: 76 actions and all 410
+selected cases pass in 18m26s without test-result reuse. The original large-pool
+baseline remains active. Standard Docker CPU tuning and finer partitioning are
+next; hardware benchmarks, npm upload failures and short tests remain deferred.
 
 ## Completed observations
 
@@ -89,7 +88,7 @@ export. This does not alter which image is built. Measure this contribution
 before deciding whether separately cached or prebuilt images merit another
 change; no image registry or extra worker service has been deployed.
 
-## Implemented preparation, not yet deployed
+## Sharding implementation and validation
 
 The exporter now has an explicit allowlist in
 [sharding.json](../../tools/build/bazel/full-suite/sharding.json). All other
@@ -109,8 +108,9 @@ tests and failures remain visible.
 The local contract probe exercises the actual JUnit 1.14.0 runtime and Python
 wrapper. It verifies exactly-once coverage of 32 executed cases across 2/4/8
 shards, failure propagation, legitimate disabled tests, nested/repeated tests,
-fixture grouping, and skipping setup for cases owned elsewhere. This verifies
-the mechanism; cluster behavior and performance remain unverified.
+fixture grouping, and skipping setup for cases owned elsewhere. This initially verified
+the mechanism; the subsequent standard-pool remote results appear below. Large-pool
+sharding performance remains unverified.
 
 A separate native Bazel 8.4.2 local probe also passed: one class became four
 test actions, with all 27 baseline cases passing exactly once. The focused
@@ -124,22 +124,24 @@ Jupiter supports conditional execution and extension auto-detection; dynamic
 tests have different lifecycle semantics. See the
 [JUnit 5.14 guide](https://docs.junit.org/5.14.0/user-guide/).
 
-## Next comparison
+## Next comparisons
 
-1. Finish and preserve the active run, including the final long-target ranking.
-2. Run PipelineEndToEndTest's seven shards first with test-result caching disabled,
-   then the selected long targets. Keep worker limits unchanged for the first
-   comparison to separate task granularity from resource changes.
-   Use `buildbarn-rerun-tests`: the user clarified that image/build preparation
-   should remain cached. This permits build action reuse while forcing selected
-   tests to execute. Docker image caching was already enabled in the baseline,
-   but is private to each worker; on-demand image creation is not a separate
-   Bazel build action yet. Report worker/image warm state in both comparisons.
-3. Compare actual case identity sets, failures, retries, action setup, total
-   worker-seconds and elapsed time. Fail on missing or duplicated executed cases.
-4. Use the long-target measurements to tune Docker CPU and memory. The current
-   1.5-CPU Docker quota and observed OOM kills remain separate concerns. Do not
-   add workers or lower reservations solely to improve a utilization percentage.
+1. Preserve the completed standard-pool run and its whole-run coverage gate.
+2. Compare the same 12 classes / 76 shards with standard Docker CPU capped at
+   three rather than 1.5. Keep memory and JVM settings fixed. Record replacement
+   workers, image/input cache state, startup and concurrent large-pool activity.
+3. After that comparison, test the prepared 24-shard NoStoredSource policy to
+   shorten the remaining tail without mixing CPU and partition-count changes.
+4. When the original large-worker run finishes, validate its sharded long classes
+   including PipelineEndToEndTest and the three broad version matrices. Failed
+   original classes require full coverage validation and a successful baseline
+   before reporting speedup ratios.
+
+Use `buildbarn-rerun-tests`: build caching remains available, while every selected
+test executes. Docker image caches are private to workers; image creation is not
+yet a separately cached Bazel build action. Compare case identities, failures,
+retries, image setup, aggregate worker time and elapsed time. Do not add workers
+or lower memory reservations solely to improve a utilization percentage.
 
 The sum of unchanged sequential case durations divided among workers is only a
 scheduling estimate. Extra fixture generation, image pulls, JVM startup, queueing,
@@ -194,3 +196,19 @@ The sharded version must still execute all 111 original cases successfully.
 identities before emitting a ratio. Missing or duplicated reports suppress that
 ratio. Validation against copies of the actual 88-case result confirmed both
 failure modes. See E-026/E-027 for evidence and measurement caveats.
+
+
+## Completed standard-pool run
+
+All 12 classes / 76 shards / 410 original cases pass in 1105.691 seconds driver
+wall time. No cached results, missing or additional cases, duplicate execution,
+or missing output manifests were found. NoStoredSourceMigrationTest is the final
+class to finish: 784 seconds from its first shard start to last stop versus
+3265.158 seconds unsharded. Driver wall time also includes startup and earlier
+queueing; do not equate the 13-minute class span with the 18-minute run.
+
+The original LeaseExpirationTest failed; its six cases now pass, but that is a
+reliability observation rather than a valid speedup ratio. Successful class
+comparisons range from 2.63x to 6.315x. [Whole-run coverage](evidence/sharded-standard-complete-summary.json)
+and [per-class measurements](evidence/sharded-standard-complete-comparison.json).
+The earlier partial observations remain above to preserve the experiment trail.
