@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: migrations-buildbarn
 resources:
 - namespace.yaml
+- worker-storage-class.yaml
 - network-policy.yaml
 - frontend.yaml
 - scheduler.yaml

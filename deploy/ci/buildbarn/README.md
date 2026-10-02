@@ -8,68 +8,84 @@ Upstream Apache-2.0 license is retained in `LICENSE.buildbarn`.
 
 ## Placement and capacity
 
+DigitalOcean cluster `bazel` in `atl1` uses these replacement pools:
+
+| Node pool | Node size | Initial count | Autoscaling |
+| --- | --- | ---: | --- |
+| `bazel-execution` | `g5-16vcpu-64gb-80gb`: 16 vCPU / 64 GB | 3 | 1–8 nodes |
+| `build-services` | `g5-4vcpu-16gb-80gb`: 4 vCPU / 16 GB | 1 | Fixed |
+
+Three execution nodes provide nominal 48 vCPU / 192 GB; eight provide
+128 vCPU / 512 GB, comparable in nominal allocation to the 30 GitHub runners
+(120 vCPU / 480 GB). Per-core and storage performance differ. A new execution
+node reports 15.86 CPU and about 57.62 GiB allocatable before pod requests.
+The services pool is an ordinary worker pool; DigitalOcean manages the actual
+Kubernetes API/control plane separately. One services node is not highly available. Frontend and storage each have
+2-CPU/4-GiB limits with `GOMEMLIMIT=3GiB`; their previous 384-MiB/1-GiB
+limits were OOM-killed during the full-suite request burst.
+
 | Component | Pool | Replicas | Requests per replica |
 | --- | --- | ---: | --- |
-| Lightweight worker + runner | `workers` | 3–9 | 0.55 CPU, 3 GiB + 128 MiB RAM |
-| Standard integration + Docker | `workers` | 2–6 | 1.55 CPU, 9 GiB + 128 MiB RAM |
-| Large integration + Docker | `workers` | 1–3 | 2.55 CPU, 9 GiB + 128 MiB RAM |
-| Scheduler | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
-| Frontend | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
-| Storage | `control-plane` | 1 | 200m CPU, 512 MiB RAM |
-| Prometheus | `control-plane` | 1 | 100m CPU, 128 MiB RAM |
-| Autoscaler job | `control-plane` | at most 1 active | 25m CPU, 64 MiB RAM |
+| Lightweight worker + runner | `bazel-execution` | 1–12 | 0.55 CPU, 3.125 GiB RAM |
+| Standard integration + Docker | `bazel-execution` | 2–32 | 1.55 CPU, 9.125 GiB RAM |
+| Large integration + Docker | `bazel-execution` | 1–8 | 2.55 CPU, 9.125 GiB RAM |
+| Scheduler | `build-services` | 1 | 100m CPU, 128 MiB RAM |
+| Frontend | `build-services` | 1 | 500m CPU, 1 GiB RAM |
+| Storage | `build-services` | 1 | 1 CPU, 2 GiB RAM |
+| Prometheus | `build-services` | 1 | 100m CPU, 128 MiB RAM |
+| Autoscaler job | `build-services` | at most 1 active | 25m CPU, 64 MiB RAM |
 
-The execution pool has 4-vCPU/16-GB nodes and owner-configured autoscaling from
-three to nine nodes. Each worker offers one action slot. The client admits up to 512
-in-flight actions (queued plus executing), enough to expose this entire suite to
-Buildbarn. The three worker pools cap actual execution at 18 concurrent tests. Each node can
-host at most one lightweight pod and one Docker-capable pod; integration
-anti-affinity spans both standard and large tiers.
-
-Keep client admission above the worker count: `--jobs` also includes queued
-actions. Setting it to 18 starved the lightweight and large queues while standard
-integration targets occupied admission slots. Widening admission fixes that
-bottleneck, but does not make pools interchangeable. In the mixed-suite run all
-101 lightweight targets finished early, leaving nine idle lightweight workers
-while Docker tests remained. E-014 records CPU usage and this remaining imbalance.
-Two existing Docker workers would request 18.25 GiB on a node with about 13.33 GiB
-allocatable, so removing anti-affinity alone cannot increase Docker concurrency.
-Measure per-test container memory peaks before defining a smaller Docker tier;
-the current runner also needs room for its declared 2-GiB Java heap.
+Each worker offers one action slot. `--jobs=512` admits the entire 439-target
+suite, including queued actions. Worker ceilings allow up to 52 action slots,
+including 40 Docker-capable slots; these are ceilings, not guaranteed concurrent
+execution. Demand drives worker replicas, and unschedulable pods drive node
+scale-up within eight nodes. Preferred spreading replaces the previous required
+one-Docker-worker-per-node rule. Kubernetes packs pods using resource requests
+and volume attachment limits. A 9.125-GiB reservation still needs profiling;
+larger nodes let several such workers fit without cutting memory blindly.
 
 Lightweight runners request half a CPU and can use one CPU. Standard integration
 runners request and are limited to one CPU; large runners request and are limited
-to two. Every runner has 3 GiB RAM, sufficient for the exported 2-GiB Java heap
-plus runtime overhead. Docker sidecars reserve 0.5 CPU / 6 GiB and are capped at
-1.5 CPU / 6 GiB. `start-docker.sh` places nested containers below the sidecar's
-cgroup so those ceilings include their workloads. The integration runner uses
-Buildbarn’s idle/action-boundary cleaner to remove leftover containers, dangling
-images and build cache. Tagged images remain until their layers exceed 20 GiB,
-then unused images are pruned to leave headroom below the 40-GiB Docker volume.
-This bounds accumulation between actions; a single action can still exhaust its
-volume and must be measured. Each coordinator separately
-requests 50m CPU / 128 MiB. A large + lightweight pair requests 3.10 CPU and
-12.25 GiB before node system pods; capacity must include their requests too.
+to two. Every runner has 3 GiB RAM for the exported 2-GiB Java heap and overhead.
+Docker sidecars reserve 0.5 CPU / 6 GiB and are capped at 1.5 CPU / 6 GiB, including
+nested containers via `start-docker.sh`. Each pod retains its own Docker daemon;
+its action-boundary cleaner is unsafe with concurrent actions sharing that daemon.
+
+The v5 nodes still have only an 80-GiB boot disk. Each Docker worker therefore
+uses **12-GiB workspace and 40-GiB Docker generic ephemeral PVCs**, separate from
+node-local storage. The `buildbarn-worker-scratch` StorageClass binds on placement
+and deletes backing volumes when their owning pods/PVCs are deleted. Each worker
+uses two CSI attachments (the observed driver advertises fifteen per node).
+This adds block-storage cost, provisioning delay and different I/O performance;
+measure those effects. Existing CAS/action-cache PVCs are retained across migration.
+The cleaner removes leftover containers and build cache, then prunes unused tagged
+images when retained layers exceed 20 GiB. Single-action peaks can still fill a volume.
 
 The explicit [routing policy](../../../tools/build/bazel/full-suite/worker-routing.json)
-currently sends 101 targets to lightweight workers, 327 to standard integration,
-and 11 to large integration. Unknown tests default to standard integration.
-Changing platform properties changes action cache keys for affected targets.
-See the [full-suite bridge](../../../tools/build/bazel/full-suite/README.md).
-The three 1-vCPU/2-GB `control-plane` pool nodes are ordinary managed worker nodes
-used for supporting services, distinct from DigitalOcean's managed API servers.
+sends 101 targets to lightweight workers, 327 to standard integration, and 11 to
+large integration. Unknown tests default to integration. Pools are not interchangeable:
+lightweight tests may finish while Docker queues remain busy. Platform changes alter
+action-cache keys. See E-014/E-015 for the observed imbalance and sizing direction.
+Execution nodes carry `workload=bazel:NoSchedule`; their selector and toleration
+keep privileged Docker test pods on the dedicated pool without host Docker sockets.
 
-The `workers` node pool is reserved with `workload=bazel:NoSchedule`, configured
-through DigitalOcean so replacement nodes inherit it. Execution pods tolerate
-this taint and require that pool's label. The taint does not evict existing pods;
-Kubernetes networking, storage, and monitoring agents still run there.
+Creation commands (pool size slugs are immutable; migrate workloads before
+removing an old pool):
+
+```bash
+doctl kubernetes cluster node-pool create bazel --name build-services \
+  --size g5-4vcpu-16gb-80gb --count 1 --label workload=build-services
+doctl kubernetes cluster node-pool create bazel --name bazel-execution \
+  --size g5-16vcpu-64gb-80gb --count 3 --auto-scale --min-nodes 1 --max-nodes 8 \
+  --label workload=bazel --taint workload=bazel:NoSchedule
+```
 
 ## Apply and connect
 
 ```bash
-doctl kubernetes cluster node-pool update bazel workers --taint workload=bazel:NoSchedule
+doctl kubernetes cluster node-pool update bazel bazel-execution --taint workload=bazel:NoSchedule
 kubectl --context do-atl1-bazel taint nodes \
-  -l doks.digitalocean.com/node-pool=workers workload=bazel:NoSchedule --overwrite
+  -l doks.digitalocean.com/node-pool=bazel-execution workload=bazel:NoSchedule --overwrite
 kubectl --context do-atl1-bazel apply -k deploy/ci/buildbarn
 kubectl --context do-atl1-bazel -n migrations-buildbarn get pods,pvc -o wide
 kubectl --context do-atl1-bazel -n migrations-buildbarn \

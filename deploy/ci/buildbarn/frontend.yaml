@@ -1,4 +1,3 @@
-# Adapted from buildbarn/bb-deployments d4a6ca38e5f77959b42fccaa34a3320253683bc2.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,11 +27,11 @@ spec:
           readOnly: true
         resources:
           requests:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 500m
+            memory: 1Gi
           limits:
-            cpu: 750m
-            memory: 384Mi
+            cpu: '2'
+            memory: 4Gi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -43,6 +42,9 @@ spec:
             port: 8980
           initialDelaySeconds: 2
           periodSeconds: 5
+        env:
+        - name: GOMEMLIMIT
+          value: 3GiB
       volumes:
       - name: configs
         configMap:
@@ -54,7 +56,7 @@ spec:
             path: frontend.jsonnet
       automountServiceAccountToken: false
       nodeSelector:
-        doks.digitalocean.com/node-pool: control-plane
+        doks.digitalocean.com/node-pool: build-services
         kubernetes.io/arch: amd64
       affinity:
         podAntiAffinity:

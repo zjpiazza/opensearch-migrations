@@ -10,7 +10,7 @@ if [ -n "$containers" ]; then
 fi
 docker system prune --force
 # Preserve reusable tagged images until their layers exceed 20 GiB. Leave room
-# below the 40-GiB emptyDir ceiling for pulls, builds, and a running test's data.
+# below the 40-GiB scratch-volume ceiling for pulls, builds, and a running test's data.
 image_bytes=$(python3 - <<'PY'
 import json, urllib.request
 with urllib.request.urlopen('http://127.0.0.1:2375/system/df', timeout=120) as response:

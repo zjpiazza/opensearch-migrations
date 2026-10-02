@@ -1,0 +1,44 @@
+{
+  "observed_at": "2026-10-02T00:18:05.076176+00:00",
+  "github_baseline": {
+    "run_url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958",
+    "shards": 30,
+    "documented_per_runner": {
+      "vcpus": 4,
+      "memory_gb": 16,
+      "ssd_gb": 14
+    },
+    "initial_total_vcpus": 120,
+    "initial_total_memory_gb": 480,
+    "maximum_job_seconds": 4134,
+    "sum_job_seconds": 86724
+  },
+  "current_buildbarn": {
+    "execution_nodes": 9,
+    "nominal_vcpus": 36,
+    "nominal_memory_gb": 144,
+    "allocatable_cpus": 35.01,
+    "allocatable_memory_gib": 119.9295539855957,
+    "ready_workers": {
+      "worker-integration": 6,
+      "worker-integration-large": 3,
+      "worker-ubuntu22-04": 9
+    },
+    "integration_runner_cpu_limits_total": 12,
+    "integration_docker_cpu_limits_total": 13.5,
+    "integration_concurrency_cap": 9,
+    "lightweight_concurrency_cap": 9
+  },
+  "comparison": {
+    "nominal_capacity_fraction_of_github": 0.3,
+    "equivalent_nominal_capacity_nodes": 30,
+    "equivalent_nominal_capacity_is_recommendation_to_scale_now": false
+  },
+  "caveats": [
+    "GB figures are provider-advertised nominal sizes; Kubernetes allocatable is measured separately in GiB.",
+    "CPU counts do not establish equal processor, disk, or network performance.",
+    "GitHub runner count is not simultaneous test count.",
+    "Resource limits and allocated runner-hours are not measured utilization.",
+    "Support services and local preparation/client compute are excluded from execution-node totals."
+  ]
+}

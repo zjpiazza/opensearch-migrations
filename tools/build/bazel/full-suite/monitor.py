@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--seed', type=Path, required=True, help='Seed BEP file')
 parser.add_argument('--comparisons', type=Path, required=True)
 parser.add_argument('--port', type=int, default=8765)
+parser.add_argument('--label', default='Initial full test run', help='Label for the seed run')
 args = parser.parse_args()
 args.seed = args.seed.resolve()
 args.comparisons = args.comparisons.resolve()
@@ -71,7 +72,7 @@ def poll_workers():
                 pool['ready'] += int(pod in ready)
             result = []
             errors = []
-            with ThreadPoolExecutor(max_workers=18) as pool:
+            with ThreadPoolExecutor(max_workers=32) as pool:
                 futures = [(p['metadata']['name'], pool.submit(probe, p['metadata']['name'])) for p in ready]
                 for name, future in futures:
                     try:
@@ -108,7 +109,7 @@ def snapshot():
     current = phase['phase']
     candidates = [args.seed, *args.comparisons.glob('*/results.bep.json')]
     bep = max((p for p in candidates if p.exists()), key=lambda p: p.stat().st_mtime)
-    run_label = 'Initial full test run' if bep == args.seed else bep.parent.name.capitalize() + ' comparison'
+    run_label = args.label if bep == args.seed else bep.parent.name.capitalize() + ' comparison'
     events = read_events(bep)
     results = {}
     for event in events:

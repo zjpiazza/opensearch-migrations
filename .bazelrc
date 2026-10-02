@@ -25,3 +25,9 @@ build:buildbarn --noremote_local_fallback
 build:buildbarn --spawn_strategy=remote
 build:buildbarn --strategy=Javac=remote
 build:buildbarn --remote_timeout=300
+
+# Force every selected test to execute; worker image/input caches may remain warm.
+test:buildbarn-uncached --config=buildbarn
+test:buildbarn-uncached --noremote_accept_cached
+test:buildbarn-uncached --nocache_test_results
+test:buildbarn-uncached --disk_cache=

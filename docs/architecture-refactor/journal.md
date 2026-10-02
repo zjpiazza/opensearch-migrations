@@ -716,3 +716,151 @@ Next question:
   scheduler and dashboard snapshots remain under ignored
   `build/full-suite-evidence/queue-admission/`. Revert the admission setting to
   roll back; doing so requires a new client and reintroduces the observed limit.
+
+### E-015 — Throughput objective and refreshed GitHub hardware comparison
+
+- User clarified the objective: maximize successful test throughput within the
+  allocated compute, then scale compute when constrained. Worker count and raw CPU
+  occupancy alone are insufficient measures; excessive concurrency can slow tests
+  or cause retries. Track cases/second, whole-suite wall time, queue wait, failures,
+  resource peaks, and allocated CPU/memory time. Separate result-cache replay.
+- Reconstructed E-007: 30 GitHub public `ubuntu-22.04` runners, 4 vCPU/16 GB each,
+  all started within three seconds: 120 vCPU/480 GB nominal initial allocation.
+  Longest job 68m54s, longest recorded Gradle step 57m37s; 24.09 runner-hours total.
+  This is the successful fork baseline, not the earlier nearly-two-hour run.
+- Live cluster check: nine 4-vCPU/16-GB execution nodes, nominal 36 vCPU/144 GB,
+  Kubernetes allocatable 35.01 CPU/119.93 GiB before workload/system pod requests.
+  Three support nodes and client/Gradle preparation compute are excluded. Current
+  nominal execution capacity is 30% of GitHub's baseline, versus 10% when E-007
+  was recorded with only three nodes. Matching nominal capacity would require
+  thirty of these nodes; that arithmetic is not a scaling recommendation or proof
+  of equal per-core/storage performance.
+- Current workload partition additionally caps integration execution at nine
+  actions: six standard runners capped at 1 CPU, three large capped at 2 CPU,
+  plus nine Docker sidecars capped at 1.5 CPU. The integration JVM limit total is
+  only 12 CPU, with another 13.5 CPU of sidecar limits. Idle lightweight capacity
+  cannot help these queues. Raising node maximum alone does not raise these
+  independent Deployment autoscaler ceilings.
+- Proposed configuration direction, not yet deployed: reduce idle warm floors;
+  size CPU/memory profiles from measured per-action peaks and elapsed times;
+  validate CPU bursting rather than universally imposing one-core JVM limits;
+  use capability requirements for platform routing and investigate Buildbarn size
+  classes for small/large workers of the same platform. Buildbarn supports size
+  classes and feedback-driven initial selection, but this does not imply arbitrary
+  capacity borrowing across Docker and non-Docker platforms or generic resource
+  bin packing. Scheduler migration requires a separate canary.
+- Density experiment: where peaks support it, compare one versus two isolated
+  Docker test slots per node, preserving a distinct Docker daemon per slot and
+  action-boundary cleanup. Two slots need a smaller combined reservation than the
+  present 9.125 GiB each; lowering requests without evidence would merely conceal
+  contention. JVM heap, native memory, simultaneous service peaks and disk/image
+  usage must all fit. Do not increase concurrency on the existing shared daemon:
+  its cleaner removes containers at each action boundary.
+- Scaling policy should connect backlog/queue wait to eligible worker replicas,
+  then unschedulable correctly sized pods to node autoscaling within a defined
+  ceiling. First remove admission/routing/resource bottlenecks on the current
+  nine nodes. Increase capacity when useful work remains capacity-constrained;
+  don't add nodes to compensate for artificial worker ceilings or idle reserved
+  pools. Preserve long-running class parallelism limits when interpreting results.
+- [Refreshed comparison](evidence/throughput-capacity-comparison.json).
+  Sources checked: [GitHub runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners),
+  [Buildbarn scheduler size classes](https://github.com/buildbarn/bb-remote-execution/blob/main/pkg/proto/configuration/bb_scheduler/bb_scheduler.proto),
+  [Kubernetes requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+  No running worker resources, node bounds, or test inputs changed in this checkpoint.
+
+### E-016 — Replace small execution nodes with larger nodes under droplet quota
+
+- User authorized `doctl` cluster changes to avoid exhausting Droplet count with
+  four-vCPU/sixteen-GB nodes. The account reports a 25-Droplet limit. During the
+  initial inspection the user independently deleted the old `control-plane` pool
+  and reduced `workers` to one node. Scheduler/frontend/storage became Pending;
+  full-8 ended with infrastructure exit 34. Preserve its partial results, not a
+  passing whole-suite or uninterrupted performance baseline.
+- DigitalOcean node-pool size slugs are immutable. Created `bazel-execution`
+  using `g5-16vcpu-64gb-80gb`, initially three nodes, autoscaling 1–8, with
+  `workload=bazel:NoSchedule` and explicit pool selection. Initial nominal capacity
+  is 48 vCPU/192 GB; maximum is 128 vCPU/512 GB. Eight execution Droplets approximate
+  the original thirty GitHub runners' nominal allocation without thirty Droplets.
+  Live initial nodes expose 15.86 CPU and about 57.62 GiB allocatable each.
+- Restored services on a dedicated `build-services` pool. Initial two-vCPU/four-GB
+  service-node sizing passed smoke checks but full-9's request burst exposed
+  frontend (384 MiB) and CAS storage (1 GiB) OOMKills. Replaced the temporary pool
+  with a four-vCPU/sixteen-GB services node; frontend and storage limits become
+  two CPU/four GiB each, with GOMEMLIMIT=3GiB. Their requests are respectively
+  0.5 CPU/1 GiB and 1 CPU/2 GiB. This is an ordinary worker pool, not the managed
+  Kubernetes control plane, and the single-node service deployment is not HA.
+- Replaced required per-node worker anti-affinity with preferred spreading.
+  Kubernetes can place several independently isolated workers on each larger node
+  while respecting CPU, memory and CSI attachment capacity. Unchanged per-action
+  runner/Docker budgets preserve the existing memory margins and test behavior.
+  Autoscaler floors/ceilings are now standard 2–32, large 1–8, lightweight 1–12:
+  up to forty Docker slots and fifty-two total slots, subject to demand/capacity.
+  The 512-action client admission limit remains. These are not fifty-two nodes.
+- The v5 plan still has only an 80-GiB boot disk. Moved each integration worker's
+  12-GiB workspace and 40-GiB Docker directory to two generic ephemeral PVCs via
+  `buildbarn-worker-scratch` (WaitForFirstConsumer, Delete). PVC ownership cleans
+  up volumes with their pods; persistent CAS/action-cache volumes remain separate.
+  The observed CSI attachment limit is fifteen per node. Docker keeps its own
+  daemon and nested cgroup isolation per action slot, with no host filesystem or
+  Docker socket mounts. This avoids multiplying Docker data on the small boot disk
+  but adds block-volume provisioning time, cost and I/O behavior to measure.
+- Retired the old `workers` pool by immutable pool ID after confirming only
+  managed kube-system node agents remained. The user-deleted `control-plane` pool
+  finished disappearing. The temporary small services pool is also retired after
+  relocating its services; old pools are not kept as billed standby capacity.
+- Validation: server-side dry-run and apply; namespace services Ready; existing
+  cache returned three remote hits in 3.44 seconds; forced execution then passed
+  fourteen JUnit cases across all three pools in 15.60 seconds, with expected pod
+  hostnames in XML. A nested busybox container read its /worker bind mount from
+  the new backing volume successfully. Structural checks verify selectors,
+  preferred spreading, both scratch claims, lifecycle policy and replica ceilings.
+  These smoke timings are not a full-suite speedup comparison.
+- Current provider API prices: execution node $0.71759/hour ($533.89/month cap);
+  final services node $0.18762/hour ($139.59/month cap). Three execution plus one
+  services node: about $2.34/hour; eight plus one: about $5.93/hour, before scratch
+  storage and other charges. Scratch capacity is 52 GiB per Docker worker; it is
+  billed while provisioned. The standalone persistent-runner VM is unchanged.
+- Full-9 stopped on the recorded service OOMs after 34 cached targets, before real
+  execution. A replacement full-suite continuation must reuse the existing cache,
+  retry unfinished actions, and retain the complete-coverage gate before replay.
+  Migration and autoscaling mean it is not a fixed-capacity cold benchmark.
+- Rollback requires creating a replacement small-node pool and restoring the
+  recorded manifests/selectors and old ceilings; deleted nodes cannot be revived.
+  Preserve cache PVCs. Raw provider responses, pre-change manifests, smoke outputs,
+  node resources and OOM termination details are under ignored
+  `build/full-suite-evidence/larger-nodes/`.
+- Migration closure: all service workloads became Ready on the final sixteen-GB
+  service node. Drained the temporary service node with disruption budgets intact,
+  then deleted its pool after verifying only managed DaemonSets remained. Queued
+  workers triggered actual cluster scale-up from three to six execution nodes,
+  then further scale-up within the eight-node bound. See the final checkpoint in
+  [migration evidence](evidence/larger-node-migration.json).
+- Full-10 failed before executing because the API-to-node connection agents were
+  still recovering and the local port-forward could not establish a listener.
+  After the agents recovered, a real remote test passed through the tunnel.
+  Full-11 then resumed and recovered 236 results from cache; the user explicitly
+  requested an uncached run, so that continuation was intentionally stopped.
+
+### E-017 — Full-suite execution with result reuse disabled
+
+- User requested seeing the suite without existing cached results. Stopped full-11
+  and its automatic unchanged-replay driver before launching the replacement.
+  Added opt-in `--config=buildbarn-uncached`: `--noremote_accept_cached`,
+  `--nocache_test_results`, and `--disk_cache=` over the Buildbarn execution config.
+  Launched all 439 targets from a previously unused output base as `uncached-1`.
+  Test assertions, platform routing, runtime export and timeout remain unchanged.
+- This disables local and remote test/action-result reuse. The precompiled Gradle
+  export, CAS input blobs and worker/container image caches can remain warm. It is
+  an uncached execution benchmark, not a fresh dependency download/build benchmark.
+  A new remote instance alone previously returned cache hits; cache policy and
+  BEP evidence are the proof. No shared persistent cache was deleted.
+- Dashboard at localhost:8765 now follows `larger-nodes/uncached-1` and explicitly
+  labels it **Full suite — result caching disabled**. Added a configurable run
+  label to the monitor. Initial checkpoint: 23 observed running test processes,
+  twelve completed targets and **zero cached results**; later observations are
+  retained in the migration evidence. No automatic cache replay is queued for
+  this run, so the user's dashboard will stay on actual test execution.
+- Validation: Bazel 8.4.2 local flag help, successful configuration expansion in
+  the active command, BEP cache-hit checks, live dashboard source/label/results,
+  Python syntax and diff checks. Final suite timing, coverage and failures remain
+  pending; the known npm input-upload problem is separate from caching policy.

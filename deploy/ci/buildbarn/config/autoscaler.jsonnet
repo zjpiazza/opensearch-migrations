@@ -1,4 +1,4 @@
-// Three independently scaled platform queues; one action per worker.
+// Independently scaled queues; larger nodes can host multiple isolated workers.
 {
   "prometheusEndpoint": "http://buildbarn-prometheus:9090",
   "prometheusQuery": "buildbarn:desired_workers and on() (up{job=\"buildbarn-scheduler\"} == 1)",
@@ -27,7 +27,7 @@
         "namespace": "migrations-buildbarn",
         "name": "worker-integration",
         "minimumReplicas": 2,
-        "maximumReplicas": 6
+        "maximumReplicas": 32
       }
     },
     {
@@ -54,7 +54,7 @@
         "namespace": "migrations-buildbarn",
         "name": "worker-integration-large",
         "minimumReplicas": 1,
-        "maximumReplicas": 3
+        "maximumReplicas": 8
       }
     },
     {
@@ -76,8 +76,8 @@
       "kubernetesDeployment": {
         "namespace": "migrations-buildbarn",
         "name": "worker-ubuntu22-04",
-        "minimumReplicas": 3,
-        "maximumReplicas": 9
+        "minimumReplicas": 1,
+        "maximumReplicas": 12
       }
     }
   ]

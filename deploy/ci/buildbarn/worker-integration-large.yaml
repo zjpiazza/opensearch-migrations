@@ -151,7 +151,7 @@ spec:
         - mountPath: /worker
           name: worker
       nodeSelector:
-        doks.digitalocean.com/node-pool: workers
+        doks.digitalocean.com/node-pool: bazel-execution
         kubernetes.io/arch: amd64
       tolerations:
       - effect: NoSchedule
@@ -177,17 +177,39 @@ spec:
             path: clean-docker.sh
           name: buildbarn-integration-large-config
         name: configs
-      - emptyDir:
-          sizeLimit: 12Gi
-        name: worker
+      - name: worker
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                app: buildbarn-worker-scratch
+            spec:
+              accessModes:
+              - ReadWriteOnce
+              storageClassName: buildbarn-worker-scratch
+              resources:
+                requests:
+                  storage: 12Gi
       - name: docker
-        emptyDir:
-          sizeLimit: 40Gi
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                app: buildbarn-worker-scratch
+            spec:
+              accessModes:
+              - ReadWriteOnce
+              storageClassName: buildbarn-worker-scratch
+              resources:
+                requests:
+                  storage: 40Gi
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app: worker
-                container-tests: 'true'
-            topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: worker
+                  container-tests: 'true'
+              topologyKey: kubernetes.io/hostname

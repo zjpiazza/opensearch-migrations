@@ -60,7 +60,7 @@ spec:
             path: scheduler.jsonnet
       automountServiceAccountToken: false
       nodeSelector:
-        doks.digitalocean.com/node-pool: control-plane
+        doks.digitalocean.com/node-pool: build-services
         kubernetes.io/arch: amd64
       affinity:
         podAntiAffinity:

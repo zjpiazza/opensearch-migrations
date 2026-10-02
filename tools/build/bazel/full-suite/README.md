@@ -65,6 +65,21 @@ the driver; it does not turn a partial run into a cache benchmark.
 
 ## Live test dashboard
 
+To measure full test execution without result reuse, use a fresh output directory:
+
+```bash
+./bazelw --output_base="$PWD/build/full-suite-evidence/uncached-client" test \
+  --config=buildbarn-uncached @full_suite//:all_tests --keep_going --test_timeout=7200
+```
+
+The opt-in config disables remote action-result reads, test-result reuse and the
+disk cache. Pick a previously unused output directory for each measurement.
+Compiled runtime export, CAS inputs and worker container images may already be
+warm; this measures uncached test execution, not a from-scratch Gradle build or
+image-download benchmark. A new remote instance name alone does not establish
+zero cache hits. Verify `cachedLocally` and `executionInfo.cachedRemotely` in BEP.
+Pass `--label 'Full suite — result caching disabled'` to the monitor for this run.
+
 The local dashboard shows every target, pass/fail status, elapsed test time, cache
 hits, active worker assignments, and per-pool capacity and target progress. It
 reads Bazel events and polls all worker pools; it does not alter tests or cluster
@@ -148,8 +163,8 @@ python3 tools/build/bazel/full-suite/worker_routing.py
 
 `prepare.py` also applies the same policy on every export. The Buildbarn config
 admits 512 in-flight actions to avoid starving one platform behind another
-platform’s queue. Actual execution is capped at 18 slots across independently
-autoscaled lightweight (3–9),
-standard integration (2–6), and large integration (1–3) pools. Large runners have
+platform’s queue. Actual execution is capped at 52 slots across independently
+autoscaled lightweight (1–12),
+standard integration (2–32), and large integration (1–8) pools. Large runners have
 two CPUs; other runners have a one-CPU limit. Changing execution properties
 invalidates affected action-cache entries. The live monitor inspects all pools.
