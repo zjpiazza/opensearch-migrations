@@ -1,0 +1,369 @@
+{
+  "nodes": [
+    {
+      "node": "bazel-execution-3xkd2k",
+      "interval_seconds": 20.0,
+      "cpu_cores": 0.02,
+      "working_set_GiB": 0.838
+    },
+    {
+      "node": "bazel-execution-3xkl3w",
+      "interval_seconds": 20.0,
+      "cpu_cores": 9.947,
+      "working_set_GiB": 15.339
+    },
+    {
+      "node": "bazel-execution-3xktu3",
+      "interval_seconds": 20.0,
+      "cpu_cores": 7.293,
+      "working_set_GiB": 14.919
+    },
+    {
+      "node": "bazel-execution-3xktu8",
+      "interval_seconds": 20.0,
+      "cpu_cores": 12.347,
+      "working_set_GiB": 18.424
+    },
+    {
+      "node": "bazel-execution-3xktuu",
+      "interval_seconds": 31.0,
+      "cpu_cores": 7.193,
+      "working_set_GiB": 19.767
+    },
+    {
+      "node": "bazel-execution-3xktv8",
+      "interval_seconds": 20.0,
+      "cpu_cores": 1.692,
+      "working_set_GiB": 10.308
+    },
+    {
+      "node": "bazel-execution-3xktvc",
+      "interval_seconds": 20.0,
+      "cpu_cores": 10.952,
+      "working_set_GiB": 16.767
+    },
+    {
+      "node": "bazel-execution-3xktvu",
+      "interval_seconds": 20.0,
+      "cpu_cores": 9.642,
+      "working_set_GiB": 11.609
+    }
+  ],
+  "worker_samples": [
+    {
+      "pod": "worker-integration-78f97bd775-44s6r",
+      "class": "org.opensearch.migrations.bulkload.solr.SolrToOpenSearchEndToEndTest",
+      "container": "runner",
+      "interval_seconds": 12.8,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.013,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.318,
+      "memory_peak_GiB": 0.322,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-44s6r",
+      "class": "org.opensearch.migrations.bulkload.solr.SolrToOpenSearchEndToEndTest",
+      "container": "docker",
+      "interval_seconds": 12.8,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 2.531,
+      "throttled_period_fraction": 0.543,
+      "memory_current_GiB": 5.237,
+      "memory_peak_GiB": 5.757,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-622zv",
+      "class": "org.opensearch.migrations.bulkload.SolrSnapshotToOpenSearchTest",
+      "container": "runner",
+      "interval_seconds": 12.83,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.31,
+      "throttled_period_fraction": 0.438,
+      "memory_current_GiB": 0.23,
+      "memory_peak_GiB": 0.355,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-622zv",
+      "class": "org.opensearch.migrations.bulkload.SolrSnapshotToOpenSearchTest",
+      "container": "docker",
+      "interval_seconds": 12.83,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 0.874,
+      "throttled_period_fraction": 0.071,
+      "memory_current_GiB": 3.917,
+      "memory_peak_GiB": 5.678,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6ndld",
+      "class": "org.opensearch.migrations.bulkload.LeaseExpirationTest",
+      "container": "runner",
+      "interval_seconds": 12.81,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.326,
+      "throttled_period_fraction": 0.327,
+      "memory_current_GiB": 0.495,
+      "memory_peak_GiB": 0.509,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6ndld",
+      "class": "org.opensearch.migrations.bulkload.LeaseExpirationTest",
+      "container": "docker",
+      "interval_seconds": 12.82,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 0.058,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 5.967,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6qw4q",
+      "class": "org.opensearch.migrations.CustomTransformationTest",
+      "container": "runner",
+      "interval_seconds": 12.83,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.016,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.284,
+      "memory_peak_GiB": 0.311,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6qw4q",
+      "class": "org.opensearch.migrations.CustomTransformationTest",
+      "container": "docker",
+      "interval_seconds": 12.83,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 2.774,
+      "throttled_period_fraction": 0.828,
+      "memory_current_GiB": 5.998,
+      "memory_peak_GiB": 6.001,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 984,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6t7mq",
+      "class": "org.opensearch.migrations.SnapshotConfigurationTest",
+      "container": "runner",
+      "interval_seconds": 12.8,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.009,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.387,
+      "memory_peak_GiB": 0.43,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-6t7mq",
+      "class": "org.opensearch.migrations.SnapshotConfigurationTest",
+      "container": "docker",
+      "interval_seconds": 12.81,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 2.462,
+      "throttled_period_fraction": 0.748,
+      "memory_current_GiB": 5.977,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 814,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-7jbnz",
+      "class": "org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest",
+      "container": "runner",
+      "interval_seconds": 12.82,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.012,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.371,
+      "memory_peak_GiB": 0.382,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-7jbnz",
+      "class": "org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest",
+      "container": "docker",
+      "interval_seconds": 12.82,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 2.532,
+      "throttled_period_fraction": 0.531,
+      "memory_current_GiB": 4.713,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-bth7j",
+      "class": "org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "container": "runner",
+      "interval_seconds": 12.82,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.626,
+      "throttled_period_fraction": 0.534,
+      "memory_current_GiB": 0.475,
+      "memory_peak_GiB": 0.483,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-bth7j",
+      "class": "org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "container": "docker",
+      "interval_seconds": 12.8,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 0.759,
+      "throttled_period_fraction": 0.061,
+      "memory_current_GiB": 1.741,
+      "memory_peak_GiB": 6.001,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 332,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-f8qjj",
+      "class": "org.opensearch.migrations.bulkload.SnapshotConfigurationTest",
+      "container": "runner",
+      "interval_seconds": 12.81,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.125,
+      "throttled_period_fraction": 0.045,
+      "memory_current_GiB": 0.382,
+      "memory_peak_GiB": 0.385,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-78f97bd775-f8qjj",
+      "class": "org.opensearch.migrations.bulkload.SnapshotConfigurationTest",
+      "container": "docker",
+      "interval_seconds": 12.81,
+      "cpu_limit": "300000 100000",
+      "cpu_cores": 1.77,
+      "throttled_period_fraction": 0.352,
+      "memory_current_GiB": 2.309,
+      "memory_peak_GiB": 6.001,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 1035,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    }
+  ],
+  "execution_pool_cpu_cores": 59.086,
+  "nominal_execution_pool_cpu_cores": 128,
+  "caveats": [
+    "Includes concurrent integration-large baseline work.",
+    "Throttled period fraction is not percentage of elapsed time lost.",
+    "Sampled worker may start a different shard during the interval.",
+    "Single short sample: worker intervals about 12.8 seconds and node intervals 20\u201331 seconds; use as a bottleneck signal, not a run-wide utilization average.",
+    "Autoscaling increased the execution pool from seven to eight nodes; one new node was nearly idle. Compare 59.086/128 CPUs here with 46.506/112 earlier, not identical hardware allocation.",
+    "Services-node start sample failed with a TLS handshake timeout and is excluded; all eight execution nodes were sampled.",
+    "Memory max events indicate hitting the cgroup limit and possible reclaim, not necessarily an OOM kill."
+  ]
+}

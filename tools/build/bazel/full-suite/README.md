@@ -129,10 +129,12 @@ Gradle tests retain the original Gradle image-build entry point.
 
 ## Execution environment and limitations
 
-Container tests run in three single-slot integration pods, each with its own
-Docker daemon; no test shares a daemon with another concurrently executing test.
-Six lightweight slots remain for the original native Bazel graph. The existing
-three execution nodes are unchanged. Privileged Docker sidecars and registry
+Container tests use separately routed `integration` and `integration-large`
+pools, each with one action and a private Docker daemon per pod. The configured
+autoscaling bounds are 2–32 standard workers, 1–8 large workers and 1–12
+lightweight workers. Pools share the execution nodes, so separate action queues
+do not imply isolated CPU, disk or network capacity. Record the live node and
+worker counts for each comparison. Privileged Docker sidecars and registry
 HTTP/HTTPS egress were explicitly approved by the user. This remains a trusted
 code experiment, not an environment for arbitrary public PR code.
 

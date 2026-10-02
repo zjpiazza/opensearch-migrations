@@ -9,8 +9,9 @@ does not resolve memory pressure.
 
 `standard-docker-cpu-3.patch.json` changes only the standard integration Docker
 CPU limit, from 1.5 to 3. Requests, memory, JVM sizing, routing, replica bounds,
-storage, and large-worker configuration stay unchanged. It is a prepared trial,
-not an adopted or deployed default.
+storage, and large-worker configuration stay unchanged. The trial is currently
+deployed for `standard-long-cpu3-1`; the base manifest still specifies 1.5 CPUs.
+It has not been adopted as the default. See journal E-029 for rollout evidence.
 
 Apply only after the current **standard-pool** run has finished and its outputs
 have been saved. This triggers a rolling replacement of standard workers and

@@ -1150,3 +1150,23 @@ Next question:
   run scaled from two retained pods to 32. Report those differences separately
   from CPU limits rather than claiming a fully isolated causal comparison.
   [Launch configuration](evidence/standard-docker-cpu3-launch.json).
+
+### E-030 — Measure CPU use during the three-CPU trial
+
+- All 32 standard workers are occupied during the sample. Several sampled Docker
+  groups use 2.46–2.77 CPUs, above the previous 1.5 limit. Execution-node usage
+  totals 59.086 CPUs. Autoscaling has added an eighth node (128 nominal CPUs),
+  which is nearly idle; the earlier sample was 46.506 CPUs over seven nodes.
+  These short intervals are bottleneck observations, not run-wide utilization
+  averages or a controlled comparison of identical hardware allocation.
+- Worker intervals are about 12.8 seconds; kubelet node intervals are 20–31
+  seconds. All eight execution-node samples succeeded. The services-node start
+  sample timed out and is excluded. Some Docker groups record memory-limit
+  events at 6 GiB, with no OOM kills in the interval. No worker container restarts
+  were observed in the subsequent pool-wide check.
+- Routing confines this run to standard workers. The original large-pool run
+  keeps its own slots but shares physical node and storage/network resources.
+  Its backfill EndToEndTest has now finished FAILED after 5926.463 seconds, with
+  67 passing and 20 image-build failures out of 87 cases. Do not use that failed
+  action as a speed baseline. Metadata EndToEndTest is still running.
+- [Utilization evidence](evidence/standard-docker-cpu3-utilization.json).
