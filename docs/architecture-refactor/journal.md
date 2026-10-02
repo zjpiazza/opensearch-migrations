@@ -1062,3 +1062,25 @@ Next question:
   ramped back toward 32, reaching about 30 executing actions in the first 90s.
   New workers have cold private Docker caches. Include this startup interval in
   end-to-end elapsed time; final timings and coverage validation remain pending.
+
+
+### E-026 — First measured remote sharding gain and CPU-limit experiment
+
+- First complete class: LuceneSnapshotSourceEndToEndTest executes all 88 expected
+  cases exactly once across 11 passing shards, without cached results. Class
+  elapsed time drops from 785.697s to 124.413s (6.315x). Summed shard time is
+  836.053s; parallelism reduces latency while adding approximately 6.4% aggregate
+  action time. Other classes and overall run validation are still pending.
+- A 30-second kubelet sample with all 32 standard slots active measured 46.506
+  execution-node CPU cores used out of 112 nominal. Eight sampled Docker groups
+  were throttled in 64–98% of scheduling periods at a 1.5-CPU quota. This is not
+  the percentage of wall time lost. JVM CPU consumption in the sample was low.
+- Several Docker groups hit the 6-GiB memory ceiling with reclaim/limit events;
+  no OOM kills occurred in the sampled interval. Preserve memory sizing for the
+  CPU comparison, and investigate any failures before interpreting throughput.
+- Prepared a strategic patch raising only standard Docker CPU limit to three,
+  with rollout instructions and cache-state controls. Not deployed during active
+  tests. Raising the limit is a hypothesis to verify, not a measured improvement.
+- [Complete-class evidence](evidence/sharded-lucene-first-result.json),
+  [utilization sample](evidence/sharded-standard-utilization.json), and
+  [next experiment](../../deploy/ci/buildbarn/experiments/README.md).
