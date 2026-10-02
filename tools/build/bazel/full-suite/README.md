@@ -168,3 +168,41 @@ autoscaled lightweight (1–12),
 standard integration (2–32), and large integration (1–8) pools. Large runners have
 two CPUs; other runners have a one-CPU limit. Changing execution properties
 invalidates affected action-cache entries. The live monitor inspects all pools.
+
+## Focused long-test sharding experiment
+
+`sharding.json` opts selected long Jupiter classes into native Bazel sharding.
+The adapter partitions parameter invocations at runtime, so adding a version
+does not require maintaining a frozen selector list. `fixture-index` keeps
+matching provider indices together across methods; `independent` hashes the
+complete case ID. Only reviewed classes should use these policies. Dynamic
+factories require separate fixture ownership changes and are rejected.
+
+Check the adapter locally using the prepared JDK/JUnit:
+
+```bash
+python3 tools/build/bazel/full-suite/verify-sharding.py
+```
+
+After any active run finishes, regenerate with `prepare.py` to enable the
+configured shard counts, or `prepare.py --unsharded` for a class-level A/B
+baseline. Do not regenerate the runtime while a benchmark is using it.
+
+For a focused comparison, select an explicit target instead of `all_tests`:
+
+```bash
+bazel test --config=buildbarn-uncached \
+  @full_suite//:DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.PipelineEndToEndTest
+```
+
+Capture BEP, execution logs and a fresh output base as for other measurements.
+Pass the exported target name with `--target` to both `monitor.py` and
+`summarize.py`; repeat the option when comparing several long classes. The
+monitor distinguishes completed classes from running/completed shard tasks.
+The summarizer's `--require-complete` gate checks all expected shards, all
+selected baseline cases, and absence of duplicate executed cases. It preserves
+real disabled tests, excluding only cases assigned to a different shard.
+
+See [long-test analysis](../../../../docs/architecture-refactor/long-test-partitioning.md)
+for observed durations, fixture constraints, validation and pending cluster
+measurements. Local adapter checks are not evidence of integration-test speedup.

@@ -64,6 +64,7 @@ def copy_file(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--export', type=Path, default=ROOT / 'build/full-suite-export.json')
+    parser.add_argument('--unsharded', action='store_true', help='Retain class-level execution for an A/B baseline')
     args = parser.parse_args()
     manifest = json.loads(args.export.read_text())
     assert Path(manifest['root']) == ROOT
@@ -81,6 +82,22 @@ def main():
     shutil.copytree(java_home, tools / 'jdk', symlinks=True)
     # Drop non-runtime Gradle installation markers from the exported toolchain.
     subprocess.run([str(java_home/'bin/javac'), '-cp', str(console), '-d', str(tools), str(ROOT/'tools/build/bazel/full-suite/DiscoverTests.java')], check=True)
+    shard_classes = tools / 'shard-classes'
+    if shard_classes.exists():
+        shutil.rmtree(shard_classes)
+    shard_classes.mkdir(exist_ok=True)
+    subprocess.run([str(java_home/'bin/javac'), '-cp', str(console), '-d', str(shard_classes),
+                    str(ROOT/'tools/build/bazel/full-suite/BazelShardCondition.java')], check=True)
+    write(shard_classes/'META-INF/services/org.junit.jupiter.api.extension.Extension',
+          'org.opensearch.migrations.testinfra.BazelShardCondition\n')
+    # Fixed ZIP metadata makes identical preparation produce identical action inputs.
+    with zipfile.ZipFile(tools/'bazel-sharding.jar', 'w') as jar:
+        for entry in sorted(shard_classes.rglob('*')):
+            if entry.is_file():
+                info = zipfile.ZipInfo(entry.relative_to(shard_classes).as_posix(), (1980, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                jar.writestr(info, entry.read_bytes())
+    sharding = {} if args.unsharded else json.loads((ROOT/'tools/build/bazel/full-suite/sharding.json').read_text())['classes']
     agent = next(Path.home().glob('.gradle/caches/modules-2/files-2.1/org.jacoco/org.jacoco.agent/0.8.13/*/*.jar'))
     with zipfile.ZipFile(agent) as z: (tools/'jacocoagent.jar').write_bytes(z.read('jacocoagent.jar'))
     tracked = subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
@@ -118,7 +135,7 @@ def main():
         evidence['java_tasks'].append({'task':task['task'],'classes':classes})
         if not classes: continue
         spec = {k:task[k] for k in ['task','workingDirectory','jvmArgs','minHeapSize','maxHeapSize','includeTags','excludeTags','includeEngines','excludeEngines']}
-        spec.update(kind='java',javaHome='tools/jdk',console=console.relative_to(OUT).as_posix(),classpath=[],archives=[shared])
+        spec.update(kind='java',javaHome='tools/jdk',console=console.relative_to(OUT).as_posix(),classpath=[],archives=[shared],shardHelper='tools/bazel-sharding.jar')
         spec['properties'] = {k:v.replace(str(ROOT),'@ROOT@') for k,v in task['properties'].items()}
         spec['properties']['test.image.builder'] = '@ROOT@/tools/build/bazel/full-suite/build-image.py'
         if task['jacocoEnabled']: spec['jacoco']='tools/jacocoagent.jar'
@@ -140,9 +157,20 @@ def main():
         group=ident+'_runtime'; lines.append('filegroup(name='+repr(group)+', srcs='+repr(sorted(set(filter(None,data+spec['archives']))))+')')
         for cls in classes:
             target=ident+'__'+cls
-            lines.append('exported_test(name='+repr(target)+', spec='+repr(filename)+', data=['+repr(':'+group)+'], test_class='+repr(cls)+', size="enormous", timeout="eternal", exec_properties='+repr(worker_properties(task['task'],cls))+')')
-            evidence['targets'].append({'target':target,'task':task['task'],'class':cls,'exec_properties':worker_properties(task['task'],cls)})
+            shard = sharding.get(task['task']+'|'+cls, {})
+            count = shard.get('count', 1)
+            if not isinstance(count, int) or not 1 <= count <= 50:
+                raise ValueError('Invalid shard count for '+target)
+            grouping = shard.get('grouping', 'fixture-index')
+            if grouping not in ('fixture-index', 'independent'):
+                raise ValueError('Invalid shard grouping for '+target)
+            target_data = [':'+group] + ([spec['shardHelper']] if count > 1 else [])
+            lines.append('exported_test(name='+repr(target)+', spec='+repr(filename)+', data='+repr(target_data)+', test_class='+repr(cls)+', shard_count='+repr(count if count > 1 else 0)+', shard_grouping='+repr(grouping)+', size="enormous", timeout="eternal", exec_properties='+repr(worker_properties(task['task'],cls))+')')
+            evidence['targets'].append({'target':target,'task':task['task'],'class':cls,'shard_count':count,'shard_grouping':grouping,'exec_properties':worker_properties(task['task'],cls)})
         print(task['task'],len(classes),'classes',flush=True)
+    unknown = set(sharding) - {t['task']+'|'+t['class'] for t in evidence['targets']}
+    if unknown:
+        raise ValueError('Shard configuration refers to undiscovered classes: '+repr(sorted(unknown)))
     npm_archives={}
     for task in manifest['npm']:
         ident=clean_name(task['task']); working=task['workingDirectory']

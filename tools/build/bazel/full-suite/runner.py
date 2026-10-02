@@ -24,6 +24,10 @@ def main():
     output = Path(os.environ['TEST_UNDECLARED_OUTPUTS_DIR']).resolve()
     output.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
+    shards = int(env.get('TEST_TOTAL_SHARDS', '1'))
+    shard_index = int(env.get('TEST_SHARD_INDEX', '0'))
+    if not 0 <= shard_index < shards:
+        raise ValueError('Invalid Bazel shard coordinates')
     env.update({'HOME': str(work / '.home'), 'AWS_EC2_METADATA_DISABLED': 'true',
                 'AWS_CONFIG_FILE': '/dev/null', 'AWS_SHARED_CREDENTIALS_FILE': '/dev/null',
                 'DOCKER_HOST': 'tcp://127.0.0.1:2375', 'TESTCONTAINERS_HOST_OVERRIDE': '127.0.0.1'})
@@ -33,6 +37,8 @@ def main():
     cwd = work / spec['workingDirectory']
     cwd.mkdir(parents=True, exist_ok=True)
     if spec['kind'] == 'npm':
+        if shards > 1:
+            raise ValueError('npm checks do not support this Jupiter shard adapter')
         node = bundle / spec['nodeHome']
         env['PATH'] = str(node / 'bin') + ':' + env.get('PATH', '')
         command = [str(node / 'bin/node'), str(node / 'lib/node_modules/npm/bin/npm-cli.js'), *spec['args']]
@@ -41,6 +47,11 @@ def main():
         cp = [str(work / p) if directory else str(bundle / p) for p, directory in spec['classpath']]
         cp.insert(0, str(bundle / spec['console']))
         props = {k: v.replace('@ROOT@', str(work)) for k, v in spec['properties'].items()}
+        if shards > 1:
+            cp.insert(1, str(bundle / spec['shardHelper']))
+            props['junit.jupiter.extensions.autodetection.enabled'] = 'true'
+            props['junit.jupiter.extensions.autodetection.include'] = 'org.opensearch.migrations.testinfra.BazelShardCondition'
+            props['bazel.shard.grouping'] = sys.argv[3] if len(sys.argv) > 3 else 'fixture-index'
         # Java does not derive user.home from HOME. Graal and fixtures extract
         # runtime resources there; the worker UID's default home is unwritable.
         props['user.home'] = env['HOME']
@@ -71,8 +82,22 @@ def main():
             code = child.wait()
     print(b''.join(tail).decode('utf-8', errors='replace')[-8000:], flush=True)
     reports = ET.Element('testsuites')
+    filtered = 0
     for report in sorted((output / 'junit').glob('*.xml')):
-        reports.append(ET.parse(report).getroot())
+        tree = ET.parse(report)
+        suite = tree.getroot()
+        # Other shards own these cases; do not count them as skipped coverage.
+        for parent in suite.iter():
+            for case in list(parent):
+                skipped = case.find('skipped') if case.tag == 'testcase' else None
+                if skipped is not None and 'Bazel shard: owned by ' in (skipped.attrib.get('message', '') + (skipped.text or '')):
+                    parent.remove(case)
+                    filtered += 1
+        cases = list(suite.iter('testcase'))
+        suite.set('tests', str(len(cases)))
+        suite.set('skipped', str(sum(c.find('skipped') is not None for c in cases)))
+        tree.write(report, encoding='utf-8', xml_declaration=True)
+        reports.append(suite)
     if not list(reports) or (code and not reports.findall('.//failure') and not reports.findall('.//error')):
         suite = ET.SubElement(reports, 'testsuite', name=spec['task'], tests='1', failures=str(int(code != 0)))
         case = ET.SubElement(suite, 'testcase', name=sys.argv[2] or spec['task'], classname=spec['task'])
@@ -80,7 +105,8 @@ def main():
             ET.SubElement(case, 'failure', message='Process exit code ' + str(code)).text = (
                 'See test-output.log.gz for complete diagnostics.')
     ET.ElementTree(reports).write(os.environ['XML_OUTPUT_FILE'], encoding='utf-8', xml_declaration=True)
-    (output / 'invocation.json').write_text(json.dumps({'task':spec['task'], 'class':sys.argv[2], 'exit_code':code}))
+    (output / 'invocation.json').write_text(json.dumps({'task':spec['task'], 'class':sys.argv[2], 'exit_code':code,
+                                                      'shard_index':shard_index, 'shard_count':shards, 'cases_owned_by_other_shards':filtered}))
     return code
 
 

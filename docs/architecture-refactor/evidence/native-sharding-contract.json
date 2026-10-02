@@ -1,0 +1,67 @@
+{
+  "target_statuses": {
+    "PASSED": 1
+  },
+  "target_results": 1,
+  "shard_statuses": {
+    "PASSED": 4
+  },
+  "shard_results": 4,
+  "attempt_results": 4,
+  "expected_targets": 1,
+  "expected_shards": 4,
+  "remote_cached_targets": 0,
+  "locally_cached_targets": 0,
+  "wall_time_ms": "3460",
+  "build_finished": true,
+  "build_exit_code": 0,
+  "reported_junit_case_outcomes": {
+    "passed": 27
+  },
+  "freshly_executed_junit_case_outcomes": {
+    "passed": 27
+  },
+  "unique_passing_junit_cases": 27,
+  "baseline_unique_passing_junit_cases": 27,
+  "baseline_cases_not_passing": [],
+  "additional_passing_cases": [],
+  "missing_output_manifests": [],
+  "duplicate_executed_cases": [],
+  "longest_target_attempts_ms": [
+    [
+      "//:probe#shard=4",
+      "596"
+    ],
+    [
+      "//:probe#shard=3",
+      "582"
+    ],
+    [
+      "//:probe#shard=2",
+      "579"
+    ],
+    [
+      "//:probe#shard=1",
+      "572"
+    ]
+  ],
+  "limitation": "Cached XML describes the reused execution; counts do not imply fresh test execution. Case identity is Gradle task, class, method and parameter index. Coverage uses the latest attempt of each shard.",
+  "validation": "Local native Bazel 8.4.2 contract probe, not remote integration performance",
+  "negative_coverage_gate_verified": true,
+  "dashboard_partial_completion_verified": true,
+  "adapter_contract": {
+    "executed_cases": 32,
+    "shard_counts": [
+      2,
+      4,
+      8
+    ],
+    "failures_preserved": true,
+    "legitimate_disabled_tests_preserved": true,
+    "fixture_index_grouping_verified": true,
+    "foreign_case_setup_skipped": true,
+    "dynamic_factory_rejected": true,
+    "invalid_coordinates_rejected": true,
+    "actual_python_wrapper_verified": true
+  }
+}

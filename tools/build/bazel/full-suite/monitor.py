@@ -16,15 +16,22 @@ parser.add_argument('--seed', type=Path, required=True, help='Seed BEP file')
 parser.add_argument('--comparisons', type=Path, required=True)
 parser.add_argument('--port', type=int, default=8765)
 parser.add_argument('--label', default='Initial full test run', help='Label for the seed run')
+parser.add_argument('--target', action='append', default=[], help='Show only this exported target; repeat for a focused experiment')
 args = parser.parse_args()
 args.seed = args.seed.resolve()
 args.comparisons = args.comparisons.resolve()
 inventory = json.loads((ROOT / 'build/full-suite/inventory.json').read_text())['targets']
+if args.target:
+    selected = {target.split(':', 1)[-1] for target in args.target}
+    inventory = [item for item in inventory if item['target'] in selected]
+    if {item['target'] for item in inventory} != selected:
+        raise ValueError('Unknown focused target')
 workers = {'running': [], 'checked_at': None, 'error': None, 'ready': 0, 'total': 0, 'pending': [], 'pools': {}}
 lock = threading.Lock()
 
 # Inspect only the exported wrapper's declared spec and process start time.
-# Do not expose environments or complete JVM command lines.
+# Read only shard coordinates from the environment; do not expose other values
+# or complete JVM command lines.
 PROBE = '''import json,os,time
 from pathlib import Path
 rows=[]
@@ -35,7 +42,11 @@ for p in Path('/proc').glob('[0-9]*/cmdline'):
   if len(a)<4 or not a[1].endswith('/full-suite/runner.py'): continue
   spec=Path(a[2]); data=json.loads(spec.read_text())
   start=float((p.parent/'stat').read_text().rsplit(')',1)[1].split()[19])/os.sysconf('SC_CLK_TCK')
-  rows.append({'target':spec.stem+('__'+a[3] if a[3] else ''),'task':data['task'],'class':a[3],'seconds':max(0,uptime-start)})
+  coordinates={}
+  for entry in (p.parent/'environ').read_bytes().split(b'\\0'):
+   key,_,value=entry.partition(b'=')
+   if key in (b'TEST_SHARD_INDEX',b'TEST_TOTAL_SHARDS'): coordinates[key.decode()]=int(value)
+  rows.append({'target':spec.stem+('__'+a[3] if a[3] else ''),'task':data['task'],'class':a[3],'seconds':max(0,uptime-start),'shard_index':coordinates.get('TEST_SHARD_INDEX',0),'shard_count':coordinates.get('TEST_TOTAL_SHARDS',1)})
  except (OSError,ValueError,IndexError,UnicodeError): pass
 print(json.dumps(rows))
 '''
@@ -117,20 +128,37 @@ def snapshot():
             continue
         result = event['testResult']
         target = event['id']['testResult']['label'].split(':', 1)[1]
-        results[target] = {'status': result['status'],
+        shard = event['id']['testResult'].get('shard', 1)
+        results.setdefault(target, {})[shard] = {'status': result['status'],
                            'seconds': int(result.get('testAttemptDurationMillis', 0)) / 1000,
                            'cached': bool(result.get('cachedLocally') or result.get('executionInfo', {}).get('cachedRemotely'))}
     with lock:
         live = json.loads(json.dumps(workers))
-    active = {row['target']: row for row in live['running']}
+    selected = {item['target'] for item in inventory}
+    live['running'] = [row for row in live['running'] if row['target'] in selected]
+    active = {}
+    for row in live['running']:
+        active.setdefault(row['target'], []).append(row)
+    summaries = {e['id']['testSummary']['label'].split(':', 1)[1]: e['testSummary']
+                 for e in events if 'testSummary' in e}
     rows = []
     for item in inventory:
         target = item['target']
         row = dict(item, status='PENDING', seconds=None, cached=False)
-        if target in results:
-            row.update(results[target])
-        elif target in active:
-            row.update(active[target], status='RUNNING')
+        completed = list(results.get(target, {}).values())
+        running = active.get(target, [])
+        row.update(shards_completed=len(completed), shards_running=len(running),
+                   shard_count=item.get('shard_count', 1))
+        if completed or running:
+            row['seconds'] = max(r['seconds'] for r in completed + running)
+        if target in summaries:
+            summary = summaries[target]
+            row['status'] = summary['overallStatus']
+            row['cached'] = bool(completed) and all(r['cached'] for r in completed)
+            if summary.get('lastStopTimeMillis') and summary.get('firstStartTimeMillis'):
+                row['seconds'] = (int(summary['lastStopTimeMillis']) - int(summary['firstStartTimeMillis'])) / 1000
+        elif running:
+            row.update(status='RUNNING', worker=', '.join(r['worker'] for r in running))
         rows.append(row)
     counts = Counter(row['status'] for row in rows)
     pools = live['pools']
@@ -138,10 +166,13 @@ def snapshot():
         name = row.get('exec_properties', {}).get('workload', 'lightweight')
         pool = pools.setdefault(name, {'ready': 0, 'total': 0})
         pool[row['status']] = pool.get(row['status'], 0) + 1
+        pool['running_actions'] = pool.get('running_actions', 0) + row['shards_running']
     start = next((e['started'].get('startTimeMillis') for e in events if 'started' in e), None)
     end = next((e['finished'].get('finishTimeMillis') for e in events if 'finished' in e), None)
     return {'phase': current, 'run_label': run_label, 'source': str(bep.relative_to(ROOT)), 'total': len(rows),
-            'completed': len(results), 'counts': dict(counts),
+            'completed': sum(row['target'] in summaries for row in rows), 'counts': dict(counts),
+            'shards_completed': sum(row['shards_completed'] for row in rows),
+            'shards_total': sum(row['shard_count'] for row in rows),
             'cached': sum(r['cached'] for r in rows), 'tests': rows,
             'elapsed_seconds': ((int(end) / 1000 if end else time.time()) - int(start) / 1000) if start else None,
             'finished': any('finished' in e for e in events), 'workers': live, 'pools': pools,
@@ -161,14 +192,14 @@ body{font:15px system-ui,sans-serif;background:#111827;color:#e5e7eb;margin:30px
 let data;const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const duration=s=>s==null?'—':`${Math.floor(s/60)}m ${Math.floor(s%60)}s`;
 function render(){if(!data)return;const c=data.counts;const bad=data.completed-(c.PASSED||0);$('phase').textContent=data.run_label+' · '+duration(data.elapsed_seconds)+' elapsed'+(data.finished?' · finished':'');
-$('cards').innerHTML=[[data.completed+'/'+data.total,'Completed'],[c.PASSED||0,'Passed'],[bad,'Failed / incomplete'],[c.RUNNING||0,'Running'],[data.workers.ready+'/'+data.workers.total,'Ready workers'],[data.cached,'Cached results']].map(([n,l])=>`<div class="card"><b>${esc(n)}</b><span>${l}</span></div>`).join('');$('progress').value=data.completed;$('progress').max=data.total;
-$('active').innerHTML=data.workers.running.map(r=>`<li><b>${esc(r.class||r.task)}</b> · ${duration(r.seconds)}<small>${esc(r.task)} · ${esc(r.worker)}</small></li>`).join('')||'<li>No active test process reported.</li>';
-$('pools').innerHTML=Object.entries(data.pools).sort().map(([name,p])=>`<tr><td>${esc(name)}</td><td>${p.ready}/${p.total}</td><td>${p.RUNNING||0}</td><td>${p.PENDING||0}</td><td>${p.PASSED||0}</td></tr>`).join('');
+$('cards').innerHTML=[[data.completed+'/'+data.total,'Completed'],[c.PASSED||0,'Passed'],[bad,'Failed / incomplete'],[data.workers.running.length,'Running tasks'],[data.shards_completed+'/'+data.shards_total,'Completed tasks'],[data.workers.ready+'/'+data.workers.total,'Ready workers'],[data.cached,'Cached results']].map(([n,l])=>`<div class="card"><b>${esc(n)}</b><span>${l}</span></div>`).join('');$('progress').value=data.completed;$('progress').max=data.total;
+$('active').innerHTML=data.workers.running.map(r=>`<li><b>${esc(r.class||r.task)}</b> · ${duration(r.seconds)}<small>${esc(r.task)} · shard ${r.shard_index+1}/${r.shard_count} · ${esc(r.worker)}</small></li>`).join('')||'<li>No active test process reported.</li>';
+$('pools').innerHTML=Object.entries(data.pools).sort().map(([name,p])=>`<tr><td>${esc(name)}</td><td>${p.ready}/${p.total}</td><td>${p.running_actions||0}</td><td>${p.PENDING||0}</td><td>${p.PASSED||0}</td></tr>`).join('');
 $('worker-time').textContent=data.workers.checked_at?'Workers checked '+new Date(data.workers.checked_at*1000).toLocaleTimeString()+' · every 10 seconds'+(data.workers.pending.length?' · '+data.workers.pending.length+' workers starting or waiting for capacity':''):'';
 $('error').textContent=[data.driver_error,data.workers.error].filter(Boolean).join(' · ');
 const q=$('search').value.toLowerCase(),f=$('filter').value;const rank=s=>s==='RUNNING'?0:s==='PASSED'?3:s==='PENDING'?2:1;
 const rows=data.tests.filter(r=>(f==='all'||(f==='failures'?!['RUNNING','PASSED','PENDING'].includes(r.status):r.status===f))&&(r.target+' '+r.task).toLowerCase().includes(q)).sort((a,b)=>rank(a.status)-rank(b.status)||(a.class||a.task).localeCompare(b.class||b.task));
-$('tests').innerHTML=rows.map(r=>`<tr><td class="${esc(r.status)}">${esc(r.status)}</td><td class="name">${esc(r.class||r.task)}<small>${esc(r.task)}</small></td><td>${duration(r.seconds)}</td><td>${r.cached?'Cache hit':r.status==='PASSED'?'Executed':'—'}</td></tr>`).join('');$('updated').textContent='Results refreshed '+new Date(data.updated_at*1000).toLocaleTimeString()+' · '+data.source;}
+$('tests').innerHTML=rows.map(r=>`<tr><td class="${esc(r.status)}">${esc(r.status)}</td><td class="name">${esc(r.class||r.task)}<small>${esc(r.task)}${r.shard_count>1?` · ${r.shards_completed}/${r.shard_count} tasks complete`:""}</small></td><td>${duration(r.seconds)}</td><td>${r.cached?'Cache hit':r.status==='PASSED'?'Executed':'—'}</td></tr>`).join('');$('updated').textContent='Results refreshed '+new Date(data.updated_at*1000).toLocaleTimeString()+' · '+data.source;}
 async function refresh(){try{let r=await fetch('/api/status');if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();render()}catch(e){$('error').textContent='Monitor connection lost: '+e.message}}
 $('search').oninput=render;$('filter').onchange=render;refresh();setInterval(refresh,3000);
 </script></html>'''

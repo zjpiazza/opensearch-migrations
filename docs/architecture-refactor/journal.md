@@ -933,3 +933,26 @@ Next question:
   Buildbarn [size-class routing](https://github.com/buildbarn/bb-remote-execution/blob/main/pkg/proto/configuration/bb_scheduler/bb_scheduler.proto)
   is a candidate for compatible workers, not an automatic promise of work stealing
   across the current separately labeled platform queues.
+
+### E-020 — Focus on long integration classes and prepare native sharding
+
+- User narrowed the next experiments to long-running tests. Use approximately
+  ten minutes and the unfinished tail to select candidates. Defer shorter tests,
+  npm upload repair and hardware benchmarks; do not restart the full suite.
+- Preserve the active uncached run. Completed observations include 30-case
+  snapshot configuration classes at 25–26 minutes and PipelineEndToEndTest's
+  28 passing cases at 19m47s. Its longest case was 2m16s. These are intermediate
+  target results; final suite time and the remaining longest classes are pending.
+- Added an opt-in-per-class Jupiter shard adapter and exporter configuration.
+  Group compatible version-provider indices together to retain snapshot fixture
+  reuse; independently distribute cases with per-invocation fixtures. Dynamic
+  factories are rejected until their fixture ownership is refactored.
+- Local contract checks against the actual exported JDK/JUnit and Python wrapper
+  pass: exactly-once execution, preserved failures/disabled tests, and fixture
+  grouping across 2/4/8 shards. A native Bazel local probe subsequently passed
+  all 27 cases across four tasks; focused coverage aggregation passed, and a
+  deliberately missing/duplicated case report failed its completeness gate.
+  Cluster timing validation remains pending. No worker resources or generated
+  full-suite runtime changed. [Contract evidence](evidence/native-sharding-contract.json).
+- [Analysis and experiment plan](long-test-partitioning.md). Source edits and
+  preparation support are not evidence of a measured sharding speedup.
