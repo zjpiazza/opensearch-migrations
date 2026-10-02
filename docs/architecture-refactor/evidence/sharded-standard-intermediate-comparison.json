@@ -55,6 +55,52 @@
       "missing_outputs": []
     },
     {
+      "target": "DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.LeaseExpirationTest",
+      "task": ":DocumentsFromSnapshotMigration:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.LeaseExpirationTest",
+      "shards": 5,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "FAILED",
+      "elapsed_seconds": 447.255,
+      "unsharded_seconds": 1211.567,
+      "summed_shard_seconds": 1433.82,
+      "verified_speedup": null,
+      "cached_shards": 0,
+      "expected_cases": 6,
+      "passing_cases": 6,
+      "case_outcomes": {
+        "passed": 6
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
+      "target": "DocumentsFromSnapshotMigration_isolatedTest__org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "task": ":DocumentsFromSnapshotMigration:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "shards": 5,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 350.45,
+      "unsharded_seconds": 921.748,
+      "summed_shard_seconds": 1184.432,
+      "verified_speedup": 2.63,
+      "cached_shards": 0,
+      "expected_cases": 15,
+      "passing_cases": 15,
+      "case_outcomes": {
+        "passed": 15
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
       "target": "MetadataMigration_isolatedTest__org.opensearch.migrations.CustomTransformationTest",
       "task": ":MetadataMigration:isolatedTest",
       "class": "org.opensearch.migrations.CustomTransformationTest",
@@ -94,6 +140,29 @@
       "passing_cases": 88,
       "case_outcomes": {
         "passed": 88
+      },
+      "missing_passing_cases": [],
+      "additional_passing_cases": [],
+      "duplicate_executed_cases": [],
+      "missing_outputs": []
+    },
+    {
+      "target": "SolrReader_isolatedTest__org.opensearch.migrations.bulkload.solr.SolrToOpenSearchEndToEndTest",
+      "task": ":SolrReader:isolatedTest",
+      "class": "org.opensearch.migrations.bulkload.solr.SolrToOpenSearchEndToEndTest",
+      "shards": 6,
+      "complete": true,
+      "status": "PASSED",
+      "unsharded_status": "PASSED",
+      "elapsed_seconds": 282.645,
+      "unsharded_seconds": 956.229,
+      "summed_shard_seconds": 1160.599,
+      "verified_speedup": 3.383,
+      "cached_shards": 0,
+      "expected_cases": 31,
+      "passing_cases": 31,
+      "case_outcomes": {
+        "passed": 31
       },
       "missing_passing_cases": [],
       "additional_passing_cases": [],

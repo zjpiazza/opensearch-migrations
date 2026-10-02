@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[4]
 HELPER = 'tools/bazel-sharding.jar'
 
 
-def policy(unsharded=False):
-    return {} if unsharded else json.loads(Path(__file__).with_name('sharding.json').read_text())['classes']
+def policy(unsharded=False, path=None):
+    return {} if unsharded else json.loads((path or Path(__file__).with_name('sharding.json')).read_text())['classes']
 
 
 def build_helper(java_home, directory):
@@ -40,11 +40,12 @@ def main():
     parser.add_argument('--runtime', type=Path, default=ROOT/'build/full-suite')
     parser.add_argument('--unsharded', action='store_true')
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--policy', type=Path, help='Optional policy for a focused shard-count experiment')
     args = parser.parse_args()
     runtime = args.runtime.resolve()
     inventory = json.loads((runtime/'inventory.json').read_text())
     targets = {t['target']: t for t in inventory['targets']}
-    configured = policy()
+    configured = policy(path=args.policy)
     available = {t['task']+'|'+t.get('class', '') for t in targets.values()}
     if set(configured)-available:
         raise ValueError('Configured long classes are absent from this runtime')

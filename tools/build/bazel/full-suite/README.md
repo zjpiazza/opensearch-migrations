@@ -256,3 +256,17 @@ image builds. A speedup ratio requires both runs to pass, all expected shard
 outputs, no cached results, and exactly the original successful case identities
 without duplicate executions. An unfinished or failed baseline is not a speed
 reference. The driver's whole-run completeness gate remains authoritative.
+
+
+A focused policy can update only one reviewed class in an idle runtime:
+
+```bash
+python3 tools/build/bazel/full-suite/sharding.py \
+  --policy tools/build/bazel/full-suite/sharding-no-stored-source-24.json --dry-run
+```
+
+Remove `--dry-run` only after the active run and the separate CPU-limit comparison
+finish. This prepared trial changes NoStoredSourceMigrationTest from eight to 24
+shards, retaining all other configured classes. The current default stays at
+eight. Reapply the default policy to restore the initial counts. Do not change
+shard counts and worker CPU quotas in the same comparison.

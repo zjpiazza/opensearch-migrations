@@ -1099,3 +1099,23 @@ Next question:
 - The original SnapshotReaderEndToEndTest now finishes FAILED after 82.31 minutes,
   with 74 passing and 37 image-build failures. Retain this failed baseline and
   its mid-run storage expansion instead of interpreting it as migration speed.
+
+
+### E-028 — Prepare a finer partition for the remaining standard-pool tail
+
+- At approximately 10m44s, 60 of 76 standard-pool shards passed and seven of
+  twelve classes completed. All six LeaseExpirationTest cases pass this time;
+  its failed original result remains excluded from speedup ratios. No worker
+  container restarts were observed during this check.
+- NoStoredSourceMigrationTest's eight shards are the main remaining tail. Its
+  86 cases own their source and target containers per invocation. The existing
+  hash mapping applied to original case timings gives longest summed case times
+  of 536.1s at eight shards, 357.7s at sixteen, and 240.4s at twenty-four. These
+  are scheduling estimates, excluding queueing and added preparation, not gains.
+- Added opt-in `--policy` support and a single-class 24-shard trial. A disposable
+  runtime check confirms exactly one BUILD target changes; all other targets and
+  the active runtime remain unchanged. Default counts stay at eight. Apply only
+  after the CPU-limit trial so the effects can be measured separately.
+- The comparison report now verifies seven completed classes against their
+  original case sets. Preserve the full twelve-class completeness gate before
+  accepting the run. [Intermediate results](evidence/sharded-standard-intermediate-comparison.json).
