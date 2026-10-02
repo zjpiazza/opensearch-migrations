@@ -1,0 +1,30 @@
+name: VM persistent runner experiment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vm-persistent-runner-experiment
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    if: github.repository == 'zjpiazza/opensearch-migrations' && github.actor == 'zjpiazza'
+    runs-on: [self-hosted, linux, x64, vm-persistent-bazel]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Measure playback and process persistence
+        run: python3 deploy/ci/vm/benchmark.py
+      - name: Upload timing evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vm-persistent-runner-evidence
+          path: build/vm-ci-results/
+          retention-days: 14
