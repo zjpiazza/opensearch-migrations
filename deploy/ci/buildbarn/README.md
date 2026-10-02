@@ -20,10 +20,22 @@ Upstream Apache-2.0 license is retained in `LICENSE.buildbarn`.
 | Autoscaler job | `control-plane` | at most 1 active | 25m CPU, 64 MiB RAM |
 
 The execution pool has 4-vCPU/16-GB nodes and owner-configured autoscaling from
-three to nine nodes. Each worker offers one action slot. The client allows 18
-concurrent actions, matching the three pools' combined maximum. Each node can
+three to nine nodes. Each worker offers one action slot. The client admits up to 512
+in-flight actions (queued plus executing), enough to expose this entire suite to
+Buildbarn. The three worker pools cap actual execution at 18 concurrent tests. Each node can
 host at most one lightweight pod and one Docker-capable pod; integration
 anti-affinity spans both standard and large tiers.
+
+Keep client admission above the worker count: `--jobs` also includes queued
+actions. Setting it to 18 starved the lightweight and large queues while standard
+integration targets occupied admission slots. Widening admission fixes that
+bottleneck, but does not make pools interchangeable. In the mixed-suite run all
+101 lightweight targets finished early, leaving nine idle lightweight workers
+while Docker tests remained. E-014 records CPU usage and this remaining imbalance.
+Two existing Docker workers would request 18.25 GiB on a node with about 13.33 GiB
+allocatable, so removing anti-affinity alone cannot increase Docker concurrency.
+Measure per-test container memory peaks before defining a smaller Docker tier;
+the current runner also needs room for its declared 2-GiB Java heap.
 
 Lightweight runners request half a CPU and can use one CPU. Standard integration
 runners request and are limited to one CPU; large runners request and are limited
@@ -120,7 +132,7 @@ Buildbarn version. Both execution and result reuse were verified despite it.
 `bb-autoscaler` runs once per minute as a CronJob. A private Prometheus instance
 scrapes scheduler metrics every 15 seconds. All three worker Deployments are
 managed independently, using the bounds in the capacity table. The client
-submits at most 18 concurrent actions (`--jobs=18`).
+admits up to 512 in-flight actions (`--jobs=512`); worker replicas bound execution.
 
 The demand calculation counts scheduled actions minus completed executions,
 retains registered worker capacity while any actions remain, and uses a 15-minute

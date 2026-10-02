@@ -668,3 +668,51 @@ Next question:
   Autoscaling selected those counts from live full-7 demand. The unchanged replay
   now explicitly requires remote cache hits and disables disk cache/local-result
   uploads, so misses fail rather than silently rerunning tests.
+
+### E-014 — Remove client admission starvation and expose pool imbalance
+
+- User observed five executing tests despite seventeen Ready workers. Live checks
+  found six standard integration test processes, with nine lightweight and two
+  large workers idle. The client admitted only eighteen actions, counting queued
+  work as well as execution; standard-platform requests occupied those slots.
+- Raised opt-in `build:buildbarn --jobs` from 18 to 512 so all 439 targets can reach
+  their matching queues. This is admission, not 512 concurrent containers: the
+  existing worker deployments still cap execution at 9 lightweight + 6 standard
+  + 3 large slots. No node bounds, container limits or test assertions changed.
+- Started full-8 from a fresh client in the same `migrations-mixed-workers-1`
+  namespace. Confirmed 21 scheduler `OtherInvocation` in-flight deduplications and
+  recovered 83 cached results before retiring full-7 with SIGINT (exit 8 is an
+  intentional handoff). This continuation is not a new cold timing benchmark.
+  Repointed the localhost:8765 monitor and gated unchanged-cache replay to full-8;
+  stopped the old replay driver to prevent a second comparison from starting.
+- All three pools received work after admission widened. The third large worker
+  became Ready, giving eighteen total. A subsequent dashboard validation observed
+  six standard and three large test processes simultaneously, 215 passed targets,
+  and all 101 lightweight targets already complete. This reveals a second limit:
+  lightweight slots cannot consume the remaining Docker-platform work.
+- Kubelet cumulative CPU counter deltas across all nine execution nodes measured
+  **6.06 of 36 nominal cores (16.8%)** over 30–31 seconds, after lightweight work
+  finished. This is a short workload-phase sample, not a run-wide utilization
+  average or speedup result. A prior instantaneous sample was 4.29 cores, but the
+  windows/work mix differ and do not support a controlled improvement percentage.
+- Full CPU saturation is **not achieved**. Two existing Docker workers request
+  18.25 GiB versus approximately 13.33 GiB allocatable per node. Removing their
+  anti-affinity or raising the autoscaler ceiling alone will not fit more workers.
+  Next experiment should measure per-target runner and nested-container peak
+  memory, then validate a smaller Docker tier for eligible targets. Retain room
+  for the exported 2-GiB JVM heap. Also review conservative default Docker routing
+  at class level; unknown targets currently require Docker even when they may not
+  use it. These changes need coverage/failure and elapsed-time comparisons, not
+  just higher worker counts. Do not lower reservations based on average memory.
+- Added per-pool Ready capacity, running test processes, pending targets and passed
+  results to the dashboard. Explain that process counts exclude preparation and
+  uploads, and that pending is an observation state rather than queue depth.
+  Validation: Python AST parse, JavaScript syntax check, live API consistency for
+  all 439 targets and all eighteen workers, and `git diff --check`.
+- Four npm targets still fail to upload their shared 240,158,720-byte input blob.
+  The coverage gate must prevent claiming a successful whole-suite cache replay
+  until those errors and any later failures are resolved. The full run is ongoing.
+- [Measurement and handoff evidence](evidence/queue-admission.json). Raw node,
+  scheduler and dashboard snapshots remain under ignored
+  `build/full-suite-evidence/queue-admission/`. Revert the admission setting to
+  roll back; doing so requires a new client and reintroduces the observed limit.

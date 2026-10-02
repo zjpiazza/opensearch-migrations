@@ -16,7 +16,9 @@ build:buildbarn --remote_executor=grpc://127.0.0.1:8980
 build:buildbarn --remote_cache=grpc://127.0.0.1:8980
 build:buildbarn --remote_instance_name=migrations-pilot
 build:buildbarn --extra_execution_platforms=//tools/build/bazel:buildbarn_linux
-build:buildbarn --jobs=18
+# Admission includes queued remote actions; worker slots bound actual execution.
+# Admit the complete 439-target suite so one platform queue cannot starve others.
+build:buildbarn --jobs=512
 build:buildbarn --remote_download_outputs=toplevel
 build:buildbarn --incompatible_strict_action_env
 build:buildbarn --noremote_local_fallback

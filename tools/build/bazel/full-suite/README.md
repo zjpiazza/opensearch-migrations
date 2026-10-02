@@ -66,8 +66,11 @@ the driver; it does not turn a partial run into a cache benchmark.
 ## Live test dashboard
 
 The local dashboard shows every target, pass/fail status, elapsed test time, cache
-hits and active worker assignments. It reads Bazel events and polls the three
-integration workers; it does not alter tests or cluster resources.
+hits, active worker assignments, and per-pool capacity and target progress. It
+reads Bazel events and polls all worker pools; it does not alter tests or cluster
+resources. Running counts observed test processes, excluding input preparation,
+cleanup and output upload. Pending includes any target without an observed
+process or result, including input-upload failures; it is not scheduler queue depth.
 
 ```bash
 python3 tools/build/bazel/full-suite/monitor.py \
@@ -144,7 +147,9 @@ python3 tools/build/bazel/full-suite/worker_routing.py
 ```
 
 `prepare.py` also applies the same policy on every export. The Buildbarn config
-permits 18 in-flight actions across independently autoscaled lightweight (3–9),
+admits 512 in-flight actions to avoid starving one platform behind another
+platform’s queue. Actual execution is capped at 18 slots across independently
+autoscaled lightweight (3–9),
 standard integration (2–6), and large integration (1–3) pools. Large runners have
 two CPUs; other runners have a one-CPU limit. Changing execution properties
 invalidates affected action-cache entries. The live monitor inspects all pools.

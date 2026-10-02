@@ -19,7 +19,7 @@ args = parser.parse_args()
 args.seed = args.seed.resolve()
 args.comparisons = args.comparisons.resolve()
 inventory = json.loads((ROOT / 'build/full-suite/inventory.json').read_text())['targets']
-workers = {'running': [], 'checked_at': None, 'error': None, 'ready': 0, 'total': 0, 'pending': []}
+workers = {'running': [], 'checked_at': None, 'error': None, 'ready': 0, 'total': 0, 'pending': [], 'pools': {}}
 lock = threading.Lock()
 
 # Inspect only the exported wrapper's declared spec and process start time.
@@ -62,6 +62,13 @@ def poll_workers():
             ready = [p for p in items if any(c['type'] == 'Ready' and c['status'] == 'True'
                                             for c in p.get('status', {}).get('conditions', []))]
             pending = [p['metadata']['name'] for p in items if p not in ready]
+            pools = {}
+            for pod in items:
+                name = pod['metadata']['labels'].get('instance', 'unknown')
+                name = 'lightweight' if name == 'ubuntu22-04' else name
+                pool = pools.setdefault(name, {'ready': 0, 'total': 0})
+                pool['total'] += 1
+                pool['ready'] += int(pod in ready)
             result = []
             errors = []
             with ThreadPoolExecutor(max_workers=18) as pool:
@@ -74,7 +81,7 @@ def poll_workers():
             with lock:
                 workers.update(running=result, checked_at=time.time(),
                                error=('Worker polling unavailable: ' + ', '.join(errors)) if errors else None,
-                               ready=len(ready), total=len(items), pending=pending)
+                               ready=len(ready), total=len(items), pending=pending, pools=pools)
         except Exception as error:
             with lock:
                 workers['error'] = type(error).__name__ + ': worker polling unavailable'
@@ -125,13 +132,18 @@ def snapshot():
             row.update(active[target], status='RUNNING')
         rows.append(row)
     counts = Counter(row['status'] for row in rows)
+    pools = live['pools']
+    for row in rows:
+        name = row.get('exec_properties', {}).get('workload', 'lightweight')
+        pool = pools.setdefault(name, {'ready': 0, 'total': 0})
+        pool[row['status']] = pool.get(row['status'], 0) + 1
     start = next((e['started'].get('startTimeMillis') for e in events if 'started' in e), None)
     end = next((e['finished'].get('finishTimeMillis') for e in events if 'finished' in e), None)
     return {'phase': current, 'run_label': run_label, 'source': str(bep.relative_to(ROOT)), 'total': len(rows),
             'completed': len(results), 'counts': dict(counts),
             'cached': sum(r['cached'] for r in rows), 'tests': rows,
             'elapsed_seconds': ((int(end) / 1000 if end else time.time()) - int(start) / 1000) if start else None,
-            'finished': any('finished' in e for e in events), 'workers': live,
+            'finished': any('finished' in e for e in events), 'workers': live, 'pools': pools,
             'driver_error': phase.get('error'), 'updated_at': time.time()}
 
 
@@ -140,6 +152,8 @@ HTML = '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewp
 body{font:15px system-ui,sans-serif;background:#111827;color:#e5e7eb;margin:30px auto;max-width:1250px;padding:0 20px}h1{font-size:26px;margin-bottom:5px}p{color:#aeb9cb}.cards{display:flex;gap:14px;flex-wrap:wrap}.card{background:#1f2937;padding:16px 23px;border-radius:10px;min-width:105px}.card b{display:block;font-size:29px}.card span{color:#aeb9cb}progress{width:100%;height:14px;margin:22px 0;accent-color:#34d399}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid #374151;vertical-align:top}small{display:block;color:#9ca3af;word-break:break-word}td.name{overflow-wrap:anywhere}th{color:#9ca3af}input,select{background:#1f2937;color:white;border:1px solid #4b5563;border-radius:6px;padding:9px;margin:10px 10px 12px 0}.PASSED{color:#34d399}.RUNNING{color:#60a5fa}.FAILED,.TIMEOUT,.INCOMPLETE{color:#fb7185}.PENDING{color:#9ca3af}#error{color:#fbbf24}#running{background:#18263c;border-radius:10px;padding:6px 16px;margin-bottom:20px}#running li{padding:6px 0;overflow-wrap:anywhere}.muted{color:#9ca3af;font-size:13px}</style>
 <h1>Buildbarn · Live tests</h1><p id="phase">Connecting…</p><div class="cards" id="cards"></div><progress id="progress" max="439" value="0"></progress>
 <div id="running"><strong>Executing across worker pools</strong><ul id="active"></ul><div class="muted" id="worker-time"></div></div>
+<table><thead><tr><th>Worker pool</th><th>Ready workers</th><th>Running tests</th><th>Pending targets</th><th>Passed</th></tr></thead><tbody id="pools"></tbody></table>
+<p class="muted">Running counts observed test processes; workers may also be preparing inputs or uploading results. Pending means no test result or live process observed, not necessarily queued in Buildbarn.</p>
 <div id="error"></div><input id="search" placeholder="Search test or Gradle task" size="38"><select id="filter"><option value="all">All tests</option><option value="RUNNING">Running</option><option value="failures">Failures</option><option value="PASSED">Passed</option><option value="PENDING">Pending</option></select>
 <table><thead><tr><th>Status</th><th>Test class / Gradle task</th><th>Duration</th><th>Result reuse</th></tr></thead><tbody id="tests"></tbody></table><p class="muted" id="updated"></p>
 <script>
@@ -148,6 +162,7 @@ const duration=s=>s==null?'—':`${Math.floor(s/60)}m ${Math.floor(s%60)}s`;
 function render(){if(!data)return;const c=data.counts;const bad=data.completed-(c.PASSED||0);$('phase').textContent=data.run_label+' · '+duration(data.elapsed_seconds)+' elapsed'+(data.finished?' · finished':'');
 $('cards').innerHTML=[[data.completed+'/'+data.total,'Completed'],[c.PASSED||0,'Passed'],[bad,'Failed / incomplete'],[c.RUNNING||0,'Running'],[data.workers.ready+'/'+data.workers.total,'Ready workers'],[data.cached,'Cached results']].map(([n,l])=>`<div class="card"><b>${esc(n)}</b><span>${l}</span></div>`).join('');$('progress').value=data.completed;$('progress').max=data.total;
 $('active').innerHTML=data.workers.running.map(r=>`<li><b>${esc(r.class||r.task)}</b> · ${duration(r.seconds)}<small>${esc(r.task)} · ${esc(r.worker)}</small></li>`).join('')||'<li>No active test process reported.</li>';
+$('pools').innerHTML=Object.entries(data.pools).sort().map(([name,p])=>`<tr><td>${esc(name)}</td><td>${p.ready}/${p.total}</td><td>${p.RUNNING||0}</td><td>${p.PENDING||0}</td><td>${p.PASSED||0}</td></tr>`).join('');
 $('worker-time').textContent=data.workers.checked_at?'Workers checked '+new Date(data.workers.checked_at*1000).toLocaleTimeString()+' · every 10 seconds'+(data.workers.pending.length?' · '+data.workers.pending.length+' workers starting or waiting for capacity':''):'';
 $('error').textContent=[data.driver_error,data.workers.error].filter(Boolean).join(' · ');
 const q=$('search').value.toLowerCase(),f=$('filter').value;const rank=s=>s==='RUNNING'?0:s==='PASSED'?3:s==='PENDING'?2:1;
