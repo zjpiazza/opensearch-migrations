@@ -1431,3 +1431,67 @@ Next question:
   trip passes, and repository-gcs is present. Base layers may remain warm; this
   is not a claim of a fully empty Docker daemon. Record:
   `matrix-reuse-1/.../es_7_10_registry_smoke/test.outputs/fixture-smoke.json`.
+
+### E037 — Prepared fixtures, fresh 131-shard comparison (2026-10-03)
+
+- `long-cached-fixtures-1` at commit `8361118de` passed all 16 classes / 131
+  shards / 756 expected cases, with no missing, extra, duplicated, or cached test
+  executions. Bazel wall time: 775.622s versus 1,024.007s (24.26% reduction).
+  Driver time including startup: 776.907s. All 131 compressed logs were checked:
+  zero in-test fixture build markers, 422 verified custom-image loads.
+- The timed run reused 62/64 image builds and rebuilt two. The preceding matrix
+  reuse validation reused 47/64 builds, rebuilt 17, and passed the registry smoke
+  in 183.631s. Initial full matrix preparation was 395.631s; these preparation
+  runs are not included in the 775.622s benchmark. Cache hits were read from the
+  execution log; cached stdout may repeat build messages and is not proof of a
+  rebuild.
+- A cache-missed image action queued for 289.989s (approximately 4m50s); broad
+  catalogs held back several large classes until their final image publication.
+  MetadataMigration EndToEndTest actions were admitted about 426s into the run;
+  its longest shard executed for another 345.263s. Other classes ran meanwhile.
+- Publication checks have a structural inefficiency: whole image archives are
+  declared inputs even on the existing-registry fast path. Median worker setup
+  was 31.6s per publication versus 0.2s median command execution. Split cheap
+  registry verification from archive staging, and avoid broad version barriers,
+  before interpreting more worker capacity as the only answer.
+- Across test logs, 1,145 engine startups (excluding Ryuk) had median 16.15s;
+  422 custom ES startups had median 11.55s. Startup calls overlap within tests
+  and across shards, so their cumulative times cannot be subtracted from wall
+  time or used directly as a percent of test execution. Image identity checks /
+  pulls totaled 917.3s across shards, with 137 of 422 reusing the local tag.
+  Migration operations, polling, assertions, and cleanup are not independently
+  timed yet. Do not claim an exact percentage for those phases.
+- At a busy mid-run interval, all 40 slots were occupied but the eight execution
+  nodes used 61–63% of allocatable CPU and 31–34% of allocatable memory. Preserve
+  this configuration for the comparison; concurrency tuning is a separate run.
+- Post-benchmark worker autoscaling was suspended, all three worker deployments
+  set to zero, and the execution node pool set to zero with node autoscaling
+  disabled. The provider now reports no execution nodes, and all worker
+  deployments report zero replicas. Retained cache volumes and the one services
+  node remain billed; the local WireMock experiment uses no execution workers.
+- [Measured comparison](evidence/cached-fixtures-comparison.json). Full local
+  evidence remains under `build/full-suite-evidence/long-cached-fixtures-1/`.
+
+- [Verified post-benchmark capacity](evidence/fixture-benchmark-scale-down.json).
+
+### E038 — Local full-pipeline WireMock comparison (2026-10-03, ongoing)
+
+- Owner requested measuring WireMock next and explicitly required local execution,
+  with no Buildbarn runners. Keep the execution pool at zero. The existing private
+  registry is used read-only to prepare missing engine images in local Docker.
+- Selected all 28 existing PipelineEndToEndTest scenarios across the seven
+  representative source/target pairs. Extracted narrow target/verification hooks
+  while retaining the original real-engine path and test method bodies.
+- The new separate replay source set uses recorded real snapshot ZIPs, the real
+  SnapshotExtractor/Lucene reader and migration pipeline, and embedded WireMock
+  for destination HTTP. Strict request-body and request-count checks plus explicit
+  document/routing checks replace destination reads during replay; original
+  indexing/search assertions are still executed against real engines at capture.
+- Planned local measurements separate: ordinary real engines, prepared snapshots
+  with a real destination, and prepared snapshots with WireMock. Preparation and
+  recording are separate from replay timings. Disable HTTP request compression
+  consistently for these comparison modes; keep compression coverage in the
+  existing real-engine tests. Record image identities and fixture checksums.
+- This is a 28-scenario pipeline comparison, not equivalent engine-behavior
+  coverage or a claim about all 756 cases. Compilation succeeds; live capture is
+  running under `build/wiremock-pipeline/recording-1.log`.

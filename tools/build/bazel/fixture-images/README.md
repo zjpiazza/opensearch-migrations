@@ -1,4 +1,4 @@
-# Independently cached Elasticsearch fixtures (in progress)
+# Independently cached Elasticsearch fixtures
 
 This experiment extracts the Docker builds formerly performed by
 `SearchClusterContainer` into per-version Bazel actions. The Gradle Dockerfile
@@ -7,8 +7,10 @@ with declared files and pinned dependency snapshots, failing if expected source
 blocks change. Gradle's original build remains available.
 
 The complete 64-version matrix builds and publishes successfully. The same 16
-long-running classes declare their reviewed image dependencies; the 131-shard
-comparison is pending. Image preparation alone is not a test-performance result.
+long-running classes declare their reviewed image dependencies. The completed
+131-shard / 756-case comparison took 775.622s, down from 1,024.007s (24.26%).
+Every test executed freshly, and no fixture image was built inside a test action.
+See journal E037 and `docs/architecture-refactor/evidence/cached-fixtures-comparison.json`.
 
 ## Cache boundary
 
@@ -87,19 +89,26 @@ python3 tools/build/bazel/full-suite/configure-fixtures.py
 Bazel graph connects each test only to its declared image set; publication is
 checked on each invocation, while expensive image builds remain cacheable.
 
-## Verification remaining
+## Verified results and remaining limits
 
-Pilot cache behavior has been verified from fresh clients: a cache hit survives
-an unrelated Java-test edit, while a Dockerfile change executes the build and
-changes image identity. See E036 for retained execution evidence.
+- Pilot cache probes used fresh clients: an unrelated Java-test edit retained the
+  image cache hit; a Dockerfile change rebuilt the image and changed its identity.
+- A cold-image registry smoke removed the fixture locally, pulled the published
+  identity, started ES 7.10.2, wrote/read a document, and checked repository-gcs.
+  Existing base layers could still be warm.
+- All 64 images built and published in 395.631s driver time. A second pass had
+  47 image cache hits / 17 builds and passed the registry smoke in 183.631s.
+- The full fresh-test run had 62 image cache hits / two builds, 131/131 passing
+  shards, 756/756 matching cases, no duplicate executions, and zero cached tests.
+- All 131 logs contain zero in-test image build markers; 422 custom-image load
+  events verify identities before use. Execution workers/nodes are now zero and
+  worker/node autoscaling is disabled. The services node and cache PVCs remain.
 
-1. Start the resulting Elasticsearch fixture and run a real existing test.
-2. Repeat cache validation at the complete version-matrix scale.
-3. Integrate publication and test loading, including a worker with no local image.
-4. Extend the pins to all versions needed by the same 16 classes / 131 shards.
-5. Execute all 756 cases freshly with build caches enabled, recording preparation
-   separately and comparing against 1,024.007 seconds.
-6. Restore documented minimum execution capacity after measurement.
+This experiment is not yet an upstream-ready build system. Compilation still
+uses the exported Gradle bridge; exact toolchain archives need durable distribution;
+Docker rebuilds are not proven bit-reproducible. Full archive staging on every
+publication check and per-class version dependencies are material bottlenecks.
+The 24.26% comparison includes their overhead rather than hiding it.
 
 The approved CAS now uses a 64-GiB PVC with 48 GiB of configured blocks; the old
 8-GiB cache files remain for rollback. The complete input/output working set is
