@@ -450,8 +450,11 @@ gradle.projectsEvaluated {
     Set<Task> sharedProcessTestsTasks = [] as Set
 
     subprojects { subproject ->
-        // Collect all Test type tasks
+        // Explicit recording/benchmark tasks must never run through aggregate CI tasks.
         subproject.tasks.withType(Test).all { task ->
+            if (task.hasProperty("manualExperiment") && task.manualExperiment) {
+                return
+            }
             if (task.name == "isolatedTest") {
                 isolatedTestsTasks.add(task)
             } else {

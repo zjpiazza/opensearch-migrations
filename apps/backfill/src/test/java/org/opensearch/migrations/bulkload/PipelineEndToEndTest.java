@@ -61,7 +61,7 @@ public class PipelineEndToEndTest {
     private static final String INDEX_NAME = "pipeline_e2e";
     private static final String COMPLEX_INDEX = "pipeline_complex";
 
-    @TempDir private File localDirectory;
+    @TempDir protected File localDirectory;
 
     private static final SnapshotFixtureCache fixtureCache = new SnapshotFixtureCache();
 
@@ -78,7 +78,7 @@ public class PipelineEndToEndTest {
         var extractor = createSnapshot(sourceVersion);
         Path workDir = Files.createTempDirectory("pipeline_e2e_full");
 
-        try (var targetCluster = new SearchClusterContainer(targetVersion)) {
+        try (var targetCluster = createTarget(targetVersion)) {
             targetCluster.start();
             var targetClient = createClient(targetCluster);
 
@@ -106,7 +106,7 @@ public class PipelineEndToEndTest {
         var extractor = createSnapshot(sourceVersion);
         Path workDir = Files.createTempDirectory("pipeline_e2e_batch");
 
-        try (var targetCluster = new SearchClusterContainer(targetVersion)) {
+        try (var targetCluster = createTarget(targetVersion)) {
             targetCluster.start();
             var targetClient = createClient(targetCluster);
 
@@ -130,7 +130,7 @@ public class PipelineEndToEndTest {
     void metadataPipelineMigration(ContainerVersion sourceVersion, ContainerVersion targetVersion) throws Exception {
         var extractor = createSnapshot(sourceVersion);
 
-        try (var targetCluster = new SearchClusterContainer(targetVersion)) {
+        try (var targetCluster = createTarget(targetVersion)) {
             targetCluster.start();
             var targetClient = createClient(targetCluster);
 
@@ -142,11 +142,7 @@ public class PipelineEndToEndTest {
 
             assertThat("Should migrate our index", migratedIndices.contains(INDEX_NAME), equalTo(true));
 
-            // Verify index was created on target
-            var restClient = createRestClient(targetCluster);
-            var context = DocumentMigrationTestContext.factory().noOtelTracking();
-            var resp = restClient.get(INDEX_NAME, context.createUnboundRequestContext());
-            assertThat("Index should exist on target", resp.statusCode, equalTo(200));
+            verifyIndexExists(targetCluster, INDEX_NAME);
 
             log.info("Metadata pipeline {} → {} complete: migrated {}", sourceVersion, targetVersion, migratedIndices);
         }
@@ -160,7 +156,7 @@ public class PipelineEndToEndTest {
         var extractor = createComplexSnapshot(sourceVersion);
         Path workDir = Files.createTempDirectory("pipeline_e2e_complex");
 
-        try (var targetCluster = new SearchClusterContainer(targetVersion)) {
+        try (var targetCluster = createTarget(targetVersion)) {
             targetCluster.start();
             var targetClient = createClient(targetCluster);
 
@@ -182,13 +178,7 @@ public class PipelineEndToEndTest {
             int expectedDocs = 7;
             verifyDocCount(targetCluster, COMPLEX_INDEX, expectedDocs);
 
-            // Verify routing
-            var restClient = createRestClient(targetCluster);
-            var context = DocumentMigrationTestContext.factory().noOtelTracking();
-            restClient.get("_refresh", context.createUnboundRequestContext());
-            var requests = new SearchClusterRequests(context);
-            var hits = requests.searchIndexByQueryString(restClient, COMPLEX_INDEX, "active:true", "1");
-            assertThat("Routing search should find docs", hits.size(), greaterThan(0));
+            verifyRouting(targetCluster, COMPLEX_INDEX);
 
             // Verify completion index
             if (supportsCompletion) {
@@ -208,7 +198,31 @@ public class PipelineEndToEndTest {
 
     // --- Helpers ---
 
-    private SnapshotExtractor createSnapshot(ContainerVersion sourceVersion) throws Exception {
+    /** Overridden only by the separate recorded-contract experiment. */
+    protected SearchClusterContainer createTarget(ContainerVersion version) {
+        return new SearchClusterContainer(version);
+    }
+
+    protected void verifyIndexExists(SearchClusterContainer targetCluster, String indexName) {
+        // Verify index was created on target
+        var restClient = createRestClient(targetCluster);
+        var context = DocumentMigrationTestContext.factory().noOtelTracking();
+        var resp = restClient.get(indexName, context.createUnboundRequestContext());
+        assertThat("Index should exist on target", resp.statusCode, equalTo(200));
+    }
+
+    protected void verifyRouting(SearchClusterContainer targetCluster, String indexName) {
+        // Verify routing
+        var restClient = createRestClient(targetCluster);
+        var context = DocumentMigrationTestContext.factory().noOtelTracking();
+        restClient.get("_refresh", context.createUnboundRequestContext());
+        var requests = new SearchClusterRequests(context);
+        var hits = requests.searchIndexByQueryString(restClient, indexName, "active:true", "1");
+        assertThat("Routing search should find docs", hits.size(), greaterThan(0));
+    }
+
+
+    protected SnapshotExtractor createSnapshot(ContainerVersion sourceVersion) throws Exception {
         String cacheKey = sourceVersion.getVersion() + "-pipeline-e2e";
         Path snapshotDir = localDirectory.toPath();
 
@@ -252,7 +266,9 @@ public class PipelineEndToEndTest {
         SearchClusterContainer cluster
     ) {
         var connectionContext = ConnectionContextTestParams.builder()
-            .host(cluster.getUrl()).build().toConnectionContext();
+            .host(cluster.getUrl())
+            .disableCompression(Boolean.getBoolean("pipeline.contract.disableCompression"))
+            .build().toConnectionContext();
         return new OpenSearchClientFactory(connectionContext).determineVersionAndCreate();
     }
 
@@ -261,7 +277,7 @@ public class PipelineEndToEndTest {
             .host(cluster.getUrl()).build().toConnectionContext());
     }
 
-    private static void verifyDocCount(SearchClusterContainer cluster, String indexName, int expected) {
+    protected void verifyDocCount(SearchClusterContainer cluster, String indexName, int expected) {
         var context = DocumentMigrationTestContext.factory().noOtelTracking();
         var restClient = createRestClient(cluster);
         restClient.get("_refresh", context.createUnboundRequestContext());
@@ -271,7 +287,7 @@ public class PipelineEndToEndTest {
             "Expected " + expected + " docs in " + indexName);
     }
 
-    private SnapshotExtractor createComplexSnapshot(ContainerVersion sourceVersion) throws Exception {
+    protected SnapshotExtractor createComplexSnapshot(ContainerVersion sourceVersion) throws Exception {
         String cacheKey = sourceVersion.getVersion() + "-pipeline-e2e-complex";
         Path snapshotDir = localDirectory.toPath();
 

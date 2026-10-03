@@ -1474,7 +1474,7 @@ Next question:
 
 - [Verified post-benchmark capacity](evidence/fixture-benchmark-scale-down.json).
 
-### E038 — Local full-pipeline WireMock comparison (2026-10-03, ongoing)
+### E038 — Local full-pipeline WireMock comparison (2026-10-03)
 
 - Owner requested measuring WireMock next and explicitly required local execution,
   with no Buildbarn runners. Keep the execution pool at zero. The existing private
@@ -1493,5 +1493,58 @@ Next question:
   consistently for these comparison modes; keep compression coverage in the
   existing real-engine tests. Record image identities and fixture checksums.
 - This is a 28-scenario pipeline comparison, not equivalent engine-behavior
-  coverage or a claim about all 756 cases. Compilation succeeds; live capture is
-  running under `build/wiremock-pipeline/recording-1.log`.
+  coverage or a claim about all 756 cases. Capture passed all 28 scenarios in
+  609.330s JUnit / approximately 616s Gradle time. The 10 real snapshot ZIPs and
+  28 HTTP cassettes are checked in with checksums and capture provenance.
+- First full replay exposed a recorder bug: repeated requests had identical stub
+  IDs, and each state counted all repeated requests. Fixed IDs to include scenario
+  state, with one expected call per recorded state. Normalized the capture without
+  altering HTTP payloads or transitions; retained before/after hashes. This failed
+  attempt is excluded from performance comparisons.
+- Experimental tasks are explicitly excluded from `allTests` and aggregate
+  coverage. Capture requires a new, explicitly selected directory. Normal CI must
+  not invoke a recorder or adopt expectations automatically.
+- Local paired measurements completed under
+  `build/wiremock-pipeline/local-comparison-2/`, with forced test execution and
+  compilation/image pulls excluded. The first two replay runs passed all 28 cases.
+  First replay: 296.142s wall / 290.545s JUnit; 288.482s was in seven metadata
+  scenarios, while the other 21 scenarios totaled 2.046s.
+- The metadata sink intentionally logs template failures and continues. Recorded
+  system-template 500s trigger unchanged production retry/backoff, then exhaust.
+  The test checks its own migrated index; it does not assert that every template
+  succeeds. Preserve this limitation and the recorded errors in the RFC. Virtual
+  time/injected retry scheduling would be a separate optimization, with dedicated
+  retry-behavior assertions; do not replace recorded errors with canned successes.
+
+- Replay trials all passed: wall 296.142s, 307.749s, 301.858s; median 301.858s.
+  Cassettes contain 40 template operations with four HTTP 500 responses each:
+  160 responses and 120 retry waits. The unchanged client uses exponential
+  backoff with jitter; these waits explain the remaining slow path, but their
+  durations were not instrumented independently.
+
+- Final controls also passed all 28 cases with identical scenario identities:
+  ordinary real engines 622.488s wall / 615.660s JUnit; prepared snapshots with
+  real destination 531.589s wall / 524.577s JUnit. Replay median wall is 51.51%
+  shorter than ordinary engines, or 43.22% shorter than the prepared-snapshot
+  control. Observed differences: 90.899s from preparing snapshots, then 229.731s
+  from substituting WireMock for the destination. These are run differences,
+  not isolated profiler measurements; real controls each ran once.
+- The 21 document/batching scenarios total 269.080s JUnit with ordinary engines,
+  179.402s with prepared snapshots plus real destination, and median 2.108s with
+  replay. Seven metadata cases remain at median 292.940s with replay. No retry
+  policy or production timer was altered to obtain these numbers.
+- All runs were local Gradle invocations on the same Ryzen 7 7800X3D workstation,
+  with one JVM, a 2-GiB heap, two Netty/Reactor workers, no JaCoCo, and warm images.
+  Preparation took 6.179s separately. These improvements do not require Bazel;
+  no Buildbarn worker or cached test result was used. The execution pool was not
+  scaled up. Existing unrelated workstation services remained running.
+- After timing, recording configuration was hardened to bypass the previous
+  on-disk snapshot cache, so future regeneration uses real source engines. This
+  affects only the explicit recording task, not any measured comparison mode.
+- [Complete local measurements](evidence/local-wiremock-pipeline-comparison.json)
+  and [reproduction instructions](../../tools/build/wiremock-pipeline/README.md).
+- Final validation: all five replay negative controls passed (matching request,
+  missing write, duplicate write, dropped field, unexpected request). Java
+  formatting passed. Dry-run graphs for `allTests` and `syncJacocoExecFiles`
+  exclude all five opt-in tasks and retain original isolated tests. Recording
+  refused the committed fixture directory, with every fixture hash unchanged.
