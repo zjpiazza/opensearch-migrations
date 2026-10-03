@@ -73,3 +73,10 @@ local_repository(
     name = "full_suite",
     path = "build/full-suite",
 )
+
+# Independently cached, offline Elasticsearch fixture images. Materialize the
+# pinned inputs with tools/build/bazel/fixture-images/materialize.py first.
+local_repository(
+    name = "fixture_images",
+    path = "build/fixture-image-inputs",
+)

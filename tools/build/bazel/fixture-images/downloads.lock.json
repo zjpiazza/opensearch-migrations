@@ -1,0 +1,17 @@
+{
+  "7.10": {
+    "distribution": {
+      "bytes": 318808405,
+      "file": "elasticsearch-7.10.2.tar.gz",
+      "sha256": "3b7ae3b6f5f2248fa4441aa2cf653638c9022108f813e0081da13c378a35e11e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8564599,
+      "file": "repository-gcs-7.10.2.zip",
+      "sha256": "25d5ade4bcd26ecd0c204b8b24813571e4e735e4d823926dd8dd178fb3813ba8",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.10.2.zip"
+    },
+    "version": "7.10.2"
+  }
+}

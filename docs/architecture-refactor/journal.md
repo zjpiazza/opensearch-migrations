@@ -1342,3 +1342,65 @@ Next question:
   admitted and 40 actions running. The tmux-owned driver is alive, and resource
   sampling collected all nine nodes without errors. This is launch evidence,
   not a completed benchmark. [Launch record](evidence/unified-launch.json).
+
+
+### E035 — Uniform-worker completion and fixture image cost (2026-10-03)
+
+- `long-unified-1` completed all 16 classes / 131 shards / 756 expected cases
+  successfully in 1,024.007 seconds Bazel wall time, with zero reused test
+  results, missing cases, or duplicate executions. Compilation and shared
+  registry preparation were outside this measurement.
+- All 131 shard logs were inspected. They recorded 310 successful Docker
+  build invocations across 64 distinct custom Elasticsearch image tags, in
+  103 shards. Summed invocation time was 10,546.497 seconds (175m46s),
+  versus 30,728.204 seconds summed shard execution: a ratio of 34.3%.
+  These are parallel elapsed durations, not CPU time or suite wall-time savings.
+- The last-finishing shard, NoStoredSourceMigrationTest shard 5, spent
+  508.908 seconds executing, including 249.418 seconds in image builds.
+  It also queued for 511.011 seconds. Eliminating its builds alone would
+  not eliminate earlier queueing; other shards would become the tail.
+- Fixture images are still built inside test actions; preparing and reusing
+  these images is a material opportunity. A fresh-test rerun with prepared
+  images must measure actual wall-time savings, including image pulls.
+- [Completion and fixture evidence](evidence/unified-fixture-builds.json).
+  Detailed local per-shard evidence: `build/full-suite-evidence/long-unified-1/fixture-build-analysis.json`.
+
+### E036 — Extract fixture images into cacheable actions (2026-10-03, ongoing)
+
+- Active objective: pin fixture inputs, independently cache each ES image,
+  remove builds from integration-test execution, validate cache reuse and
+  invalidation, and compare the same 131 shards with E035. Keep the approved
+  worker/node limits and scale execution capacity down after benchmarking.
+- Added an offline recipe adapter around the existing Gradle Dockerfile, a
+  per-version Bazel image rule, explicit dependency snapshot refresh targets,
+  input locks, and a verified-input materializer. Gradle behavior is unchanged.
+- Six networked dependency snapshots completed on existing workers in 56.084
+  seconds; their image IDs, archive hashes, recipe hashes, and installed packages
+  are pinned. Snapshot refresh deliberately bypasses action caching; subsequent
+  image builds consume the pinned bytes and run with Docker networking disabled.
+- Pinned the ES 7.10.2 distribution and GCS plugin. Initial remote preparation
+  exposed an unwritable HOME and Python 3.10 hash-API incompatibility; fixed both.
+- The first image attempt could not upload its 318,808,405-byte distribution.
+  Live storage configuration is an 8-GiB CAS divided into 38 blocks on a 10-GiB
+  PVC. Added 64-MiB artifact chunks with whole-artifact hash verification; the
+  pilot retry is in progress. No storage resize or cache deletion was performed.
+- Local checks pass for chunked gzip reconstruction, corruption rejection, recipe
+  preservation, and fail-closed handling of changed acquisition blocks. These
+  checks do not replace a real image/container test or benchmark.
+- [Implementation and outstanding gates](../../tools/build/bazel/fixture-images/README.md).
+  Local evidence: `build/fixture-image-evidence/` (refresh and pilot BEP/execution
+  logs, pinned input preparation, and prior error logs).
+
+- Offline 7.10.2 pilot passed in 52.295 seconds including input transfer and
+  exported output download. A fresh client reused the remote image-build result
+  in 8.611 seconds; a temporary unrelated Java test-source edit still reused it
+  in 9.525 seconds. Adding a Dockerfile label executed the remote build again
+  (50.839 seconds) and produced a different image ID. Both temporary edits were
+  restored. Execution logs distinguish actual remote execution from cache hits;
+  these times are image-preparation measurements, not integration-test speedups.
+- Added a pinned-image loader path to the shared Java fixture. It verifies even
+  existing local tags, fails for undeclared/mismatched images, and never falls
+  back to building when a catalog is supplied. Gradle compilation passes; the
+  loader's four identity/error-path checks pass. Catalog wiring and registry
+  publication remain outstanding before a real test can exercise this path.
+- [Pilot cache evidence](evidence/fixture-image-cache-pilot.json).

@@ -1,0 +1,2 @@
+FROM buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000/library/amazoncorretto@sha256:f3c874e5393026b767315551f0954826ca93e49ee9c2568d29ec1da29674c7aa
+RUN if command -v apk >/dev/null 2>&1; then apk add --no-cache bash coreutils curl shadow which; else dnf install -y --allowerasing bash coreutils curl hostname shadow-utils which util-linux && dnf clean all && rm -rf /var/cache/dnf; fi

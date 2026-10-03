@@ -315,7 +315,36 @@ public class SearchClusterContainer extends GenericContainer<SearchClusterContai
      * Retries up to {@link #MAX_BUILD_RETRIES} times to handle transient failures (e.g. Docker Hub outages).
      */
     private static void ensureCustomImageAvailable(ContainerVersion version) {
-        if (!version.imageName.startsWith("custom-elasticsearch:") || isImageAvailable(version)) {
+        if (!version.imageName.startsWith("custom-elasticsearch:")) {
+            return;
+        }
+        String catalog = System.getProperty("test.image.catalog");
+        if (catalog != null) {
+            // Bazel declares immutable image identities. Validate even existing
+            // local tags so an older image cannot silently satisfy a changed input.
+            String loader = System.getProperty("test.image.loader");
+            if (loader == null) {
+                throw new IllegalStateException("test.image.loader is required with test.image.catalog");
+            }
+            try {
+                Process process = new ProcessBuilder("python3", loader, catalog, version.imageName)
+                    .inheritIO().start();
+                if (!process.waitFor(BUILD_TIMEOUT_MINUTES, TimeUnit.MINUTES)) {
+                    process.destroyForcibly();
+                    throw new IllegalStateException("Timed out loading pinned image: " + version.imageName);
+                }
+                if (process.exitValue() != 0) {
+                    throw new IllegalStateException("Failed to load declared fixture image: " + version.imageName);
+                }
+                return;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted loading fixture image: " + version.imageName, e);
+            } catch (java.io.IOException e) {
+                throw new IllegalStateException("Cannot load fixture image: " + version.imageName, e);
+            }
+        }
+        if (isImageAvailable(version)) {
             return;
         }
         String tag = version.imageName.split(":")[1]; // e.g. "7.10.2"

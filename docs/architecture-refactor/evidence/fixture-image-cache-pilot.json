@@ -1,0 +1,54 @@
+{
+  "fresh_client": {
+    "archive_format": "docker-save-gzip-chunks",
+    "archive_sha256": "e1c1366f2e87e5eff7bfc9901e716bc9d24fa93f1784a922286e23ff6c83af54",
+    "image": "custom-elasticsearch:7.10.2",
+    "image_id": "sha256:87d2960e696817631b5e91c0f3d3305fddb4a5325b2fd5e07586bf8ab776219c",
+    "platform": "linux/amd64"
+  },
+  "unrelated_test_change": {
+    "archive_format": "docker-save-gzip-chunks",
+    "archive_sha256": "e1c1366f2e87e5eff7bfc9901e716bc9d24fa93f1784a922286e23ff6c83af54",
+    "image": "custom-elasticsearch:7.10.2",
+    "image_id": "sha256:87d2960e696817631b5e91c0f3d3305fddb4a5325b2fd5e07586bf8ab776219c",
+    "platform": "linux/amd64"
+  },
+  "image_input_change": {
+    "archive_format": "docker-save-gzip-chunks",
+    "archive_sha256": "1c2b8c18e396623466f6b22d9ff0cb1e36c6fdff1a9691899ced74c32f9c8dd8",
+    "image": "custom-elasticsearch:7.10.2",
+    "image_id": "sha256:de68afaf60012d8479306a29ca2fbe35ec091a0b9f27c9fa6c55cca3bc3e38f2",
+    "platform": "linux/amd64"
+  },
+  "actions": [
+    {
+      "run": "pilot",
+      "cache_hit": false,
+      "runner": "remote",
+      "exit_code": 0,
+      "status": ""
+    },
+    {
+      "run": "image-cache-hit",
+      "cache_hit": true,
+      "runner": "remote cache hit",
+      "exit_code": 0,
+      "status": ""
+    },
+    {
+      "run": "image-unrelated-change",
+      "cache_hit": true,
+      "runner": "remote cache hit",
+      "exit_code": 0,
+      "status": ""
+    },
+    {
+      "run": "image-input-change",
+      "cache_hit": false,
+      "runner": "remote",
+      "exit_code": 0,
+      "status": ""
+    }
+  ],
+  "scope": "One Elasticsearch 7.10.2 fixture-image target; fresh client for each cache probe. Not a test-runtime comparison."
+}
