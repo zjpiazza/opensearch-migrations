@@ -6,10 +6,9 @@ remains the source of runtime behavior. `offline.py` replaces acquisition steps
 with declared files and pinned dependency snapshots, failing if expected source
 blocks change. Gradle's original build remains available.
 
-The current pilot covers Elasticsearch 7.10.2. The integration-test consumer,
-image publication, complete version matrix, cache-invalidation checks, and the
-131-shard comparison are not complete yet. Do not interpret a successful image
-build as completion of the experiment.
+The complete 64-version matrix builds and publishes successfully. The same 16
+long-running classes declare their reviewed image dependencies; the 131-shard
+comparison is pending. Image preparation alone is not a test-performance result.
 
 ## Cache boundary
 
@@ -33,12 +32,19 @@ build as completion of the experiment.
   manifest. Cached success therefore represents actual recoverable output bytes,
   not the side effect of creating a tag in one worker's Docker daemon.
 - Inputs and outputs larger than 64 MiB are split into CAS objects. Reassembly
-  preserves and checks the full artifact SHA-256. This avoids the existing
-  Buildbarn block-size limit without resizing or clearing shared storage.
+  preserves and checks the full artifact SHA-256. This avoids individual
+  blob-size limits. The full matrix also required the approved CAS expansion.
 
-Image publication will be a separate operation; it must restore or verify the
-registry artifacts even when the build action is a cache hit. Tests must verify
-immutable image identity rather than trusting a mutable local Docker tag.
+Publication is a separate, **uncached** dependency. `publish.py` verifies or
+restores registry artifacts even when the image build hits cache. Catalog actions
+consume its receipts, binding test inputs to the published manifest digest and
+expected image ID. The loader also checks existing local tags and fails closed.
+This ordering matters when cache eviction causes an image to be rebuilt.
+
+The image builder pins inputs and normalizes the config creation time, but does
+not yet guarantee byte-for-byte identical outputs across independent builds:
+filesystem timestamps can still differ. Actual output identities, not assumed
+reproducibility, determine publication receipts and test cache keys.
 
 ## Pilot preparation
 
@@ -66,6 +72,21 @@ without `--refresh-lock`. Durable distribution of the pinned toolchain archives
 is still to be implemented; current archives are in ignored local experiment
 storage and the remote cache.
 
+## Full matrix and test consumers
+
+```bash
+# Verify/download the committed versions; omit --refresh-lock to retain pins.
+python3 tools/build/bazel/fixture-images/fetch.py --help
+python3 tools/build/bazel/fixture-images/materialize.py
+# After exporting current Gradle bytecode and configuring the existing shards:
+python3 tools/build/bazel/full-suite/configure-fixtures.py
+```
+
+`long-test-images.json` lists images observed across all 131 baseline shard logs
+(including reused images). Undeclared new versions fail closed. The generated
+Bazel graph connects each test only to its declared image set; publication is
+checked on each invocation, while expensive image builds remain cacheable.
+
 ## Verification remaining
 
 Pilot cache behavior has been verified from fresh clients: a cache hit survives
@@ -80,6 +101,11 @@ changes image identity. See E036 for retained execution evidence.
    separately and comparing against 1,024.007 seconds.
 6. Restore documented minimum execution capacity after measurement.
 
-The live CAS currently has only 8 GiB of configured storage on a 10-GiB PVC.
-Check retention under the full image matrix before claiming cache reuse at that
-scale. Registry storage is a separate existing 50-GiB PVC.
+The approved CAS now uses a 64-GiB PVC with 48 GiB of configured blocks; the old
+8-GiB cache files remain for rollback. The complete input/output working set is
+19.783 + 26.221 = 46.005 GiB, before retention/refresh overhead. One post-matrix
+smoke run rebuilt a matching action key because its output was no longer fully
+available; the separate publication-stage design then failed correctly on the
+unpublished new identity. Publication is now ordered inside the dependency
+graph. Full-matrix retention must be measured, not inferred from nominal volume
+capacity. Registry storage remains a separate existing 50-GiB PVC.

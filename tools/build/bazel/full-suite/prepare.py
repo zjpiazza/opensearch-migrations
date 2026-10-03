@@ -66,6 +66,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--export', type=Path, default=ROOT / 'build/full-suite-export.json')
     parser.add_argument('--unsharded', action='store_true', help='Retain class-level execution for an A/B baseline')
+    parser.add_argument('--fixture-images', action='store_true', help='Declare prepared Bazel image catalogs for the reviewed long integration tests')
     args = parser.parse_args()
     manifest = json.loads(args.export.read_text())
     assert Path(manifest['root']) == ROOT
@@ -175,6 +176,8 @@ def main():
     lines.append('test_suite(name="all_tests", tests='+repr([':'+t['target'] for t in evidence['targets']])+')')
     write(OUT/'BUILD.bazel','\n\n'.join(lines)+'\n');write(OUT/'WORKSPACE.bazel','workspace(name="full_suite")\n')
     write(OUT/'inventory.json',json.dumps(evidence,indent=2)+'\n')
+    if args.fixture_images:
+        subprocess.run(['python3', str(Path(__file__).with_name('configure-fixtures.py')), '--runtime', str(OUT)], check=True)
     print('Exported',len(evidence['targets']),'targets')
 
 

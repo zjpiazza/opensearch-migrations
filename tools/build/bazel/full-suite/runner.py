@@ -56,6 +56,10 @@ def main():
             props['bazel.shard.grouping'] = sys.argv[3] if len(sys.argv) > 3 else 'fixture-index'
         # Java does not derive user.home from HOME. Graal and fixtures extract
         # runtime resources there; the worker UID's default home is unwritable.
+        if len(sys.argv) > 4:
+            props['test.image.catalog'] = str(Path(sys.argv[4]).resolve(strict=True))
+            props['test.image.loader'] = str(Path(sys.argv[5]).resolve(strict=True))
+            props.pop('test.image.builder', None)
         props['user.home'] = env['HOME']
         props['java.io.tmpdir'] = str(work / '.tmp')
         Path(props['java.io.tmpdir']).mkdir(exist_ok=True)

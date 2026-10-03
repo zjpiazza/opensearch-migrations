@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import shutil
 from fetch import digest, ROOT
-from chunks import CHUNK_BYTES
+from chunks import materialize_parts
 
 HERE = Path(__file__).resolve().parent
 
@@ -34,20 +34,11 @@ def main():
         tool_lock_path.write_text(json.dumps(tools, indent=2, sort_keys=True)+'\n')
     tools = json.loads(tool_lock_path.read_text())
     downloads = json.loads((HERE/'downloads.lock.json').read_text())
-    for item in [*tools.values(), *(i for v in downloads.values() for i in [v['distribution'],v['plugin']])]:
-        if digest(args.inputs/item['file']) != item['sha256']:
-            raise ValueError('Pinned bytes missing or changed: ' + item['file'])
-    for item in [*tools.values(), *(i for v in downloads.values() for i in [v['distribution'],v['plugin']])]:
-        source = args.inputs/item['file']
-        if source.stat().st_size > CHUNK_BYTES:
-            names = []
-            with source.open('rb') as stream:
-                while block := stream.read(CHUNK_BYTES):
-                    name = item['file']+f'.part-{len(names):05d}'
-                    (args.inputs/name).write_bytes(block)
-                    names.append(name)
-            item['chunks'] = names
-    lines = ['load("@@//tools/build/bazel/fixture-images:defs.bzl", "offline_fixture_image")',
+    tools = {key:materialize_parts(args.inputs, item, remove_original=True) for key,item in tools.items()}
+    for version in downloads.values():
+        for role in ['distribution', 'plugin']:
+            version[role] = materialize_parts(args.inputs, version[role], remove_original=True)
+    lines = ['load("@@//tools/build/bazel/fixture-images:defs.bzl", "offline_fixture_image", "fixture_publish", "fixture_smoke_test", "fixture_catalog")',
              'package(default_visibility=["//visibility:public"])']
     for minor, item in sorted(downloads.items()):
         major, small = map(int, minor.split('.'))
@@ -64,7 +55,18 @@ def main():
         lines.append('offline_fixture_image(name='+repr(name)+', spec='+repr(name+'.json')+', inputs='+repr(files)+
                      ', dockerfile="@@//tests/fixtures/images/elasticsearch:dockerfiles/Dockerfile", '+
                      'cgroup_fix="@@//tests/fixtures/images/elasticsearch:dockerfiles/cgroup_fix.c", exec_properties={"workload":"integration"})')
+        lines.append('fixture_publish(name='+repr(name+'_publish')+', image='+repr(':'+name)+', registry="buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000", tags=["manual"], exec_properties={"workload":"integration"})')
+        lines.append('fixture_smoke_test(name='+repr(name+'_smoke')+', image='+repr(':'+name)+', tags=["manual"], size="large", exec_properties={"workload":"integration"})')
+        lines.append('fixture_smoke_test(name='+repr(name+'_registry_smoke')+', image='+repr(':'+name)+', publication='+repr(':'+name+'_publish')+', registry="buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000", tags=["manual"], size="large", exec_properties={"workload":"integration"})')
         lines.append('filegroup(name='+repr(name+'_manifest')+', srcs=['+repr(':'+name)+'], output_group="manifest")')
+    policy = json.loads((HERE/'long-test-images.json').read_text())['classes']
+    for target, versions in policy.items():
+        minors = ['.'.join(version.split('.')[:2]) for version in versions]
+        if not all(minor in downloads for minor in minors):
+            continue
+        labels = [':es_'+minor.replace('.','_')+'_publish' for minor in minors]
+        lines.append('fixture_catalog(name='+repr('catalog_'+target)+', publications='+repr(labels)+
+                     ', registry="buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000", exec_properties={"workload":"integration"})')
     (args.inputs/'BUILD.bazel').write_text('\n\n'.join(lines)+'\n')
     (args.inputs/'WORKSPACE.bazel').write_text('workspace(name="fixture_images")\n')
     print('Generated', len(downloads), 'fixture targets')

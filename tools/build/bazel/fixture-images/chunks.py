@@ -50,3 +50,32 @@ class ChunkWriter:
         if self.stream:
             self.stream.close()
             self.stream = None
+
+
+def materialize_parts(directory, item, remove_original=False):
+    """Split a downloaded input once; retain enough metadata to verify it later."""
+    import json
+    directory = Path(directory)
+    source = directory/item['file']
+    index = directory/(item['file']+'.parts.json')
+    if source.exists() and source.stat().st_size <= CHUNK_BYTES:
+        verify(item, {source.name:source})
+        return item
+    if not index.exists():
+        names = []
+        with source.open('rb') as stream:
+            while block := stream.read(CHUNK_BYTES):
+                name = item['file']+f'.part-{len(names):05d}'
+                (directory/name).write_bytes(block)
+                names.append(name)
+        indexed = dict(item, chunks=names)
+        verify(indexed, {name:directory/name for name in names})
+        index.write_text(json.dumps({'sha256':item['sha256'], 'chunks':names},sort_keys=True)+'\n')
+    record = json.loads(index.read_text())
+    if record['sha256'] != item['sha256']:
+        raise ValueError('Chunk index does not match input lock: '+item['file'])
+    item = dict(item, chunks=record['chunks'])
+    verify(item, {name:directory/name for name in item['chunks']})
+    if remove_original and source.exists():
+        source.unlink()
+    return item

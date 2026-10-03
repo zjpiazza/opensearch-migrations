@@ -17,3 +17,9 @@ fixture_toolchain_snapshot(name="refresh_runtime21", recipe="recipes/runtime21.D
 exports_files(["build.py", "defs.bzl"])
 
 exports_files(["chunks.py"])
+
+exports_files(["publish.py", "load.py"])
+
+exports_files(["smoke.py"])
+
+exports_files(["catalog.py"])

@@ -1,4 +1,394 @@
 {
+  "1.5": {
+    "distribution": {
+      "bytes": 28173132,
+      "file": "elasticsearch-1.5.2.tar.gz",
+      "sha256": "efae7897367ac3fa8057d02fad31c72e215b6edef599b63e373d3ce0c1049a14",
+      "url": "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-1.5.2.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "1.5.2"
+  },
+  "1.6": {
+    "distribution": {
+      "bytes": 28491082,
+      "file": "elasticsearch-1.6.2.tar.gz",
+      "sha256": "b7ef3aae0a263c2312bd1a25b191c3c108c92d5413c3527d776587e582c518d0",
+      "url": "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.6.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-1.6.2.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "1.6.2"
+  },
+  "1.7": {
+    "distribution": {
+      "bytes": 28488767,
+      "file": "elasticsearch-1.7.6.tar.gz",
+      "sha256": "78affc30353730ec245dad1f17de242a4ad12cf808eaa87dd878e1ca10ed77df",
+      "url": "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.6.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-1.7.6.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "1.7.6"
+  },
+  "2.0": {
+    "distribution": {
+      "bytes": 28590676,
+      "file": "elasticsearch-2.0.2.tar.gz",
+      "sha256": "74113dffb178d0496af47072cb5c757d597cb0f8549230b9bdb07804d5a1fa3f",
+      "url": "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.0.2/elasticsearch-2.0.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-2.0.2.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "2.0.2"
+  },
+  "2.1": {
+    "distribution": {
+      "bytes": 29008904,
+      "file": "elasticsearch-2.1.2.tar.gz",
+      "sha256": "069cf3ab88a36d01f86e54b46169891b0adef6eda126ea35e540249d904022e1",
+      "url": "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.1.2/elasticsearch-2.1.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-2.1.2.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "2.1.2"
+  },
+  "2.2": {
+    "distribution": {
+      "bytes": 29425370,
+      "file": "elasticsearch-2.2.2.tar.gz",
+      "sha256": "c706db594f1feb5051d90697c6c412eadd60e00a9ec3b4f345a122801183af69",
+      "url": "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.2.2/elasticsearch-2.2.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-2.2.2.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "2.2.2"
+  },
+  "2.3": {
+    "distribution": {
+      "bytes": 27547995,
+      "file": "elasticsearch-2.3.5.tar.gz",
+      "sha256": "1119a8c18620b98c4b85261318663a1f26dea92a26f34dfeb7f813fb7cbb468a",
+      "url": "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.3.5/elasticsearch-2.3.5.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-2.3.5.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "2.3.5"
+  },
+  "2.4": {
+    "distribution": {
+      "bytes": 27350245,
+      "file": "elasticsearch-2.4.6.tar.gz",
+      "sha256": "5f7e4bb792917bb7ffc2a5f612dfec87416d54563f795d6a70637befef4cfc6f",
+      "url": "https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.6/elasticsearch-2.4.6.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-2.4.6.zip",
+      "reason": "not supported",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "2.4.6"
+  },
+  "5.0": {
+    "distribution": {
+      "bytes": 32951077,
+      "file": "elasticsearch-5.0.2.tar.gz",
+      "sha256": "bbe761788570d344801cb91a8ba700465deb10601751007da791743e9308cb83",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.0.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1860294,
+      "file": "repository-gcs-5.0.2.zip",
+      "sha256": "e4556b82629c56de3dfcdf3498aff98a4ed612d6170a444d85d5b45c3e7b46ab",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.0.2.zip"
+    },
+    "version": "5.0.2"
+  },
+  "5.1": {
+    "distribution": {
+      "bytes": 33299777,
+      "file": "elasticsearch-5.1.2.tar.gz",
+      "sha256": "74d752f9a8b46898d306ad169b72f328e17215c0909149e156a576089ef11c42",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1860284,
+      "file": "repository-gcs-5.1.2.zip",
+      "sha256": "c2f50584375936ccb9cfe5c0b63b49b6d103d087efa17f12a5924bdd78760e12",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.1.2.zip"
+    },
+    "version": "5.1.2"
+  },
+  "5.2": {
+    "distribution": {
+      "bytes": 33799732,
+      "file": "elasticsearch-5.2.2.tar.gz",
+      "sha256": "cf88930695794a8949342d386f028548bd10b26ecc8c4b422a94ea674faf8ac9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1882908,
+      "file": "repository-gcs-5.2.2.zip",
+      "sha256": "f46c8cb725aefe51ce62838e67e266cb43e3f8006b2c9163ad8e4908aacea668",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.2.2.zip"
+    },
+    "version": "5.2.2"
+  },
+  "5.3": {
+    "distribution": {
+      "bytes": 33701608,
+      "file": "elasticsearch-5.3.3.tar.gz",
+      "sha256": "c7e23fddd74d66207b01dea777597c9d04c242973e1ac61aec0f13b716ebed1d",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.3.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1878560,
+      "file": "repository-gcs-5.3.3.zip",
+      "sha256": "d1154cfb68330aefc7dcea6c4b7ab1c3c947ad71e046e6e5a294a5e407f02504",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.3.3.zip"
+    },
+    "version": "5.3.3"
+  },
+  "5.4": {
+    "distribution": {
+      "bytes": 33326964,
+      "file": "elasticsearch-5.4.3.tar.gz",
+      "sha256": "0ceaf6a2243e9a6f3519dce62991ccab09a44326d6899688cd09422b8c31c68f",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.3.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1877669,
+      "file": "repository-gcs-5.4.3.zip",
+      "sha256": "4ff422d07087afd26083f1a29dd90e892e61546ec358f0431866ca5eac5fd92a",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.4.3.zip"
+    },
+    "version": "5.4.3"
+  },
+  "5.5": {
+    "distribution": {
+      "bytes": 33486646,
+      "file": "elasticsearch-5.5.3.tar.gz",
+      "sha256": "f6482a48ceed201e14257701c1fddd804053ea8165b9d2fa38bce149289c61ca",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.3.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1880116,
+      "file": "repository-gcs-5.5.3.zip",
+      "sha256": "ed44240d3f925d2c23b7ba0d61bbca3317370e54878c5c4babf9e706745a77f9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.5.3.zip"
+    },
+    "version": "5.5.3"
+  },
+  "5.6": {
+    "distribution": {
+      "bytes": 33894983,
+      "file": "elasticsearch-5.6.16.tar.gz",
+      "sha256": "6b035a59337d571ab70cea72cc55225c027ad142fbb07fd8984e54261657c77f",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1970068,
+      "file": "repository-gcs-5.6.16.zip",
+      "sha256": "0194c3f1f1fbd7b6e23df0ccd75f1d1ea2a7c078f9eddb18038cd8063de99843",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-5.6.16.zip"
+    },
+    "version": "5.6.16"
+  },
+  "6.0": {
+    "distribution": {
+      "bytes": 28026460,
+      "file": "elasticsearch-6.0.1.tar.gz",
+      "sha256": "efaf32aba41e1b7fd086639c0f062c39e1f28b360a78d5c2b8deed797a4c5c57",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.1.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1970161,
+      "file": "repository-gcs-6.0.1.zip",
+      "sha256": "1cab8302abae039933650e5d538741e687c75e4c9de00b898240e5574b62e09f",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.0.1.zip"
+    },
+    "version": "6.0.1"
+  },
+  "6.1": {
+    "distribution": {
+      "bytes": 28472085,
+      "file": "elasticsearch-6.1.4.tar.gz",
+      "sha256": "ae8d7cb94de20eafd4c1d3cbbc9651aa57a2c605055463e94bc8c8b04994d21f",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.4.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1970163,
+      "file": "repository-gcs-6.1.4.zip",
+      "sha256": "35938d9cb7ecaf67b5e852a6e229620b02830e630d442c39991fbcaddb469e19",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.1.4.zip"
+    },
+    "version": "6.1.4"
+  },
+  "6.2": {
+    "distribution": {
+      "bytes": 29056810,
+      "file": "elasticsearch-6.2.4.tar.gz",
+      "sha256": "91e6f1ea1e1dd39011e7a703d2751ca46ee374665b08b0bfe17e0c0c27000e8e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1970131,
+      "file": "repository-gcs-6.2.4.zip",
+      "sha256": "c7ad52be9ba82901baa34127e1398a767ef27b1bdadc61548341bfd69455d223",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.2.4.zip"
+    },
+    "version": "6.2.4"
+  },
+  "6.3": {
+    "distribution": {
+      "bytes": 91452574,
+      "file": "elasticsearch-6.3.2.tar.gz",
+      "sha256": "d05608c6b125df4fb6c809f9c1dd457e369e6b582c2958c52da95e01cc54c024",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 1971504,
+      "file": "repository-gcs-6.3.2.zip",
+      "sha256": "7f945d208c3112bdb2705ccc40c959b8510d64511c511d8337dd0928a555dcb9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.3.2.zip"
+    },
+    "version": "6.3.2"
+  },
+  "6.4": {
+    "distribution": {
+      "bytes": 97872736,
+      "file": "elasticsearch-6.4.3.tar.gz",
+      "sha256": "861bc4d4188ce65df34a8876f104bbb2cddff3586990e57233e0847eb961b15e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.4.3.tar.gz"
+    },
+    "plugin": {
+      "bytes": 5685426,
+      "file": "repository-gcs-6.4.3.zip",
+      "sha256": "f6b818622f5586d2a8602f2edccd0e0a3a66d3ab18734220469548f718a237dd",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.4.3.zip"
+    },
+    "version": "6.4.3"
+  },
+  "6.5": {
+    "distribution": {
+      "bytes": 113322649,
+      "file": "elasticsearch-6.5.4.tar.gz",
+      "sha256": "762e25c036fa2e882cb7e91d83868fa15a1cad8549d279a8c5826a005bb31877",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.5.4.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8717139,
+      "file": "repository-gcs-6.5.4.zip",
+      "sha256": "1be9a6f94303015d3e38877a660fac2099bf0607441803e5092d57ec3d7ebb32",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.5.4.zip"
+    },
+    "version": "6.5.4"
+  },
+  "6.6": {
+    "distribution": {
+      "bytes": 114122043,
+      "file": "elasticsearch-6.6.2.tar.gz",
+      "sha256": "f32d6fa73b466e29f30a5b6e0bcc6352a5508329f765c948c80c242ddfb97770",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8717035,
+      "file": "repository-gcs-6.6.2.zip",
+      "sha256": "30d270b1b224b0757b1773a19c68e70c8221415d6db02ae3e8c9949a45bdc79e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.6.2.zip"
+    },
+    "version": "6.6.2"
+  },
+  "6.7": {
+    "distribution": {
+      "bytes": 148569042,
+      "file": "elasticsearch-6.7.2.tar.gz",
+      "sha256": "d0ed638c825914d3c5fd8b34f69b5bcf9cfa5cf85af25145ea7a910ea8f708a9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.7.2.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8734226,
+      "file": "repository-gcs-6.7.2.zip",
+      "sha256": "7be788a6be9751f56c25dc396ab2a2e4fbfeee4e80aacab31ddef4b3f662cc29",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.7.2.zip"
+    },
+    "version": "6.7.2"
+  },
+  "6.8": {
+    "distribution": {
+      "bytes": 149672445,
+      "file": "elasticsearch-6.8.23.tar.gz",
+      "sha256": "424af91f838f9e5f13e0292f97cbd6333535450291a621d761bd479dfc2dff78",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.23.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8734807,
+      "file": "repository-gcs-6.8.23.zip",
+      "sha256": "7984d286ec016539947b5b15f968151a8525689debaf905056e64a0db501ca8a",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-6.8.23.zip"
+    },
+    "version": "6.8.23"
+  },
+  "7.0": {
+    "distribution": {
+      "bytes": 346763683,
+      "file": "elasticsearch-7.0.1.tar.gz",
+      "sha256": "33866cbc61383d1ead01622ff54cadacec0b9fe81224af9b77104be614a56eca",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.0.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8813034,
+      "file": "repository-gcs-7.0.1.zip",
+      "sha256": "ecd7a5050acb4a9234b31e40812aa3291d5cdb283ad0c8aceb47eaf79e607928",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.0.1.zip"
+    },
+    "version": "7.0.1"
+  },
+  "7.1": {
+    "distribution": {
+      "bytes": 346794062,
+      "file": "elasticsearch-7.1.1.tar.gz",
+      "sha256": "d8cd7df1232d931b9ff8fda1e960d94b03db21b7f33162d6865ebcbe69a45f95",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.1.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8813031,
+      "file": "repository-gcs-7.1.1.zip",
+      "sha256": "24203b9ff0797ab89a4675388b52c32ae615fead9090ed99a4881e8253eee509",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.1.1.zip"
+    },
+    "version": "7.1.1"
+  },
   "7.10": {
     "distribution": {
       "bytes": 318808405,
@@ -13,5 +403,560 @@
       "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.10.2.zip"
     },
     "version": "7.10.2"
+  },
+  "7.11": {
+    "distribution": {
+      "bytes": 322857683,
+      "file": "elasticsearch-7.11.2.tar.gz",
+      "sha256": "6aaece6a87eebd2cff852c45ea1b16736a9e8a877ed517a740f2795bd23856a8",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.11.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8579713,
+      "file": "repository-gcs-7.11.2.zip",
+      "sha256": "8c3e0af54417fd457ed2d22281089ac4b70475803d819fe20da671ac06fc4600",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.11.2.zip"
+    },
+    "version": "7.11.2"
+  },
+  "7.12": {
+    "distribution": {
+      "bytes": 325529336,
+      "file": "elasticsearch-7.12.1.tar.gz",
+      "sha256": "fbad920917d36cb37360e98f7d3053a7b504f71d8a14a68b369a2365218d3c48",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.12.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8579779,
+      "file": "repository-gcs-7.12.1.zip",
+      "sha256": "aa647adeaf46ab0b0d3b3b9d17f3d22804362b3c1d1861b19f28618dc550cce5",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.12.1.zip"
+    },
+    "version": "7.12.1"
+  },
+  "7.13": {
+    "distribution": {
+      "bytes": 327143992,
+      "file": "elasticsearch-7.13.4.tar.gz",
+      "sha256": "1b051811d7ede31d2f15c9aaff38f7fba28b8e7195306fbaab5c39bf0ed7d66b",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.13.4-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8581935,
+      "file": "repository-gcs-7.13.4.zip",
+      "sha256": "87f17741480e93a58c7796e7a2ae429f7e89ce8a243a46556d2fd24169e771e5",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.13.4.zip"
+    },
+    "version": "7.13.4"
+  },
+  "7.14": {
+    "distribution": {
+      "bytes": 344048594,
+      "file": "elasticsearch-7.14.2.tar.gz",
+      "sha256": "01bb1b6294cd73d50f6c0daf19ef49879f546f503d746e6c822c1c95f5002767",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.14.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8586916,
+      "file": "repository-gcs-7.14.2.zip",
+      "sha256": "917acc20db2c7eb5403ae00f3db5429fe520f677df83b8af76bee2d6a2fe9bfd",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.14.2.zip"
+    },
+    "version": "7.14.2"
+  },
+  "7.15": {
+    "distribution": {
+      "bytes": 340810443,
+      "file": "elasticsearch-7.15.2.tar.gz",
+      "sha256": "df4858c6878019b186f2aa53ad5a1775ab86f0e6155d9dc447b75a21f04267ac",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.15.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9301614,
+      "file": "repository-gcs-7.15.2.zip",
+      "sha256": "2812ca4e4909076f397513a5bd1c71fe5c32ec79a7b891f772ae864ef4b795a1",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.15.2.zip"
+    },
+    "version": "7.15.2"
+  },
+  "7.16": {
+    "distribution": {
+      "bytes": 311327254,
+      "file": "elasticsearch-7.16.3.tar.gz",
+      "sha256": "43a3fea05ca4961817254b562847297d222373bc5bc4279df3665beb5ffd382a",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9435848,
+      "file": "repository-gcs-7.16.3.zip",
+      "sha256": "de185c5e005efbea2d56dc04fe95aba1dd5c0f3a5002f61bff7b1407c03125e5",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.16.3.zip"
+    },
+    "version": "7.16.3"
+  },
+  "7.17": {
+    "distribution": {
+      "bytes": 325443139,
+      "file": "elasticsearch-7.17.29.tar.gz",
+      "sha256": "f7175de3ac8ca16326b9dbdff4ef70bc3da6405efe624655444ba2464073ea8e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.29-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 10089502,
+      "file": "repository-gcs-7.17.29.zip",
+      "sha256": "4760c0e99c0073a73f7574169bccc9f870bea5990ff5fba6e1b5cd2930f13281",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.17.29.zip"
+    },
+    "version": "7.17.29"
+  },
+  "7.2": {
+    "distribution": {
+      "bytes": 336667620,
+      "file": "elasticsearch-7.2.1.tar.gz",
+      "sha256": "d5d660895a39755ad6af16ec32cff5e2b645d5faf7150c69acc0fe013c604ae7",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.2.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8819311,
+      "file": "repository-gcs-7.2.1.zip",
+      "sha256": "7d4a755c30ffe7fd2f0b9867a8c792a8dcc6a50d6044366d2336c4509501edbe",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.2.1.zip"
+    },
+    "version": "7.2.1"
+  },
+  "7.3": {
+    "distribution": {
+      "bytes": 285050383,
+      "file": "elasticsearch-7.3.2.tar.gz",
+      "sha256": "8254dc2d98959cb7964a523a7abab3cd40362dde694ce020ae1efd554efb8e82",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.3.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9208056,
+      "file": "repository-gcs-7.3.2.zip",
+      "sha256": "bd4e6d77a7d18484a1adb9718fa62322ae6b73f68069057ccdf53601d92557c2",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.3.2.zip"
+    },
+    "version": "7.3.2"
+  },
+  "7.4": {
+    "distribution": {
+      "bytes": 288775500,
+      "file": "elasticsearch-7.4.2.tar.gz",
+      "sha256": "f54475eafbf3384f4378002d87badf013018a9238937a4bd780e71271c670772",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.4.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9209058,
+      "file": "repository-gcs-7.4.2.zip",
+      "sha256": "8503894e57bddd1947b5013d733abad6ed959a1e48825f80a04861b7a0400194",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.4.2.zip"
+    },
+    "version": "7.4.2"
+  },
+  "7.5": {
+    "distribution": {
+      "bytes": 290135826,
+      "file": "elasticsearch-7.5.2.tar.gz",
+      "sha256": "7b49b5ad9fea43533fc0355708b0fad7651aa0215fd590ed1414c2ff44e4cdf3",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.5.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9212398,
+      "file": "repository-gcs-7.5.2.zip",
+      "sha256": "28d13d2fea5453cbb51fc054e0f6ccd1674cc96ce9ab6c5f12ed79817f5b5181",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.5.2.zip"
+    },
+    "version": "7.5.2"
+  },
+  "7.6": {
+    "distribution": {
+      "bytes": 296477546,
+      "file": "elasticsearch-7.6.2.tar.gz",
+      "sha256": "63543cfafbb2b1eae39dc38052acc75dc4ca2e1579259a1c47722116e31af577",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.6.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9212529,
+      "file": "repository-gcs-7.6.2.zip",
+      "sha256": "1bf37fe8e58bbc0e9d655757ccd6c2c7c27892d09374a864f9005ba4fbe5d405",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.6.2.zip"
+    },
+    "version": "7.6.2"
+  },
+  "7.7": {
+    "distribution": {
+      "bytes": 314445622,
+      "file": "elasticsearch-7.7.1.tar.gz",
+      "sha256": "89da351ea1c1d362b0f923ae378568301b63c0f3b14f7f0b2879aa82daad54fe",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 9501925,
+      "file": "repository-gcs-7.7.1.zip",
+      "sha256": "69949e8515ff887c5b2b65804caf4f313ed50ec8e5ed61b86aee7e78bb731de8",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.7.1.zip"
+    },
+    "version": "7.7.1"
+  },
+  "7.8": {
+    "distribution": {
+      "bytes": 318334518,
+      "file": "elasticsearch-7.8.1.tar.gz",
+      "sha256": "4f7336d191f8131787fe276dffd184e4bce97f7363285ee8dd37c7abd6a6861f",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.8.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8529600,
+      "file": "repository-gcs-7.8.1.zip",
+      "sha256": "7a237ad688c69aa88c5b55a66cfcc3475c985a4d72c76cf0701e0817522faa14",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.8.1.zip"
+    },
+    "version": "7.8.1"
+  },
+  "7.9": {
+    "distribution": {
+      "bytes": 306436527,
+      "file": "elasticsearch-7.9.3.tar.gz",
+      "sha256": "ae815dca86b0a567185f3f6d4fad047b2f8b6f38c1eee424291cc527261c1c5c",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 8534926,
+      "file": "repository-gcs-7.9.3.zip",
+      "sha256": "432af9c68bc5c526754f2d557ce7f0a9bb5b1eff2115d76d0fbbda57a5b608bb",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-gcs/repository-gcs-7.9.3.zip"
+    },
+    "version": "7.9.3"
+  },
+  "8.0": {
+    "distribution": {
+      "bytes": 515419358,
+      "file": "elasticsearch-8.0.1.tar.gz",
+      "sha256": "074d0fbb7a0ea722f5eb7f2fa681a1bada332db08558aeae750a2ec3be8bfdf9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.0.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.0.1.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.0.1"
+  },
+  "8.1": {
+    "distribution": {
+      "bytes": 516121614,
+      "file": "elasticsearch-8.1.3.tar.gz",
+      "sha256": "df610b0bfe357d751e79e4f173f860558753bfc6f860135fd126ecaf50162b86",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.1.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.1.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.1.3"
+  },
+  "8.10": {
+    "distribution": {
+      "bytes": 611633882,
+      "file": "elasticsearch-8.10.4.tar.gz",
+      "sha256": "a03d0c90ebc81d8e904297a824269c73257d75fa917ba1f36ad6394c46db8a07",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.10.4.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.10.4"
+  },
+  "8.11": {
+    "distribution": {
+      "bytes": 630439805,
+      "file": "elasticsearch-8.11.4.tar.gz",
+      "sha256": "00e7d18721bb39dad9103e54fd09ba6b874ac3d6e9b7645facea50b69b6da223",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.11.4-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.11.4.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.11.4"
+  },
+  "8.12": {
+    "distribution": {
+      "bytes": 621185674,
+      "file": "elasticsearch-8.12.2.tar.gz",
+      "sha256": "4a035597072b2e6439cbdc144a622bb1a5c223371d072beafbf5d8ebee816344",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.12.2.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.12.2"
+  },
+  "8.13": {
+    "distribution": {
+      "bytes": 575698037,
+      "file": "elasticsearch-8.13.4.tar.gz",
+      "sha256": "46b62db890b84cf22224838db9d38182941657f7f90a6744e8885f7ab22f900b",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.13.4-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.13.4.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.13.4"
+  },
+  "8.14": {
+    "distribution": {
+      "bytes": 588481989,
+      "file": "elasticsearch-8.14.3.tar.gz",
+      "sha256": "7c5efbbecb1bee33c5ecdac4d3b0706d700aa79637afff280e93c8a9a2272360",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.14.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.14.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.14.3"
+  },
+  "8.15": {
+    "distribution": {
+      "bytes": 609777272,
+      "file": "elasticsearch-8.15.5.tar.gz",
+      "sha256": "1784210a16a031c5d2fa0daf021fb74544839cc5eb06ec06fb83d451e34ab2db",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.15.5-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.15.5.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.15.5"
+  },
+  "8.16": {
+    "distribution": {
+      "bytes": 635432205,
+      "file": "elasticsearch-8.16.6.tar.gz",
+      "sha256": "308a5ef379550fd5c8d65b77052f2fc2efabc124a98c4bbc2c89a84ce82b781d",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.16.6-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.16.6.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.16.6"
+  },
+  "8.17": {
+    "distribution": {
+      "bytes": 636664740,
+      "file": "elasticsearch-8.17.10.tar.gz",
+      "sha256": "7f6317bc656c3d801e4e8cf478b924f219e523b40a2204859f378a6e76b340d0",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.10-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.17.10.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.17.10"
+  },
+  "8.18": {
+    "distribution": {
+      "bytes": 659059014,
+      "file": "elasticsearch-8.18.8.tar.gz",
+      "sha256": "ebc94a655d69f4668ac1a06150f32487d283b2fec79ac97be5c84f81da1b5df3",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.18.8-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.18.8.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.18.8"
+  },
+  "8.19": {
+    "distribution": {
+      "bytes": 673858334,
+      "file": "elasticsearch-8.19.11.tar.gz",
+      "sha256": "9f78e28a97fdb163f0afde08681c21adf2fb252415d3024b7d42a943c5606ae4",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.19.11-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.19.11.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.19.11"
+  },
+  "8.2": {
+    "distribution": {
+      "bytes": 526111529,
+      "file": "elasticsearch-8.2.3.tar.gz",
+      "sha256": "cdc320e74e418f9e5d72e28e93cb8d914075dbd8549154cf256e672338edf902",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.2.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.2.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.2.3"
+  },
+  "8.3": {
+    "distribution": {
+      "bytes": 539315339,
+      "file": "elasticsearch-8.3.3.tar.gz",
+      "sha256": "7b1f1a1fe314309f6325e8955350368d93c62a4378f2c7004dd9147169ce11d2",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.3.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.3.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.3.3"
+  },
+  "8.4": {
+    "distribution": {
+      "bytes": 566286512,
+      "file": "elasticsearch-8.4.3.tar.gz",
+      "sha256": "dfa4143545a6c83c0f2fc3b05f4dc5e26ab872b58367f55b54385cea0af35755",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.4.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.4.3"
+  },
+  "8.5": {
+    "distribution": {
+      "bytes": 580678137,
+      "file": "elasticsearch-8.5.3.tar.gz",
+      "sha256": "4186d25ee31b41c5eba22089159f9176aa37e5c80095fb8decea4785ccf0578d",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.5.3-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.5.3.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.5.3"
+  },
+  "8.6": {
+    "distribution": {
+      "bytes": 581745209,
+      "file": "elasticsearch-8.6.2.tar.gz",
+      "sha256": "650eda23216acfcdeebce7705a89b4b5031551cf1de814452e3cfcb990b1d5f9",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.6.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.6.2.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.6.2"
+  },
+  "8.7": {
+    "distribution": {
+      "bytes": 597973777,
+      "file": "elasticsearch-8.7.1.tar.gz",
+      "sha256": "ce79556ae554662ed8b8743846539fe913dd09a1771c01062bb93c7a7895545b",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.7.1-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.7.1.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.7.1"
+  },
+  "8.8": {
+    "distribution": {
+      "bytes": 597172402,
+      "file": "elasticsearch-8.8.2.tar.gz",
+      "sha256": "0f294eabd1863c81354de18bb9a90fc6dae5ae3d9a8c7ef03739bf8a627aa12e",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.8.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.8.2.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.8.2"
+  },
+  "8.9": {
+    "distribution": {
+      "bytes": 605744267,
+      "file": "elasticsearch-8.9.2.tar.gz",
+      "sha256": "34b041697dacad305aa407e0cafb5465d8b5ac8666a909b47df481a99b19410d",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.9.2-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-8.9.2.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "8.9.2"
+  },
+  "9.0": {
+    "distribution": {
+      "bytes": 661358910,
+      "file": "elasticsearch-9.0.8.tar.gz",
+      "sha256": "457e8dc1746988d548797b7542bbe770328f93621209fa84989be39f3a5db9bd",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.0.8-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-9.0.8.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "9.0.8"
+  },
+  "9.1": {
+    "distribution": {
+      "bytes": 676348444,
+      "file": "elasticsearch-9.1.5.tar.gz",
+      "sha256": "447b2fdef6f662ee5e5f5d5ce961db2c9721d1e95b970d3c5df63496eff873a4",
+      "url": "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.1.5-linux-x86_64.tar.gz"
+    },
+    "plugin": {
+      "bytes": 0,
+      "file": "repository-gcs-9.1.5.zip",
+      "reason": "bundled module",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "9.1.5"
   }
 }

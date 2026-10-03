@@ -1404,3 +1404,30 @@ Next question:
   loader's four identity/error-path checks pass. Catalog wiring and registry
   publication remain outstanding before a real test can exercise this path.
 - [Pilot cache evidence](evidence/fixture-image-cache-pilot.json).
+
+- Approved registry writes were applied to the existing private 50-GiB registry,
+  retaining network restrictions and compute caps. Approved CAS expansion was
+  applied: 64-GiB PVC, 48-GiB configured cache, original 8-GiB files retained for
+  rollback. This adds 54 GiB billed persistent storage; capacity cannot shrink.
+- Downloaded and checksum-pinned all 64 ES versions used by the same 131 baseline
+  shards (308.072 seconds). Offline image builds plus publication completed all
+  64 targets successfully in 395.631 seconds driver time (394.363 seconds Bazel).
+  This is one-time preparation, outside the later test-only comparison.
+- A real archive smoke check starts ES 7.10.2, verifies a document write/read and
+  the GCS plugin after removing that fixture image locally. Registry cold-loader
+  checks exposed two unpublished-identity failures: one after a builder-input
+  change, another after cache eviction with the *same action key*. The strict
+  loader rejected both; neither was counted as successful validation.
+- Measured unique matrix inputs 19.783 GiB and image outputs 26.221 GiB. Nominal
+  48-GiB capacity is not sufficient evidence of retention: Buildbarn refreshes
+  old blocks and retains spare/new space. A second preparation/cache pass is
+  needed. No worker/node or volume caps were increased further.
+- Fixed the resulting ordering defect: catalogs now consume uncached publication
+  receipts, so image rebuilds publish their actual identity before test execution.
+  This is important because separate offline Docker rebuilds are not yet proven
+  byte-reproducible despite pinned inputs. Tests remain identity-checked.
+- The registry smoke now passes with publication ordered first: the expected
+  image is absent before pull, Elasticsearch 7.10.2 starts, the document round
+  trip passes, and repository-gcs is present. Base layers may remain warm; this
+  is not a claim of a fully empty Docker daemon. Record:
+  `matrix-reuse-1/.../es_7_10_registry_smoke/test.outputs/fixture-smoke.json`.

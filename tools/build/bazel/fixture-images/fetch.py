@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import subprocess
 import tarfile
+from chunks import materialize_parts
 
 ROOT = Path(__file__).resolve().parents[4]
 
@@ -37,6 +38,7 @@ def main():
     p.add_argument('--output', type=Path, default=ROOT/'build/fixture-image-inputs')
     p.add_argument('--lock', type=Path, default=Path(__file__).with_name('downloads.lock.json'))
     p.add_argument('--refresh-lock', action='store_true')
+    p.add_argument('--chunk-inputs', action='store_true', help='Retain only verified CAS-sized parts for large downloads')
     args = p.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     versions = json.loads((ROOT/'tests/fixtures/images/elasticsearch/versions.json').read_text())
@@ -63,6 +65,9 @@ def main():
             args.lock.write_text(json.dumps(lock, indent=2, sort_keys=True)+'\n')
         elif record != lock[minor]:
             raise ValueError('Fixture inputs differ from lock: ' + minor)
+        if args.chunk_inputs:
+            for role in ['distribution', 'plugin']:
+                materialize_parts(args.output, record[role], remove_original=True)
         print(minor, 'verified', flush=True)
 
 

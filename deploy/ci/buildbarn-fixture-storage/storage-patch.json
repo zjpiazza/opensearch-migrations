@@ -1,0 +1,1 @@
+{"spec":{"template":{"spec":{"volumes":[{"name":"configs","configMap":{"name":"buildbarn-fixture-storage"}}],"initContainers":[{"name":"volume-init","command":["sh","-c","mkdir -m 0700 -p /storage-cas/persistent_state_fixtures_v1 /storage-ac/persistent_state /storage-fsac/persistent_state"]}]}}}}
