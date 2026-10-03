@@ -212,3 +212,26 @@ reliability observation rather than a valid speedup ratio. Successful class
 comparisons range from 2.63x to 6.315x. [Whole-run coverage](evidence/sharded-standard-complete-summary.json)
 and [per-class measurements](evidence/sharded-standard-complete-comparison.json).
 The earlier partial observations remain above to preserve the experiment trail.
+
+
+## E-034 follow-up: shared queue and prepared images
+
+The next comparison retains the same 16 reviewed classes / 131 shards as the
+interrupted combined run. Both integration tiers now route to one uniform pool,
+so available workers can execute any of these long-test shards. The opt-in
+[worker overlay](../../deploy/ci/buildbarn-unified/README.md) has up to 40 slots
+on eight execution nodes, two-CPU runners, three-CPU/eight-GiB Docker limits,
+and private scratch volumes. This changes resource allocation and preparation
+as well as queueing; it is not a single-variable speedup experiment.
+
+Public image preparation verified 36 Linux/amd64 images in 335.488 seconds.
+The registry then switches to a read-only snapshot to avoid upstream tag
+revalidation during tests. This does not prebuild custom Elasticsearch images
+or pre-extract every public image into every worker. Both remain inside timed
+execution. The supervised launcher records resource utilization and preserves
+coverage evidence. [Preflight evidence](evidence/unified-preflight.json).
+
+No new complete-suite or combined long-test speedup is claimed until every
+selected original case passes, without missing/duplicate cases or cached test
+results. The earlier successful 12-class measurement remains the reference for
+those classes, with the usual hardware/preparation/concurrency caveats.

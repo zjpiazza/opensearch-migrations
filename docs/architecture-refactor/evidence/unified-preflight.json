@@ -284,5 +284,13 @@
     "Runtime is exported Gradle bytecode, not fresh compilation.",
     "Only selected long tests, not the whole suite.",
     "Queue, resources and image preparation change together; this is not a single-variable causal benchmark."
-  ]
+  ],
+  "snapshot_cold_pull": {
+    "worker": "worker-integration-65d85f47bb-5lhr7",
+    "image": "amazonlinux:2023",
+    "daemon_initially_empty": true,
+    "pull_succeeded": true,
+    "container_start_marker": "snapshot-container-started",
+    "manifest_list_digest": "sha256:5b29412077a463b4a3a8fbc99a8cdf4b929f38a3ecc8dac10328d8f36b0099b8"
+  }
 }

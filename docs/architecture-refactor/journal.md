@@ -1330,3 +1330,15 @@ Next question:
   tags resolve to the exact recorded amd64 manifests with registry upstream
   access disabled. This proves prepared tag availability, not complete image
   coverage of every future test. [Preflight evidence](evidence/unified-preflight.json).
+
+- A fresh worker with an empty Docker image list successfully pulled
+  `amazonlinux:2023` from snapshot mode and started its shell container. Registry
+  logs retain the matching manifest/blob requests. This validates a real cold
+  pull; the complete long-test run remains the coverage/performance gate.
+- Configuration and initial evidence pushed to `experimental` at `fa1888402`.
+
+- Started `long-unified-1` from source commit `fa1888402` with all 40 workers
+  ready, five on each of eight execution nodes. Bazel reports all 131 shards
+  admitted and 40 actions running. The tmux-owned driver is alive, and resource
+  sampling collected all nine nodes without errors. This is launch evidence,
+  not a completed benchmark. [Launch record](evidence/unified-launch.json).

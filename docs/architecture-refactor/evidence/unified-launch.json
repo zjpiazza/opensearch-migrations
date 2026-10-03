@@ -1,0 +1,14 @@
+{
+  "source_commit": "fa1888402",
+  "run": "long-unified-1",
+  "phase": "running",
+  "started_at_epoch": 1791046285.744556,
+  "target_count": 16,
+  "shard_count": 131,
+  "workers_ready_at_launch": 40,
+  "execution_nodes": 8,
+  "session": "long-unified-1",
+  "cache_policy": "test-result reuse disabled; build inputs and prepared images reusable",
+  "telemetry": "long-unified-1.resources.jsonl, kubelet summaries every 20 seconds",
+  "note": "Launch evidence only; no complete performance result yet."
+}
