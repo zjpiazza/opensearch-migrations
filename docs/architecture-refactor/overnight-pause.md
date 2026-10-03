@@ -1,5 +1,10 @@
 # Overnight pause — 2026-10-01 (America/Chicago)
 
+**Historical pause record.** On 2026-10-03 both actual node pools were verified
+empty; the final services-node drain completed normally. Testing was then
+explicitly resumed (journal E-034). The state below describes the overnight
+pause, not the current live cluster.
+
 The owner requested minimizing overnight costs and resuming in the morning.
 Both DigitalOcean node pools are set to zero with node autoscaling disabled.
 The bb-autoscaler CronJob is suspended. All six Buildbarn Deployments and both

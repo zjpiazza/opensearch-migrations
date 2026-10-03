@@ -9,8 +9,9 @@ if [ -n "$containers" ]; then
   docker rm --force --volumes $containers
 fi
 docker system prune --force
-# Preserve reusable tagged images until their layers exceed 20 GiB. Leave room
-# below the 40-GiB scratch-volume ceiling for pulls, builds, and a running test's data.
+# Default to 20 GiB on 40-GiB scratch volumes. Larger-volume experiments may
+# increase the threshold while reserving space for builds and running containers.
+cache_limit=${DOCKER_IMAGE_CACHE_MAX_BYTES:-21474836480}
 image_bytes=$(python3 - <<'PY'
 import json, urllib.request
 with urllib.request.urlopen('http://127.0.0.1:2375/system/df', timeout=120) as response:
@@ -20,6 +21,6 @@ print(size)
 PY
 )
 printf 'Retained Docker image bytes: %s\n' "$image_bytes"
-if [ "$image_bytes" -gt 21474836480 ]; then
+if [ "$image_bytes" -gt "$cache_limit" ]; then
   docker image prune --all --force
 fi

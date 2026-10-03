@@ -39,10 +39,12 @@ def main():
                '--profile=' + str(output / 'profile.json.gz'),
                '--symlink_prefix=' + str(output / 'bazel-'), *labels]
     (output / 'inventory.json').write_text(json.dumps(inventory, indent=2) + '\n')
+    (output / 'coverage-baseline.json').write_bytes(baseline.read_bytes())
     metadata = {
         'pool': args.pool, 'selected_targets': selected, 'command': command,
         'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'runtime_build_sha256': hashlib.sha256((runtime / 'BUILD.bazel').read_bytes()).hexdigest(),
+        'coverage_baseline_sha256': hashlib.sha256(baseline.read_bytes()).hexdigest(),
         'cache_policy': 'test-result reuse disabled; build results, input blobs and private Docker caches may be reused',
         'measurement_scope': 'execution of pre-exported Gradle bytecode, not compilation or source re-export',
     }

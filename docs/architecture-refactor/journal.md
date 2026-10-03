@@ -1244,3 +1244,89 @@ Next question:
   until their applicable lifecycle ends; the standalone VM is unchanged.
 - No automatic resume is scheduled. [Restore instructions](overnight-pause.md)
   and [verified shutdown state](evidence/overnight-pause.json).
+
+
+### E-034 — Resume with a shared integration queue
+
+- Date: 2026-10-03. Owner resumed optimization and emphasized CI simplicity and
+  reduced cognitive load as adoption criteria. Continue Bazel/Buildbarn; do not
+  introduce a parallel custom Gradle execution service for this experiment.
+- Before resuming, provider and Kubernetes both confirmed zero actual nodes.
+  The E-033 final services-node drain completed normally. Restored one services
+  node and one execution node initially; the execution pool retains bounds 1–8.
+- Added the opt-in `deploy/ci/buildbarn-unified` overlay. It uses one integration
+  platform with up to 40 identical slots, replacing the 32/8 queue split. Every
+  slot has a two-CPU runner, a three-CPU/eight-GiB Docker ceiling, and private
+  12/100-GiB scratch PVCs. CPU request is 2.55 and memory request 11.125 GiB.
+  Five slots request 55.625 GiB versus the node's measured 57.62 GiB allocatable;
+  actual system-pod reservations and placement still require validation.
+- Both previous integration tiers route to this platform. Confirmed that the
+  selected 16 classes / 131 shards and grouping exactly match the interrupted
+  E-032 run. No assertions or shard counts changed. Lightweight targets are not
+  selected; their workers and the former large deployment remain at zero.
+- Docker mirror configuration now persists in worker startup. The overlay keeps
+  tagged image layers up to 60 GiB on its 100-GiB volume. At 40 workers scratch
+  claims total 4,480 GiB, so storage cost must accompany throughput results.
+- Added a streaming image prewarmer that checks manifest/blob SHA-256 and size,
+  records resolved digests and preparation time, and fails on missing images.
+  It does not change test tags or share custom Elasticsearch builds. Inventory
+  is conservative: 36 public images from fixture versions and base-image inputs.
+- Added a tmux benchmark launcher with an owned, reconnecting frontend tunnel.
+  Local terminal disconnection no longer owns the driver's lifetime. Full run
+  reports also retain their original case baseline and its digest.
+- Kustomize rendering and server-side dry run passed; applied the overlay with
+  one worker and bb-autoscaler suspended. Restored cache startup is currently
+  failing; managed log/exec connectivity is also recovering after zero-node
+  shutdown. Diagnose before prewarming or starting the timed benchmark. No
+  new throughput claim yet. Live evidence is under
+  `build/full-suite-evidence/unified-preflight/`.
+
+- Recovery diagnosis: an unprivileged pod outside the Buildbarn network policies
+  could reach public HTTPS but timed out on both the private API endpoint and
+  Kubernetes service VIP; CoreDNS was unready. Registry termination logs showed
+  DNS connection refusal, not cache corruption. Managed connectivity recovered
+  normally around 16:39 UTC without modifying system pods or firewall rules.
+  The diagnostic pod was removed after saving its results.
+- Pilot validation: a real exported Solr metadata test passed on the unified
+  remote worker with fresh test execution (2.04 seconds execution, ~12.7 seconds
+  cold input fetch). Docker reports the persistent mirror. Parent cgroups show
+  `cpu.max=300000 100000`, `memory.max=8589934592`; the cleaner inherits its
+  60-GiB threshold and the 12/100-GiB scratch mounts are present.
+- Started public-image prewarming and the remote smoke test in independent
+  tmux sessions. Smoke completed successfully after the launch tool returned.
+  Prewarming is still active; this verifies launcher/tunnel lifetime in the
+  smoke path, not the complete long-run supervisor or preparation completion.
+- The image prewarmer's integrity check accepted valid manifest/blob bytes and
+  rejected a deliberately corrupted blob while retaining a failed report.
+
+- All five uniform workers became ready on one execution node, confirming the
+  initial packing estimate. Automatic approval review rejected expansion to
+  40 slots due to cloud cost/resource impact of privileged workers and larger
+  scratch PVCs. The scale-up did not execute; requested explicit approval.
+  Continue preparation with five workers; keep bb-autoscaler suspended.
+- Prepared a read-only image snapshot overlay for after prewarming. Distribution
+  normally revalidates tag pulls upstream, so blob caching alone does not remove
+  the rate-limit risk. Snapshot mode removes proxying and the registry's public
+  egress allow rule while preserving its data. Must validate cached tag manifests
+  and a cold Docker pull before relying on it; misses can still trigger Docker's
+  upstream fallback. See `deploy/ci/buildbarn-image-snapshot/README.md`.
+
+- Owner explicitly approved the 40-worker benchmark, up to eight execution nodes
+  and 4,480 GiB disposable scratch storage. Applied deployment replica count 40
+  after that reply. Node autoscaling supplies capacity within the existing cap;
+  verify all worker placements before the timed run.
+
+- Added 20-second node/pod CPU, memory and disk sampling to the durable launcher.
+  Uses existing kubelet summary endpoints because metrics.k8s.io is absent;
+  validated samples from both current nodes with no collection errors. Samples
+  support utilization estimates, not exact billing or whole-run CPU accounting.
+- Pending workers did not immediately trigger node scale-up (autoscaler status
+  remained NoActivity), so explicitly restored the approved execution pool count
+  to eight, retaining autoscaling bounds 1–8. Provisioning is excluded from test
+  timing. Do not claim automatic scale-up was validated by this manual step.
+
+- Public preparation completed: 36 images, 22,606,161,855 verified new bytes,
+  335.488 seconds. Switched to read-only snapshot mode, then verified all 36
+  tags resolve to the exact recorded amd64 manifests with registry upstream
+  access disabled. This proves prepared tag availability, not complete image
+  coverage of every future test. [Preflight evidence](evidence/unified-preflight.json).

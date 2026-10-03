@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-integration
+  namespace: migrations-buildbarn
+spec:
+  template:
+    spec:
+      containers:
+      - name: runner
+        env:
+        - name: DOCKER_IMAGE_CACHE_MAX_BYTES
+          value: '64424509440'
+        resources:
+          requests:
+            cpu: '2'
+          limits:
+            cpu: '2'
+      - name: docker
+        env:
+        - name: DOCKER_REGISTRY_MIRROR
+          value: http://buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000
+        resources:
+          requests:
+            memory: 8Gi
+          limits:
+            cpu: '3'
+            memory: 8Gi
+      volumes:
+      - name: docker
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 100Gi

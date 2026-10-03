@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: migrations-buildbarn
+resources:
+- ../buildbarn
+- ../buildbarn/image-cache
+configMapGenerator:
+- name: buildbarn-autoscaler-config
+  behavior: merge
+  files:
+  - autoscaler.jsonnet
+patches:
+- path: workers.yaml
+- target:
+    kind: CronJob
+    name: bb-autoscaler
+  patch: |-
+    - op: replace
+      path: /spec/suspend
+      value: true
+replicas:
+- name: worker-integration
+  count: 1
+- name: worker-integration-large
+  count: 0
+- name: worker-ubuntu22-04
+  count: 0

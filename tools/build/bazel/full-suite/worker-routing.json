@@ -36,6 +36,8 @@
   "notes": [
     "Lightweight tasks are explicitly reviewed; unknown tasks retain Docker-capable workers.",
     "Large E2E targets and known CPU-sensitive tests receive two-CPU runners.",
-    "Migration console npm checks use the larger tier initially; input upload failures still require separate diagnosis."
-  ]
+    "Migration console npm checks use the larger tier initially; input upload failures still require separate diagnosis.",
+    "E-034 routes both integration tiers to uniform workers; use deploy/ci/buildbarn-unified."
+  ],
+  "unified_integration": true
 }

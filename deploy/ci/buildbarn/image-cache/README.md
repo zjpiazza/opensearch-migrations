@@ -10,7 +10,9 @@ HTTPS requests. It contains public images and no upstream credentials.
 kubectl --context do-atl1-bazel apply -k deploy/ci/buildbarn/image-cache
 ```
 
-This creates the cache only. It does not reconfigure workers. The current pilot
+This standalone overlay creates the cache only. The
+[unified-worker experiment](../../buildbarn-unified/README.md) configures the
+mirror persistently on every worker. The earlier pilot below used live reload. The current pilot
 configured one idle standard worker through `/etc/docker/daemon.json`:
 
 ```json

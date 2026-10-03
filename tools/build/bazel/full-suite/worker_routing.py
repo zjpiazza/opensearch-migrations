@@ -7,7 +7,7 @@ POLICY = json.loads(Path(__file__).with_name('worker-routing.json').read_text())
 
 def properties(task, test_class=''):
     if task in POLICY['large_tasks'] or test_class in POLICY['large_classes']:
-        return {'workload': 'integration-large'}
+        return {'workload': POLICY['default'] if POLICY.get('unified_integration') else 'integration-large'}
     if task in POLICY['lightweight_tasks']:
         return {}
     return {'workload': POLICY['default']}

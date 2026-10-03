@@ -14,7 +14,12 @@ while read -r process_id; do
 done < "$base/cgroup.procs"
 printf '+cpu +memory +pids\n' > "$base/cgroup.subtree_control"
 mkdir -p "$base/children"
+set --
+if [ -n "${DOCKER_REGISTRY_MIRROR:-}" ]; then
+  set -- --registry-mirror="$DOCKER_REGISTRY_MIRROR" \
+    --insecure-registry="${DOCKER_REGISTRY_MIRROR#http://}"
+fi
 exec dockerd --host=tcp://127.0.0.1:2375 --host=unix:///var/run/docker.sock \
   --storage-driver=overlay2 --log-level=warn \
   --exec-opt=native.cgroupdriver=cgroupfs \
-  --cgroup-parent="$container_cgroup/children"
+  --cgroup-parent="$container_cgroup/children" "$@"

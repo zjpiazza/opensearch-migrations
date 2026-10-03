@@ -1,0 +1,288 @@
+{
+  "experiment": "E-034",
+  "worker_overlay": "deploy/ci/buildbarn-unified",
+  "snapshot_overlay": "deploy/ci/buildbarn-image-snapshot",
+  "routing": {
+    "targets": 16,
+    "shards": 131,
+    "same_targets_and_shards_as_previous": true,
+    "platform": "integration",
+    "build_sha256": "4e84a9454768d8d0e3f5ce03baafd9de70af165b62faac885d07a22848411785"
+  },
+  "pilot_smoke": {
+    "exit_code": 0,
+    "elapsed_seconds": 21.31933617591858
+  },
+  "prepared_images": [
+    {
+      "image": "testcontainers/ryuk:0.14.0",
+      "manifest": "sha256:f0456560ea5b4acdbed0da0efc33b5f9dd6bc1e59f2337106826dcb5b0b0e981",
+      "verified_new_bytes": 2403878,
+      "image_bytes": 2403878,
+      "seconds": 1.138
+    },
+    {
+      "image": "library/amazonlinux:2023",
+      "manifest": "sha256:2851878b108218cccbe7af6ab7dfb87a5883a725623384e19e6256f4072027a3",
+      "verified_new_bytes": 54630413,
+      "image_bytes": 54630413,
+      "seconds": 1.496
+    },
+    {
+      "image": "library/amazoncorretto:8-alpine",
+      "manifest": "sha256:f3c874e5393026b767315551f0954826ca93e49ee9c2568d29ec1da29674c7aa",
+      "verified_new_bytes": 104670170,
+      "image_bytes": 104670170,
+      "seconds": 2.292
+    },
+    {
+      "image": "library/amazoncorretto:11-al2023-headless",
+      "manifest": "sha256:f8ad6eb33bfcb00de1ec7440fbaab71b1547e4ccc48ff94cff875b50e691ea19",
+      "verified_new_bytes": 130696652,
+      "image_bytes": 130696652,
+      "seconds": 2.733
+    },
+    {
+      "image": "library/amazoncorretto:17-al2023-headless",
+      "manifest": "sha256:2ac8ed2ad5fb1adf0f297ab7cc4641fedac73b1a53d9b363210839428f3158c0",
+      "verified_new_bytes": 82469660,
+      "image_bytes": 137099487,
+      "seconds": 2.052
+    },
+    {
+      "image": "library/amazoncorretto:21-al2023-headless",
+      "manifest": "sha256:1903b6d9edf888dc9f6392037de05a7dadbd686d458d7b52badf090fb954a7af",
+      "verified_new_bytes": 89360303,
+      "image_bytes": 143990130,
+      "seconds": 2.178
+    },
+    {
+      "image": "opensearchproject/opensearch:1.0.1",
+      "manifest": "sha256:459ee281d4eb4f68b7ea35a26f2c80eeaea52bdc9a014c73f77a5f93d754697f",
+      "verified_new_bytes": 501423472,
+      "image_bytes": 501423472,
+      "seconds": 7.268
+    },
+    {
+      "image": "opensearchproject/opensearch:1.1.0",
+      "manifest": "sha256:dd1546306a6bcb4c8b8ea4d421de1e7d237ae28ba30adbd6333e210cca198eef",
+      "verified_new_bytes": 511059951,
+      "image_bytes": 511059951,
+      "seconds": 7.655
+    },
+    {
+      "image": "opensearchproject/opensearch:1.2.4",
+      "manifest": "sha256:5fbe36f36c1e6f2bed51c98b7767b1d45b6264f48b666c1cac1a372d4bab8f55",
+      "verified_new_bytes": 485606885,
+      "image_bytes": 485606885,
+      "seconds": 6.884
+    },
+    {
+      "image": "opensearchproject/opensearch:1.3.20",
+      "manifest": "sha256:7c544a7cb02753c5bb43138c7a499b0e597256c90d8a9dd390c976e58516c92e",
+      "verified_new_bytes": 513328680,
+      "image_bytes": 513328712,
+      "seconds": 8.068
+    },
+    {
+      "image": "opensearchproject/opensearch:2.0.1",
+      "manifest": "sha256:a0463734a3923708ee41e29b89fdb685776296e2af76fa717a367f9f9aba0a54",
+      "verified_new_bytes": 533304946,
+      "image_bytes": 533304978,
+      "seconds": 7.598
+    },
+    {
+      "image": "opensearchproject/opensearch:2.1.0",
+      "manifest": "sha256:bbef67ac2ba94131f225d8cef5ecb4ee525259c7a871cb15496a85b86a395607",
+      "verified_new_bytes": 520621571,
+      "image_bytes": 520621603,
+      "seconds": 7.406
+    },
+    {
+      "image": "opensearchproject/opensearch:2.2.1",
+      "manifest": "sha256:dda6c1e7bde3c6c8df938fc2320b12c59322eecfabd0efd145bdb5b3f8a2c3a3",
+      "verified_new_bytes": 522673591,
+      "image_bytes": 522673623,
+      "seconds": 7.751
+    },
+    {
+      "image": "opensearchproject/opensearch:2.3.0",
+      "manifest": "sha256:04005decef40bba41f8ca3ad5a0296ea85b2c9b0b43d8a05a3154f1e845e05db",
+      "verified_new_bytes": 461735490,
+      "image_bytes": 524062223,
+      "seconds": 6.543
+    },
+    {
+      "image": "opensearchproject/opensearch:2.4.1",
+      "manifest": "sha256:82e5fc2b201c0c6a6ef05d0d6276478bf9d8e7e83de8353484acdd8e04c67c1f",
+      "verified_new_bytes": 633850963,
+      "image_bytes": 633850995,
+      "seconds": 8.716
+    },
+    {
+      "image": "opensearchproject/opensearch:2.5.0",
+      "manifest": "sha256:b50f0ccdd2930c0ecdfda1204c1bb4c554cdb79f75f7c712448c121f7b040029",
+      "verified_new_bytes": 831717451,
+      "image_bytes": 831717483,
+      "seconds": 13.442
+    },
+    {
+      "image": "opensearchproject/opensearch:2.6.0",
+      "manifest": "sha256:e628ba709c7c397360c673332e5b6d61adfa203d107a929bd0512edb59c08fb2",
+      "verified_new_bytes": 817655438,
+      "image_bytes": 817655470,
+      "seconds": 12.13
+    },
+    {
+      "image": "opensearchproject/opensearch:2.7.0",
+      "manifest": "sha256:55f1f67e7d3645aa838b63a589bce5645154ba275814e52d4638d371ca0f8cb5",
+      "verified_new_bytes": 831140511,
+      "image_bytes": 831140543,
+      "seconds": 10.896
+    },
+    {
+      "image": "opensearchproject/opensearch:2.8.0",
+      "manifest": "sha256:2f4eea75be490a76c50dfce98d746d56b7b416fd4ab8684cdd39a0091bc5f6d2",
+      "verified_new_bytes": 817911565,
+      "image_bytes": 817911597,
+      "seconds": 10.528
+    },
+    {
+      "image": "opensearchproject/opensearch:2.9.0",
+      "manifest": "sha256:7490e4c148dceb1ffbfa71f65e2e30f7c16c0049464d5a804596a20cfee51f11",
+      "verified_new_bytes": 876363811,
+      "image_bytes": 876363843,
+      "seconds": 11.716
+    },
+    {
+      "image": "opensearchproject/opensearch:2.10.0",
+      "manifest": "sha256:25895dc7cd9aaf2eb2be134f01b5168162634b6112fd7f7beefe48758361cb5f",
+      "verified_new_bytes": 878093510,
+      "image_bytes": 878093542,
+      "seconds": 17.849
+    },
+    {
+      "image": "opensearchproject/opensearch:2.11.1",
+      "manifest": "sha256:512d52a7a21c990f7dc3c6e4264aa61cbae6ead7a167425438858d86628e70ac",
+      "verified_new_bytes": 883356731,
+      "image_bytes": 883356763,
+      "seconds": 11.59
+    },
+    {
+      "image": "opensearchproject/opensearch:2.12.0",
+      "manifest": "sha256:40a130ec32fa38613761ed3b84fd8d7051f267cda2ab12667b649f58f22e9218",
+      "verified_new_bytes": 923067817,
+      "image_bytes": 923067849,
+      "seconds": 13.45
+    },
+    {
+      "image": "opensearchproject/opensearch:2.13.0",
+      "manifest": "sha256:00f052502297cbc599af34b93605e1eb485438f0e9670dc8d82a4976da7d3feb",
+      "verified_new_bytes": 945674022,
+      "image_bytes": 945674054,
+      "seconds": 15.093
+    },
+    {
+      "image": "opensearchproject/opensearch:2.14.0",
+      "manifest": "sha256:c66e142a7753fff4a55009b88f013ce8649f8fe8b37d7d714d3c30b08846d419",
+      "verified_new_bytes": 948102279,
+      "image_bytes": 948102311,
+      "seconds": 11.809
+    },
+    {
+      "image": "opensearchproject/opensearch:2.15.0",
+      "manifest": "sha256:63c91c1ee930cab4968609c6e85a3a3bd24c2d2559ed6e0d8d4c9df0d5d63798",
+      "verified_new_bytes": 955132650,
+      "image_bytes": 955132682,
+      "seconds": 13.931
+    },
+    {
+      "image": "opensearchproject/opensearch:2.16.0",
+      "manifest": "sha256:1fdd578ef305565024cf7e18cb3a50c8fad4771fc0eb58d7be81b23e2cd1036b",
+      "verified_new_bytes": 964400927,
+      "image_bytes": 964400959,
+      "seconds": 14.308
+    },
+    {
+      "image": "opensearchproject/opensearch:2.17.1",
+      "manifest": "sha256:ab6db8c14062060cda5f0428364e76ffe2a6f03ad265589b70182c0cecb7f9d7",
+      "verified_new_bytes": 968844178,
+      "image_bytes": 968844210,
+      "seconds": 12.342
+    },
+    {
+      "image": "opensearchproject/opensearch:2.18.0",
+      "manifest": "sha256:0246c8b2d4b494dc7c4776dff472ba765be63a71bd9d8d878ac9c40f573379bb",
+      "verified_new_bytes": 980734261,
+      "image_bytes": 980734293,
+      "seconds": 14.098
+    },
+    {
+      "image": "opensearchproject/opensearch:2.19.4",
+      "manifest": "sha256:16effbdfb018599a0f5cf5102e15b7ecce1aacbc9959a2203ff4769ff23d375f",
+      "verified_new_bytes": 1041353405,
+      "image_bytes": 1041353437,
+      "seconds": 14.477
+    },
+    {
+      "image": "opensearchproject/opensearch:3.5.0",
+      "manifest": "sha256:40dca91def913fb34a642bbe263a43082ba1c439d2d5173da96ee1851999a596",
+      "verified_new_bytes": 1187246460,
+      "image_bytes": 1187246492,
+      "seconds": 14.661
+    },
+    {
+      "image": "opensearchproject/opensearch:3.7.0",
+      "manifest": "sha256:541d24318eee81caf909656c7e2dc34866e4d25587e9ad5388684c4977778904",
+      "verified_new_bytes": 1131237226,
+      "image_bytes": 1131237258,
+      "seconds": 13.875
+    },
+    {
+      "image": "library/solr:6.6.0",
+      "manifest": "sha256:fc51395697686e20ef49d35ab9a86fa0c16989d52963b306bda89ce70a418349",
+      "verified_new_bytes": 374989427,
+      "image_bytes": 374989427,
+      "seconds": 9.261
+    },
+    {
+      "image": "library/solr:7.7.3",
+      "manifest": "sha256:a9a98b61670befe2c5887a658c2b38f4e3ae99946a98bf051f9a464f3303bffd",
+      "verified_new_bytes": 298816557,
+      "image_bytes": 298816557,
+      "seconds": 6.357
+    },
+    {
+      "image": "library/solr:8.11.4",
+      "manifest": "sha256:1e099d939e59f82ac5e820b5ea64d2d5ae5790d68a84424a52f8fc1573388c1b",
+      "verified_new_bytes": 321788173,
+      "image_bytes": 321788173,
+      "seconds": 6.276
+    },
+    {
+      "image": "library/solr:9.8.1",
+      "manifest": "sha256:5a617c20a205e68e3d5ba96d1738fd3e749166c451b7d75a738df77e58cab640",
+      "verified_new_bytes": 480698831,
+      "image_bytes": 480698863,
+      "seconds": 7.613
+    }
+  ],
+  "preparation_seconds": 335.488,
+  "verified_new_bytes": 22606161855,
+  "snapshot_tag_checks": 36,
+  "status": "preparation complete; fleet provisioning; benchmark not yet started",
+  "limits": {
+    "runner_cpu": 2,
+    "docker_cpu": 3,
+    "docker_memory_gib": 8,
+    "worker_count": 40,
+    "node_maximum": 8,
+    "scratch_gib_per_worker": 112
+  },
+  "caveats": [
+    "Image preparation excludes custom Elasticsearch builds.",
+    "Runtime is exported Gradle bytecode, not fresh compilation.",
+    "Only selected long tests, not the whole suite.",
+    "Queue, resources and image preparation change together; this is not a single-variable causal benchmark."
+  ]
+}

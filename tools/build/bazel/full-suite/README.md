@@ -307,3 +307,40 @@ finish. This prepared trial changes NoStoredSourceMigrationTest from eight to 24
 shards, retaining all other configured classes. The current default stays at
 eight. Reapply the default policy to restore the initial counts. Do not change
 shard counts and worker CPU quotas in the same comparison.
+
+
+### Durable long-test launch (E-034)
+
+Use the shared integration overlay described in
+[`deploy/ci/buildbarn-unified`](../../../../deploy/ci/buildbarn-unified/README.md).
+The launcher owns port 8980; stop any manually owned frontend tunnel first.
+
+```bash
+python3 tools/build/bazel/full-suite/session.py long-unified-1 -- \
+  --pool all --output build/full-suite-evidence/long-unified-1 \
+  --baseline /path/to/coverage-baseline.json --instance migrations-mixed-workers-1
+python3 tools/build/bazel/full-suite/tui.py --run build/full-suite-evidence/long-unified-1
+```
+
+The tmux session runs independently of the invoking terminal, reconnects its
+frontend port-forward, and exits after benchmark validation. Supervisor and
+connection logs are saved beside the run directory (`.session.log` and
+`.tunnel.log`); sampled node/pod CPU, memory and disk usage is retained in
+`.resources.jsonl` every 20 seconds using kubelet summaries; test logs and coverage remain inside it. A terminal close does
+not cancel testing. This is process durability, not checkpoint/restart: host
+shutdown or killing tmux can still interrupt the client. Do not launch a second
+run just because observation times out; inspect the session and status first.
+
+Public image preparation uses an independent authenticated port-forward to
+`service/buildbarn-image-cache` on `15000:5000`, then:
+
+```bash
+python3 tools/build/bazel/full-suite/prewarm-images.py \
+  --inventory deploy/ci/buildbarn-unified/images.json \
+  --output build/full-suite-evidence/unified-preflight/image-prewarm.json
+```
+
+This checks Linux/amd64 manifests and every blob by SHA-256 and size. Preserve
+failed reports and choose a new output path for retries. It warms the shared
+registry, not every private Docker daemon, and excludes custom image builds.
+Record this preparation time separately from the forced-execution benchmark.
