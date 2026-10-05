@@ -180,6 +180,8 @@ def run_local_kind(r):
             pipenv install --deploy
             mkdir -p ./reports
             kubectl config unset current-context || true
+            export PYTHONPATH="$PWD/testAutomation${PYTHONPATH:+:$PYTHONPATH}"
+            unset PYTHONSAFEPATH
             pipenv run app \
               --source-version {source_arg} \
               --target-version={target} \
@@ -196,6 +198,8 @@ def run_local_kind(r):
             cd tests/automation
             pipenv install --deploy
             kubectl config unset current-context || true
+            export PYTHONPATH="$PWD/testAutomation${PYTHONPATH:+:$PYTHONPATH}"
+            unset PYTHONSAFEPATH
             if kubectl config get-contexts -o name | grep -qx kind-ma; then
               pipenv run app --delete-only --kube-context=kind-ma
             fi
@@ -219,7 +223,7 @@ def run_docker_compose(r):
             set -euo pipefail
             ./deploy/distributions/aws-cdk/opensearch-service-migration/buildDockerImages.sh
         ''')
-        r.shell("docker-compose-up", "./gradlew -p TrafficCapture dockerSolution:composeUp -x test -x spotlessCheck --info --stacktrace && docker ps")
+        r.shell("docker-compose-up", "./gradlew :TrafficCapture:dockerSolution:composeUp -x test -x spotlessCheck --info --stacktrace && docker ps")
         r.shell("docker-compose-e2e", "docker exec $(docker ps --filter 'name=migration-console' -q) pipenv run pytest /root/lib/integ_test/integ_test/replayer_tests.py --unique_id='testindex' -s")
     finally:
         r.shell("docker-compose-logs-and-down", r'''
@@ -229,7 +233,7 @@ def run_docker_compose(r):
               container_name=$(docker inspect --format '{{.Name}}' "$container" | sed 's#^/##')
               docker logs "$container" > "logs/docker/${container_name}_logs.txt" 2>&1 || true
             done
-            ./gradlew -p TrafficCapture dockerSolution:composeDown -x test -x spotlessCheck || true
+            ./gradlew :TrafficCapture:dockerSolution:composeDown -x test -x spotlessCheck || true
         ''', check=False)
 
 
