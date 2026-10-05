@@ -1,0 +1,56 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools/build/bazel:java_tests.bzl", "junit_tests")
+
+package(default_visibility = ["//visibility:public"])
+
+LIB_DEPS = [
+    "@maven//:com_google_protobuf_protobuf_java",
+    "@maven//:org_slf4j_slf4j_api",
+    "@maven//:com_fasterxml_jackson_core_jackson_databind",
+    "@maven//:com_fasterxml_jackson_core_jackson_core",
+    "@maven//:org_jcommander_jcommander",
+    "@maven//:io_opentelemetry_opentelemetry_api",
+    "@maven//:io_opentelemetry_opentelemetry_context",
+    "@maven//:io_opentelemetry_opentelemetry_sdk",
+    "@maven//:io_opentelemetry_opentelemetry_sdk_common",
+    "@maven//:io_opentelemetry_opentelemetry_sdk_trace",
+    "@maven//:io_opentelemetry_opentelemetry_sdk_metrics",
+    "@maven//:io_opentelemetry_opentelemetry_exporter_otlp",
+    "@maven//:io_opentelemetry_semconv_opentelemetry_semconv",
+    "@maven//:org_projectlombok_lombok",
+]
+
+java_library(
+    name = "lib",
+    srcs = glob(["src/main/java/**/*.java"]),
+    resources = glob(["src/main/resources/**"], allow_empty = True),
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = LIB_DEPS,
+)
+
+java_library(
+    name = "test_fixtures",
+    testonly = True,
+    srcs = glob(["src/testFixtures/java/**/*.java"]),
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = LIB_DEPS + [":lib", "@maven//:io_opentelemetry_opentelemetry_sdk_testing"],
+)
+
+junit_tests(
+    classes = [
+        "org.opensearch.migrations.PruferTreeGeneratorTest",
+        "org.opensearch.migrations.jcommander.EnvVarParameterPullerTest",
+        "org.opensearch.migrations.jcommander.JsonCommandLineParserConvertersTest",
+        "org.opensearch.migrations.jcommander.JsonCommandLineParserTest",
+        "org.opensearch.migrations.tracing.CommonScopedMetricInstrumentsTest",
+        "org.opensearch.migrations.tracing.IInstrumentationAttributesTest",
+        "org.opensearch.migrations.tracing.RootOtelContextTest",
+        "org.opensearch.migrations.tracing.ScopedInstrumentationExceptionSignalingTest",
+        "org.opensearch.migrations.utils.ArgLogUtilsTest",
+        "org.opensearch.migrations.utils.OnlineRadixSorterTest",
+        "org.opensearch.migrations.utils.TextTrackedFutureTest",
+        "org.opensearch.migrations.utils.TrackedFutureTest",
+        "org.opensearch.migrations.utils.URIHelperTest",
+    ],
+    deps = LIB_DEPS + [":lib", ":test_fixtures", "@maven//:io_opentelemetry_opentelemetry_sdk_testing"],
+)

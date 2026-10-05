@@ -1,0 +1,105 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_test", "java_binary")
+
+# Production sources needed by the HTTP sink contract experiment.
+# Gradle remains the build for the complete module.
+java_library(
+    name = "http_contract",
+    srcs = [
+        "src/main/java/org/opensearch/migrations/bulkload/common/DocumentExceptionAllowlist.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/InvalidResponse.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/OpenSearchClient.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/OpenSearchClientFactory.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/ServerlessCollectionType.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/BulkNdjson.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/BulkOperationConverter.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/BulkOperationSpec.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/DeleteOp.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/IndexOp.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/enums/IndexOpType.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/enums/OperationType.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/enums/SchemaVersion.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/enums/VersionType.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/metadata/BaseMetadata.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/metadata/VersionControlMetadata.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/metadata/WriteMetadata.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/operations/BaseOperationMeta.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/operations/DeleteOperationMeta.java",
+        "src/main/java/org/opensearch/migrations/bulkload/common/bulk/operations/IndexOperationMeta.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/OpenSearchDocumentSink.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/OpenSearchIndexCreator.java",
+        "src/main/java/org/opensearch/migrations/bulkload/pipeline/adapter/OpenSearchMetadataSink.java",
+        "src/main/java/org/opensearch/migrations/bulkload/version_es_5_6/OpenSearchClient_ES_5_6.java",
+        "src/main/java/org/opensearch/migrations/bulkload/version_es_6_8/OpenSearchClient_ES_6_8.java",
+        "src/main/java/org/opensearch/migrations/bulkload/version_os_2_11/OpenSearchClient_OS_2_11.java",
+        "src/main/java/org/opensearch/migrations/parsing/BulkResponseParser.java",
+        "src/main/java/org/opensearch/migrations/parsing/ObjectNodeUtils.java",
+        "src/main/java/org/opensearch/migrations/reindexer/FailedRequestsLogger.java",
+        "src/main/java/org/opensearch/migrations/reindexer/faileddocumentstream/FailedDocumentStreamRecord.java",
+        "src/main/java/org/opensearch/migrations/reindexer/faileddocumentstream/FailedDocumentStreamSink.java",
+        "src/main/java/org/opensearch/migrations/reindexer/faileddocumentstream/FailureClass.java",
+    ],
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = [
+        "//libs/runtime:lib",
+        "//libs/transforms:lib",
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
+        "@maven//:com_fasterxml_jackson_core_jackson_annotations",
+        "@maven//:org_projectlombok_lombok",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:io_projectreactor_reactor_core",
+        "@maven//:io_opentelemetry_opentelemetry_api",
+        "@maven//:io_opentelemetry_opentelemetry_context",
+        "//libs/migration-model:http_contract",
+        "//libs/migration-pipeline:http_contract",
+        "//libs/search-client:http_contract",
+        "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name = "wiremock_test_classes",
+    testonly = True,
+    srcs = ["src/wiremock/java/org/opensearch/migrations/bulkload/wiremock/SinkWireMockTest.java"],
+    resources = glob(["src/wiremock/resources/wiremock/sink/*.json"]),
+    resource_strip_prefix = "libs/migration-engine/src/wiremock/resources",
+    deps = [
+        ":http_contract",
+        "//libs/search-client:http_contract",
+        "//libs/migration-pipeline:http_contract",
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
+        "@maven//:io_projectreactor_reactor_core",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_wiremock_wiremock_standalone",
+    ],
+)
+
+java_test(
+    name = "sink_wiremock_test",
+    main_class = "org.junit.platform.console.ConsoleLauncher",
+    use_testrunner = False,
+    runtime_deps = [
+        ":wiremock_test_classes",
+        "@maven//:org_junit_platform_junit_platform_console",
+        "@maven//:org_junit_jupiter_junit_jupiter_engine",
+        "@maven//:org_apache_logging_log4j_log4j_slf4j2_impl",
+    ],
+    args = ["execute", "--select-class=org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest", "--fail-if-no-tests", "--disable-banner", "--details=summary"],
+    jvm_flags = ["-ea", "-Xmx512m", "-Dio.netty.eventLoopThreads=2", "-Dreactor.netty.ioWorkerCount=2"],
+    tags = ["block-network"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)
+
+# Recording is an explicit manual action, never a mode of the cacheable test.
+java_binary(
+    name = "record_sink_http",
+    testonly = True,
+    main_class = "org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest",
+    runtime_deps = [":wiremock_test_classes", "@maven//:org_apache_logging_log4j_log4j_slf4j2_impl"],
+    jvm_flags = ["-ea", "-Xmx512m", "-Dreactor.netty.ioWorkerCount=2"],
+    tags = ["manual"],
+)

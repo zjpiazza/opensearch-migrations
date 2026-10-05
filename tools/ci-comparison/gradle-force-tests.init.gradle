@@ -1,0 +1,8 @@
+// CI comparison helper: force Test tasks to execute while allowing non-test
+// dependency resolution and compilation caches to behave normally.
+allprojects {
+    tasks.withType(Test).configureEach {
+        outputs.upToDateWhen { false }
+        outputs.doNotCacheIf("CI comparison requested forced test execution") { true }
+    }
+}

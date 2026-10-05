@@ -1,0 +1,8 @@
+load("@rules_python//python:defs.bzl", "py_library")
+
+py_library(
+    name = "approval_contract",
+    srcs = ["integ_test/approval_contract.py"],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+)

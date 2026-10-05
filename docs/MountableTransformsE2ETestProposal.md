@@ -14,7 +14,7 @@ The same test should be runnable locally against kind with minimal argument chan
 
 ## What The Current E2E Flow Looks Like
 
-The outer runner is `libraries/testAutomation/testAutomation/test_runner.py`. Jenkins and local runs invoke it from `libraries/testAutomation` with `pipenv run app ...`.
+The outer runner is `tests/automation/testAutomation/test_runner.py`. Jenkins and local runs invoke it from `tests/automation` with `pipenv run app ...`.
 
 That runner installs or reuses the MA deployment, waits for the `migration-console` pod, then execs pytest inside that pod:
 
@@ -22,7 +22,7 @@ That runner installs or reuses the MA deployment, waits for the `migration-conso
 pipenv run pytest /root/lib/integ_test/integ_test/ma_workflow_test.py ...
 ```
 
-The test cases live under `migrationConsole/lib/integ_test/integ_test/test_cases`. `MATestBase.prepare_workflow_snapshot_and_migration_config()` builds the per-snapshot metadata/backfill config, and `prepare_workflow_parameters()` passes it to the Argo workflow.
+The test cases live under `apps/console/lib/integ_test/integ_test/test_cases`. `MATestBase.prepare_workflow_snapshot_and_migration_config()` builds the per-snapshot metadata/backfill config, and `prepare_workflow_parameters()` passes it to the Argo workflow.
 
 For EKS CDC tests, Jenkins uses the imported-cluster path:
 
@@ -92,8 +92,8 @@ stage('Build Transform Test Images') {
         timeout(time: 15, unit: 'MINUTES') {
             script {
                 withMigrationsTestAccount(region: params.REGION, duration: 1200) { accountId ->
-                    def basicDir = 'migrationConsole/lib/integ_test/integ_test/transform_assets/mountable/basic'
-                    def sequenceDir = 'migrationConsole/lib/integ_test/integ_test/transform_assets/mountable/sequence'
+                    def basicDir = 'apps/console/lib/integ_test/integ_test/transform_assets/mountable/basic'
+                    def sequenceDir = 'apps/console/lib/integ_test/integ_test/transform_assets/mountable/sequence'
 
                     def hashFor = { path ->
                         sh(
@@ -112,7 +112,7 @@ stage('Build Transform Test Images') {
                     def buildTransformImage = { path, name ->
                         def tag = "mountable_transforms_${name}_${hashFor(path)}"
                         def output = sh(
-                            script: "deployment/k8s/package-transforms.sh '${path}' '${env.registryEndpoint}' '${tag}'",
+                            script: "deploy/kubernetes/package-transforms.sh '${path}' '${env.registryEndpoint}' '${tag}'",
                             returnStdout: true
                         )
                         def matcher = output =~ /${java.util.regex.Pattern.quote(env.registryEndpoint)}@sha256:[a-f0-9]{64}/
@@ -155,13 +155,13 @@ The digest-pinned ref passed to the test is the source of truth. With `package-t
 Create two JavaScript-only fixture image directories in the repo, for example:
 
 ```text
-migrationConsole/lib/integ_test/integ_test/transform_assets/mountable/basic/
+apps/console/lib/integ_test/integ_test/transform_assets/mountable/basic/
   metadata.js
   document.js
   request.js
   tuple.js
 
-migrationConsole/lib/integ_test/integ_test/transform_assets/mountable/sequence/
+apps/console/lib/integ_test/integ_test/transform_assets/mountable/sequence/
   metadata.js
   document-1.js
   document-2.js
@@ -298,8 +298,8 @@ MIGRATION_CONFIG=$(jq -n \
 
 Apply that to:
 
-- `migrationConsole/lib/integ_test/testWorkflows/fullMigrationImportedClusters.yaml`
-- `migrationConsole/lib/integ_test/testWorkflows/fullMigrationWithClusters.yaml`
+- `apps/console/lib/integ_test/testWorkflows/fullMigrationImportedClusters.yaml`
+- `apps/console/lib/integ_test/testWorkflows/fullMigrationWithClusters.yaml`
 
 For `cdcFullE2eImportedClusters.yaml`, pass the parameter through to `full-migration-imported-clusters.generate-migration-configs`, and include the replayer transform config in the `add-traffic-config` jq overlay for this test. A clean implementation is to pass a `replayer-config-overrides` JSON parameter defaulting to `{}` and merge it into `replayerConfig`.
 
@@ -346,5 +346,5 @@ The local run should use the same imported-cluster route as EKS for minimal chan
 ## Decisions
 
 - Include this test in the default CDC EKS run.
-- Require Docker on the Jenkins agent and use `deployment/k8s/package-transforms.sh`; no crane fallback.
+- Require Docker on the Jenkins agent and use `deploy/kubernetes/package-transforms.sh`; no crane fallback.
 - Do not add a separate cheaper metadata/backfill-only transform test. The CDC E2E test is the canonical coverage for this interface.

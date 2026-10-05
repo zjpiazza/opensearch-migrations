@@ -1,0 +1,83 @@
+{
+  "observed_at": "2026-10-02T00:45:46.477082+00:00",
+  "cpu_cores": 44.416596324705885,
+  "nominal_cores": 112,
+  "cpu_percent": 39.657675289915964,
+  "working_set_gib": 75.22078704833984,
+  "allocatable_memory_gib": 403.3551216125488,
+  "node_samples": [
+    {
+      "node": "bazel-execution-3xkl3w",
+      "sample_seconds": 50.0,
+      "cpu_cores": 8.67079692,
+      "working_set_gib": 18.754295349121094,
+      "memory_usage_gib": 40.288883209228516,
+      "allocatable_memory_gib": 57.62215805053711
+    },
+    {
+      "node": "bazel-execution-3xktu3",
+      "sample_seconds": 50.0,
+      "cpu_cores": 7.46615036,
+      "working_set_gib": 6.558464050292969,
+      "memory_usage_gib": 30.533077239990234,
+      "allocatable_memory_gib": 57.62215805053711
+    },
+    {
+      "node": "bazel-execution-3xktu8",
+      "sample_seconds": 50.0,
+      "cpu_cores": 7.90454888,
+      "working_set_gib": 10.951148986816406,
+      "memory_usage_gib": 38.439109802246094,
+      "allocatable_memory_gib": 57.62215805053711
+    },
+    {
+      "node": "bazel-execution-3xktuu",
+      "sample_seconds": 51.0,
+      "cpu_cores": 6.637672450980393,
+      "working_set_gib": 13.83260726928711,
+      "memory_usage_gib": 37.38911819458008,
+      "allocatable_memory_gib": 57.62216567993164
+    },
+    {
+      "node": "bazel-execution-3xktv8",
+      "sample_seconds": 50.0,
+      "cpu_cores": 2.96354372,
+      "working_set_gib": 5.490543365478516,
+      "memory_usage_gib": 20.607093811035156,
+      "allocatable_memory_gib": 57.622161865234375
+    },
+    {
+      "node": "bazel-execution-3xktvc",
+      "sample_seconds": 51.0,
+      "cpu_cores": 6.23684231372549,
+      "working_set_gib": 11.498455047607422,
+      "memory_usage_gib": 35.32707977294922,
+      "allocatable_memory_gib": 57.62215805053711
+    },
+    {
+      "node": "bazel-execution-3xktvu",
+      "sample_seconds": 50.0,
+      "cpu_cores": 4.53704168,
+      "working_set_gib": 8.135272979736328,
+      "memory_usage_gib": 24.278961181640625,
+      "allocatable_memory_gib": 57.622161865234375
+    }
+  ],
+  "counts": {
+    "PASSED": 354,
+    "RUNNING": 36,
+    "PENDING": 49
+  },
+  "cache_hits": 0,
+  "ready_workers": 44,
+  "total_workers": 52,
+  "finished": false,
+  "worker_memory_reserved_gib": 377.5,
+  "unscheduled_worker_count": 8,
+  "limitations": [
+    "50\u201351 second CPU sample during one phase of the uncached suite, not a whole-run average.",
+    "Memory working set is distinct from total usage including reclaimable page cache, and is not a per-test peak.",
+    "Reservations contain Buildbarn worker pods only; system pods also reserve resources.",
+    "No hardware microbenchmark or resource configuration change performed."
+  ]
+}

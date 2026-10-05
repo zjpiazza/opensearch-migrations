@@ -20,6 +20,13 @@ concurrency:
   cancel-in-progress: ${{ !(github.event_name == 'push' && github.repository == 'opensearch-project/opensearch-migrations' && github.ref == 'refs/heads/main') }}
 
 jobs:
+  repository-layout:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Validate source locations and build mappings
+        run: python3 tools/dev/check-repository-layout.py
+
   gradle-extended-check:
     runs-on: ubuntu-22.04
     strategy:
@@ -69,12 +76,12 @@ jobs:
       fail-fast: false
       matrix:
         py-project:
-          - migrationConsole/lib/console_link
-          - migrationConsole/cluster_tools
-          - solrMigrationDevSandbox
-          - libraries/testAutomation
+          - apps/console/lib/console_link
+          - apps/console/cluster_tools
+          - examples/solr
+          - tests/automation
     env:
-      WORKING_DIR: ${{ startsWith(matrix.py-project, 'migrationConsole/') && format('./{0}', matrix.py-project) || startsWith(matrix.py-project, 'libraries/') && format('./{0}', matrix.py-project) || matrix.py-project == 'solrMigrationDevSandbox' && format('./{0}', matrix.py-project) || format('./TrafficCapture/dockerSolution/src/main/docker/{0}', matrix.py-project) }}
+      WORKING_DIR: ${{ format('./{0}', matrix.py-project) }}
       WORKFLOW_TEST_KUBE_CONTEXT: kind-console-link-test
       # The secrets context is unavailable in a step `if`, so gate on this instead.
       HAS_CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN != '' }}
@@ -87,21 +94,21 @@ jobs:
 
       # Set up Kind cluster for workflow integration tests (only for console_link project)
       - name: Set up Kind cluster
-        if: matrix.py-project == 'migrationConsole/lib/console_link'
+        if: matrix.py-project == 'apps/console/lib/console_link'
         uses: helm/kind-action@06c1ae10762d3b9c1644e7fe69596ae519e015a2 # v1.15.0
         with:
           cluster_name: console-link-test
 
       # Verify Kind cluster is ready (only for console_link project)
       - name: Verify Kind cluster
-        if: matrix.py-project == 'migrationConsole/lib/console_link'
+        if: matrix.py-project == 'apps/console/lib/console_link'
         run: |
           kubectl cluster-info
           kubectl get nodes
           kubectl get namespaces
 
       - name: Install workflow test cluster dependencies
-        if: matrix.py-project == 'migrationConsole/lib/console_link'
+        if: matrix.py-project == 'apps/console/lib/console_link'
         run: ./scripts/setupWorkflowTestCluster.sh
 
       - name: Install dependencies (Pipfile)
@@ -139,7 +146,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Test Jenkins kind setup scripts
-        run: ./jenkins/tests/configureKindClusterTest.sh
+        run: ./tools/ci/jenkins/tests/configureKindClusterTest.sh
 
   gradle-repository-tests:
     runs-on: ubuntu-22.04
@@ -287,10 +294,10 @@ jobs:
       fail-fast: false
       matrix:
         npm-project:
-          - ./deployment/cdk/opensearch-service-migration
-          - ./deployment/migration-assistant-solution
-          - ./TrafficCapture/SolrTransformations/transforms
-          - ./orchestrationSpecs
+          - ./deploy/distributions/aws-cdk/opensearch-service-migration
+          - ./deploy/distributions/aws-solution
+          - ./libs/traffic/SolrTransformations/transforms
+          - ./apps/orchestration
     env:
       # The secrets context is unavailable in a step `if`, so gate on this instead.
       HAS_CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN != '' }}
@@ -305,7 +312,7 @@ jobs:
       - name: Run CDK Jest Tests (using mocked images)
         run: npm run test
       - name: Run orchestration CRD integration tests
-        if: matrix.npm-project == './orchestrationSpecs'
+        if: matrix.npm-project == './apps/orchestration'
         run: npm run test:integ:crds
       - name: Upload coverage to Codecov
         if: always() && env.HAS_CODECOV_TOKEN == 'true'
@@ -328,14 +335,14 @@ jobs:
           version: v0.31.0
           cluster_name: mountable-transforms
           node_image: kindest/node:v1.35.1
-          config: deployment/k8s/tests/kindImageVolumeConfig.yaml
+          config: deploy/kubernetes/tests/kindImageVolumeConfig.yaml
           wait: 120s
       - name: Run mountable transforms image volume smoke test
         env:
           KIND_CLUSTER_NAME: mountable-transforms
           KUBE_CONTEXT: kind-mountable-transforms
           KIND_REGISTRY_PORT: "5002"
-        run: deployment/k8s/tests/mountableTransformsImageVolumeTest.sh
+        run: deploy/kubernetes/tests/mountableTransformsImageVolumeTest.sh
 
   link-checker:
     runs-on: ubuntu-24.04
@@ -354,7 +361,7 @@ jobs:
             --exclude "https://localhost*"
             --exclude "http://capture-proxy*"
             --exclude "https://capture-proxy*"
-            --exclude-path "orchestrationSpecs/packages/argo-workflow-builders/tests/integ/artifacts"
+            --exclude-path "apps/orchestration/packages/argo-workflow-builders/tests/integ/artifacts"
             --exclude "file://.*artifacts/parity-catalog.md"
           fail: true
         env:
@@ -369,7 +376,7 @@ jobs:
           terraform_wrapper: false
       - name: terraform test (GCP module)
         # Plan-time tests only; no cloud credentials required.
-        working-directory: deployment/terraform/gcp
+        working-directory: deploy/terraform/gcp
         run: |
           terraform init -backend=false
           terraform test
@@ -383,7 +390,7 @@ jobs:
           terraform_wrapper: false
       - name: terraform test (AWS module)
         # Plan-time tests only; no cloud credentials required.
-        working-directory: deployment/terraform/aws
+        working-directory: deploy/terraform/aws
         run: |
           terraform init -backend=false
           terraform test

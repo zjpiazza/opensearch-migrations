@@ -1,0 +1,22 @@
+{
+  "shards": 30,
+  "baseline_unique_test_rows": 4799,
+  "baseline_unique_successful_test_rows": 4794,
+  "baseline_reported_executions": {
+    "skipped": 138856,
+    "success": 5055
+  },
+  "baseline_successful_class_task_pairs": 433,
+  "exported_class_task_pairs": 433,
+  "exported_npm_checks": [
+    ":TrafficCapture:SolrTransformations:testTransforms",
+    ":migrationConsole:testConfigProcessor",
+    ":migrationConsole:testWorkflowTemplates",
+    ":migrationConsole:typeCheckConfigProcessor",
+    ":migrationConsole:typeCheckWorkflowTemplates",
+    ":transformation:standardJavascriptTransforms:test"
+  ],
+  "missing_successful_class_task_pairs": [],
+  "additional_class_task_pairs": [],
+  "limitation": "Discovery class/task coverage only. Successful execution and parameterized case equivalence require runtime reports."
+}

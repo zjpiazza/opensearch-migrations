@@ -1,4 +1,5 @@
 .coverage
+/bazel-*
 coverage.xml
 .idea
 .kiro
@@ -20,13 +21,13 @@ test_report.json
 jenkinsdocker/**/nextBuildNumber
 **/bin/
 # The migration-assistant CLI ships a source-checkout entry wrapper at
-# deployment/k8s/aws/cli/bin/migration-assistant. It is SOURCE (not a build
+# apps/cli/bin/migration-assistant. It is SOURCE (not a build
 # artifact) and every caller — Jenkins, install.sh, awsRunEksValidation.sh —
 # invokes that exact path, so it must stay tracked despite the **/bin/ rule.
-!deployment/k8s/aws/cli/bin/
-!deployment/k8s/aws/cli/bin/migration-assistant
+!apps/cli/bin/
+!apps/cli/bin/migration-assistant
 # Rust build output for the CLI crate.
-deployment/k8s/aws/cli/target/
+apps/cli/target/
 # Per-project runtime state the CLI writes at $PWD/migration-assistant-workspace
 # (see cli/src/core/config.rs). Never a build/PR artifact.
 migration-assistant-workspace/
@@ -34,40 +35,41 @@ migration-assistant-workspace/
 # The whole plugins directory needs to be removed
 plugins/opensearch/loggable-transport-netty4/.gradle/
 # Build files
-TrafficCapture/**/out/
+libs/traffic/**/out/
+apps/**/out/
 
 # CDK files from end-to-end testing
 opensearch-cluster-cdk/
-test/opensearch-cluster-cdk/
-test/amazon-opensearch-service-sample-cdk/
-TrafficCapture/dockerSolution/src/main/docker/migrationConsole/staging
+tests/e2e/opensearch-cluster-cdk/
+tests/e2e/amazon-opensearch-service-sample-cdk/
+deploy/local/docker-compose/src/main/docker/migrationConsole/staging
 
 # Directory used to temporarily store snapshots during testing
-DocumentsFromSnapshotMigration/docker/snapshots/
-transformation/standardJavascriptTransforms/coverage/
-transformation/standardJavascriptTransforms/node_modules/
-schema-viewer/node_modules/
-schema-viewer/package-lock.json
-schema-viewer/schemas/
-orchestrationSpecs/k8sResources/
-orchestrationSpecs/dist/
-orchestrationSpecs/node_modules/
-orchestrationSpecs/packages/**/dist/
-orchestrationSpecs/packages/**/node_modules/
-orchestrationSpecs/packages/**/coverage/
-orchestrationSpecs/packages/migration-workflow-templates/k8sResources
-orchestrationSpecs/k8s-schemas
-orchestrationSpecs/packages/argo-workflow-builders/src/generated
-orchestrationSpecs/packages/config-processor/bundled
-orchestrationSpecs/packages/migration-workflow-templates/workflowTemplates
-orchestrationSpecs/packages/argo-workflow-builders/k8sSchemas
+apps/backfill/docker/snapshots/
+libs/transforms/standardJavascriptTransforms/coverage/
+libs/transforms/standardJavascriptTransforms/node_modules/
+apps/schema-viewer/node_modules/
+apps/schema-viewer/package-lock.json
+apps/schema-viewer/schemas/
+apps/orchestration/k8sResources/
+apps/orchestration/dist/
+apps/orchestration/node_modules/
+apps/orchestration/packages/**/dist/
+apps/orchestration/packages/**/node_modules/
+apps/orchestration/packages/**/coverage/
+apps/orchestration/packages/migration-workflow-templates/k8sResources
+apps/orchestration/k8s-schemas
+apps/orchestration/packages/argo-workflow-builders/src/generated
+apps/orchestration/packages/config-processor/bundled
+apps/orchestration/packages/migration-workflow-templates/workflowTemplates
+apps/orchestration/packages/argo-workflow-builders/k8sSchemas
 frontend/
 
 # IDE / Java tooling
 .settings/
 .factorypath
-deployment/k8s/aws/dist/
-deployment/k8s/aws/cli/dist/
+deploy/aws/dist/
+apps/cli/dist/
 .scannerwork/
 .sisyphus/
 
@@ -92,3 +94,13 @@ deployment/k8s/aws/cli/dist/
 # to change depending on the environment.
 *.tfvars
 *.tfvars.json
+
+# Build tooling is source; only nested build outputs are generated.
+!tools/build/
+!tools/build/**
+tools/build/**/build/
+tools/build/**/__pycache__/
+tools/build/**/*.pyc
+
+# Bazel convenience symlinks and local execution output.
+/bazel-*

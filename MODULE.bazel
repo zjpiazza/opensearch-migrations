@@ -1,0 +1,82 @@
+module(name = "opensearch_migrations", version = "0.0.0")
+
+bazel_dep(name = "platforms", version = "1.0.0")
+
+bazel_dep(name = "rules_java", version = "8.14.0")
+bazel_dep(name = "rules_jvm_external", version = "6.9")
+bazel_dep(name = "rules_python", version = "1.6.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.11")
+use_repo(python, "python_3_11")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.11",
+    requirements_lock = "//tools/build/bazel:requirements_lock.txt",
+)
+use_repo(pip, "pypi")
+
+pip.parse(
+    hub_name = "console_pypi",
+    python_version = "3.11",
+    requirements_lock = "//tools/build/bazel:console_requirements_lock.txt",
+)
+use_repo(pip, "console_pypi")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    name = "migrations_maven",
+    artifacts = [
+        "com.fasterxml.jackson.core:jackson-annotations:2.22",
+        "com.fasterxml.jackson.core:jackson-core:2.22.3",
+        "com.fasterxml.jackson.core:jackson-databind:2.22.3",
+        "com.google.protobuf:protobuf-java:4.36.2",
+        "io.opentelemetry:opentelemetry-api:1.66.0",
+        "io.opentelemetry:opentelemetry-sdk:1.66.0",
+        "io.opentelemetry:opentelemetry-sdk-testing:1.66.0",
+        "io.opentelemetry:opentelemetry-exporter-otlp:1.66.0",
+        "io.opentelemetry.semconv:opentelemetry-semconv:1.43.0",
+        "org.apache.logging.log4j:log4j-api:2.26.1",
+        "org.apache.logging.log4j:log4j-core:2.26.1",
+        "org.apache.logging.log4j:log4j-slf4j2-impl:2.26.1",
+        "org.hamcrest:hamcrest:3.0",
+        "org.jcommander:jcommander:2.0",
+        "org.junit.jupiter:junit-jupiter-api:5.14.0",
+        "org.junit.jupiter:junit-jupiter-params:5.14.0",
+        "org.junit.jupiter:junit-jupiter-engine:5.14.0",
+        "org.junit.platform:junit-platform-console:1.14.0",
+        "org.mockito:mockito-core:5.24.0",
+        "org.projectlombok:lombok:1.18.48",
+        "org.slf4j:slf4j-api:2.0.20",
+        "org.wiremock:wiremock-standalone:3.13.2",
+        "io.netty:netty-all:4.1.128.Final",
+        "io.projectreactor:reactor-core:3.8.7",
+        "io.projectreactor.netty:reactor-netty-core:1.2.11",
+        "io.projectreactor.netty:reactor-netty-http:1.2.11",
+        "software.amazon.awssdk:auth:2.55.6",
+        "software.amazon.awssdk:sdk-core:2.55.6",
+    ],
+    repositories = ["https://repo.maven.apache.org/maven2"],
+    version_conflict_policy = "pinned",
+    lock_file = "//tools/build/bazel:maven_install.json",
+    fail_if_repin_required = True,
+)
+# Keep our dependency graph separate from rule sets' own Maven dependencies.
+use_repo(maven, maven = "migrations_maven")
+
+# Opt-in generated runtimes for the full-suite execution experiment.
+# Populate with tools/build/bazel/full-suite/prepare.py before using @full_suite.
+local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
+local_repository(
+    name = "full_suite",
+    path = "build/full-suite",
+)
+
+# Independently cached, offline Elasticsearch fixture images. Materialize the
+# pinned inputs with tools/build/bazel/fixture-images/materialize.py first.
+local_repository(
+    name = "fixture_images",
+    path = "build/fixture-image-inputs",
+)

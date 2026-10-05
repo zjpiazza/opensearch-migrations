@@ -2,7 +2,7 @@
  * Resolve which `migration-assistant` CLI binary to run.
  *
  * Two modes:
- *   1. (default) source-checkout — use ./deployment/k8s/aws/cli/bin/migration-assistant
+ *   1. (default) source-checkout — use ./apps/cli/bin/migration-assistant
  *      from the cloned repo.
  *   2. useReleaseCli=true — download install.sh from the GitHub release for
  *      `version` (default 'latest') and install the CLI under
@@ -29,7 +29,7 @@ def call(Map config = [:]) {
     if (!useReleaseCli) {
         // Source checkout. Path is relative to the workspace root, which
         // is what every pipeline's `sh` block runs from.
-        return './deployment/k8s/aws/cli/bin/migration-assistant'
+        return './apps/cli/bin/migration-assistant'
     }
 
     // Release CLI. install.sh is the canonical curl-pipe entry point;

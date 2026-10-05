@@ -18,7 +18,7 @@ mapping rules over the raw user workflow config:
 That shape does not work well once workflows support multiple source clusters,
 target clusters, Kafka clusters, proxies, and top-level migration CRs. It also
 duplicates transformation knowledge that now belongs in
-`orchestrationSpecs/packages/config-processor`.
+`apps/orchestration/packages/config-processor`.
 
 ## Goals
 
@@ -46,20 +46,20 @@ duplicates transformation knowledge that now belongs in
 
 ## Current Integration Points
 
-- `migrationConsole/lib/console_link/console_link/cli.py`
+- `apps/console/lib/console_link/console_link/cli.py`
   - detects Kubernetes mode
   - wires Click commands to `Environment`
   - currently resolves singleton `ctx.env.source_cluster`, `target_cluster`,
     `proxy`, and `kafka`
-- `migrationConsole/lib/console_link/console_link/environment.py`
+- `apps/console/lib/console_link/console_link/environment.py`
   - contains the current workflow-config-to-console-model conversion logic
-- `migrationConsole/lib/console_link/console_link/workflow/services/script_runner.py`
+- `apps/console/lib/console_link/console_link/workflow/services/script_runner.py`
   - already runs bundled config-processor commands with
     `/root/configProcessor/index.js`
-- `orchestrationSpecs/packages/config-processor/src/resolveMigrationResources.ts`
+- `apps/orchestration/packages/config-processor/src/resolveMigrationResources.ts`
   - emits `ResolvedMigrationResources` from user config or transformed workflow
     config
-- `orchestrationSpecs/packages/config-processor/src/resolvedMigrationResources.ts`
+- `apps/orchestration/packages/config-processor/src/resolvedMigrationResources.ts`
   - emits top-level resource parameters for `KafkaCluster`, `CapturedTraffic`,
     `CaptureProxy`, `DataSnapshot`, `SnapshotMigration`, and `TrafficReplay`
 - `MigrationRun.spec.resolvedConfig`

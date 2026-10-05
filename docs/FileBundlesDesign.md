@@ -735,7 +735,7 @@ This example intentionally repeats `type-mappings-settings`. The config processo
 
 Completed in the first implementation pass:
 
-1. Added direct `FILE_REF` schemas to `orchestrationSpecs/packages/schemas/src/userSchemas.ts`.
+1. Added direct `FILE_REF` schemas to `apps/orchestration/packages/schemas/src/userSchemas.ts`.
 2. Removed `transformsSources` and per-component `transformsSource` from the accepted user schema.
 3. Added transform spec v2 with mutually exclusive `entryPoint | transformName` and shared optional `context`.
 4. Added config transformation for inline scripts, file-backed scripts, value directories, literal values, and `fromFile` values.

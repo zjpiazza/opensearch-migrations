@@ -134,7 +134,7 @@ def call(Map config = [:]) {
             stage('Deploy AOSS Targets') {
                 steps {
                     timeout(time: 60, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 withMigrationsTestAccount(region: params.REGION) { accountId ->
                                     def jenkinsRoleArn = "arn:aws:iam::${accountId}:role/JenkinsDeploymentRole"
@@ -201,7 +201,7 @@ def call(Map config = [:]) {
                                 """
                             }
 
-                            dir('libraries/testAutomation') {
+                            dir('tests/automation') {
                                 sh "pipenv install --deploy"
                                 withMigrationsTestAccount(region: params.REGION) { accountId ->
                                     sh "pipenv run app --source-version=${params.SOURCE_VERSION} --target-type=AOSS --test-ids='${testId}' --reuse-clusters --skip-delete --skip-install --kube-context=${env.eksKubeContext}"

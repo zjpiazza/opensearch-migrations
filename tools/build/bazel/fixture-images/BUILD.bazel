@@ -1,0 +1,25 @@
+load(":defs.bzl", "fixture_toolchain_snapshot")
+
+exports_files(["snapshot.py", "offline.py"])
+
+fixture_toolchain_snapshot(name="refresh_utilities", recipe="recipes/utilities.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+fixture_toolchain_snapshot(name="refresh_compiler8", recipe="recipes/compiler8.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+fixture_toolchain_snapshot(name="refresh_runtime8", recipe="recipes/runtime8.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+fixture_toolchain_snapshot(name="refresh_runtime11", recipe="recipes/runtime11.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+fixture_toolchain_snapshot(name="refresh_runtime17", recipe="recipes/runtime17.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+fixture_toolchain_snapshot(name="refresh_runtime21", recipe="recipes/runtime21.Dockerfile", tags=["manual"], exec_properties={"workload": "integration"})
+
+exports_files(["build.py", "defs.bzl"])
+
+exports_files(["chunks.py"])
+
+exports_files(["publish.py", "load.py"])
+
+exports_files(["smoke.py"])
+
+exports_files(["catalog.py"])

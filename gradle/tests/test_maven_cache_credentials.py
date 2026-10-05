@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "jenkins/configureMavenCache.sh"
+SCRIPT = Path(__file__).resolve().parents[2] / "tools/ci/jenkins/configureMavenCache.sh"
 
 
 class MavenCacheCredentialsTests(unittest.TestCase):

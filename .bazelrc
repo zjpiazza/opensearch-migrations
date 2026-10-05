@@ -1,0 +1,37 @@
+# Experimental test slice; Gradle remains the production build.
+common --enable_bzlmod
+build --java_language_version=21
+build --tool_java_language_version=21
+build --java_runtime_version=remotejdk_21
+build --tool_java_runtime_version=remotejdk_21
+build --jobs=4
+# Lombok changes javac ASTs and cannot run under Turbine header compilation.
+build --nojava_header_compilation
+test --test_output=errors
+test --test_env=TZ=UTC
+test --test_env=LANG=C.UTF-8
+
+# Opt-in only. Reach the ClusterIP via an authenticated localhost port-forward.
+build:buildbarn --remote_executor=grpc://127.0.0.1:8980
+build:buildbarn --remote_cache=grpc://127.0.0.1:8980
+build:buildbarn --remote_instance_name=migrations-pilot
+build:buildbarn --extra_execution_platforms=//tools/build/bazel:buildbarn_linux
+# Admission includes queued remote actions; worker slots bound actual execution.
+# Admit the complete 439-target suite so one platform queue cannot starve others.
+build:buildbarn --jobs=512
+build:buildbarn --remote_download_outputs=toplevel
+build:buildbarn --incompatible_strict_action_env
+build:buildbarn --noremote_local_fallback
+build:buildbarn --spawn_strategy=remote
+build:buildbarn --strategy=Javac=remote
+build:buildbarn --remote_timeout=300
+
+# Force every selected test to execute; worker image/input caches may remain warm.
+test:buildbarn-uncached --config=buildbarn
+test:buildbarn-uncached --noremote_accept_cached
+test:buildbarn-uncached --nocache_test_results
+test:buildbarn-uncached --disk_cache=
+
+# Reuse preparation/build artifacts while forcing every selected test to execute.
+test:buildbarn-rerun-tests --config=buildbarn
+test:buildbarn-rerun-tests --nocache_test_results

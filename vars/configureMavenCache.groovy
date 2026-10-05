@@ -14,7 +14,7 @@ def call() {
             returnStdout: true,
             script: '''#!/usr/bin/env bash
 set -euo pipefail
-bash jenkins/configureMavenCache.sh
+bash tools/ci/jenkins/configureMavenCache.sh
 ''').trim().split('\n')
         env.MAVEN_REPOSITORY_URL = configuration[0]
         env.MAVEN_REPOSITORY_USERNAME = 'aws'

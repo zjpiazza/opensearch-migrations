@@ -261,7 +261,7 @@ def call(Map config = [:]) {
             stage('Phase 4: Run Tests') {
                 steps {
                     timeout(time: 2, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 sh "pipenv install --deploy"
                                 withMigrationsTestAccount(region: params.REGION) { accountId ->

@@ -1,0 +1,10 @@
+# Per-pod scratch volumes keep concurrent test data off the 80-GiB node boot disk.
+# Generic ephemeral PVCs and their Delete-policy volumes are removed with the pod.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: buildbarn-worker-scratch
+provisioner: dobs.csi.digitalocean.com
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

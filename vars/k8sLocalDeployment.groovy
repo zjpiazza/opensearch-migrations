@@ -4,7 +4,7 @@ def call(Map config = [:]) {
     def targetVersion = config.targetVersion ?: ""
     def testIds = config.testIds ?: ""
     def traceTestIds = config.traceTestIds ?: ""
-    def traceValuesFile = config.traceValuesFile ?: "../../deployment/k8s/charts/aggregates/migrationAssistantWithArgo/valuesTraceJaeger.yaml"
+    def traceValuesFile = config.traceValuesFile ?: "../../deploy/charts/aggregates/migrationAssistantWithArgo/valuesTraceJaeger.yaml"
     def traceBackend = config.traceBackend ?: "jaeger"
 
     def versions = migrationVersions()
@@ -69,7 +69,7 @@ def call(Map config = [:]) {
                 steps {
                     // Kubernetes 1.35 requires cgroup v2. Also ensure Fluent Bit can create
                     // its tail watcher after the control plane starts.
-                    sh './jenkins/configureKindHost.sh'
+                    sh './tools/ci/jenkins/configureKindHost.sh'
                 }
             }
 
@@ -77,7 +77,7 @@ def call(Map config = [:]) {
                 steps {
                     // Install into this workspace from a versioned, checksum-verified cache
                     // under the agent's home directory.
-                    sh 'KIND_INSTALL_DIR="${WORKSPACE}/.ci-bin" ./jenkins/installKind.sh'
+                    sh 'KIND_INSTALL_DIR="${WORKSPACE}/.ci-bin" ./tools/ci/jenkins/installKind.sh'
                 }
             }
 
@@ -93,7 +93,7 @@ def call(Map config = [:]) {
                         // Tear down the registry before deleting the kind cluster.
                         // This is only necessary if the registry container is attached to
                         // the kind network and would otherwise prevent network cleanup.
-                        sh '. ./buildImages/backends/dockerHostedBuildkit.sh && teardown_registry_container'
+                        sh '. ./tools/build/images/backends/dockerHostedBuildkit.sh && teardown_registry_container'
 
                         // Keep the single-node topology previously provided by Minikube. These
                         // tests do not need separate worker nodes.
@@ -103,7 +103,7 @@ def call(Map config = [:]) {
 
                             // Kubernetes 1.35 enables ImageVolume by default. The pinned manifest
                             // digest keeps the node image reproducible across architectures.
-                            sh '"${WORKSPACE}/.ci-bin/kind" create cluster --name ma --config ./deployment/k8s/kindClusterConfigSingleNode.yaml --image "${KIND_NODE_IMAGE}"'
+                            sh '"${WORKSPACE}/.ci-bin/kind" create cluster --name ma --config ./deploy/kubernetes/kindClusterConfigSingleNode.yaml --image "${KIND_NODE_IMAGE}"'
 
                             // kind nodes have their own containerd. Configure its registry hosts
                             // with a token obtained from the Jenkins agent's instance role.
@@ -111,7 +111,7 @@ def call(Map config = [:]) {
                                 ECR_PULL_THROUGH_ENDPOINT="$(bash -l -c 'printf %s "$ECR_PULL_THROUGH_ENDPOINT"')" \
                                     KIND_BIN="${WORKSPACE}/.ci-bin/kind" \
                                     KIND_CLUSTER_NAME=ma \
-                                    ./jenkins/configureKindCluster.sh
+                                    ./tools/ci/jenkins/configureKindCluster.sh
                             '''
                         }
                     }
@@ -127,7 +127,7 @@ def call(Map config = [:]) {
                             // kind node to reach the registry through the host's published port.
                             sh '''
                                 set -eu
-                                . ./buildImages/backends/dockerHostedBuildkit.sh
+                                . ./tools/build/images/backends/dockerHostedBuildkit.sh
 
                                 KUBE_CONTEXT=kind-ma setup_build_backend
                                 kind_nodes=()
@@ -137,7 +137,7 @@ def call(Map config = [:]) {
                                 connect_cluster_to_registry_network kind "${kind_nodes[@]}"
                             '''
                             def pullThroughCacheEndpoint = sh(script: 'bash -l -c \'echo -n $ECR_PULL_THROUGH_ENDPOINT\'', returnStdout: true).trim()
-                            // The load-test images are their own aggregate (see buildImages/build.gradle),
+                            // The load-test images are their own aggregate (see tools/build/images/build.gradle),
                             // so buildImagesToRegistry_* does not build them. Only the 008x cases need
                             // them, and those need explicit selection, so build them only on demand.
                             // "008" must stay equal to LOAD_TEST_ID_PREFIX in test_runner.py.
@@ -155,7 +155,7 @@ def call(Map config = [:]) {
             stage('Perform Python E2E Tests') {
                 steps {
                     timeout(time: 5, unit: 'HOURS') {
-                        dir('libraries/testAutomation') {
+                        dir('tests/automation') {
                             script {
                                 def requestedSourceVersion = params.SOURCE_VERSION ?: ""
                                 def requestedTargetVersion = params.TARGET_VERSION ?: ""
@@ -190,7 +190,7 @@ def call(Map config = [:]) {
         post {
             always {
                 timeout(time: 15, unit: 'MINUTES') {
-                    dir('libraries/testAutomation') {
+                    dir('tests/automation') {
                         script {
                             sh "pipenv install --deploy"
                             sh "kubectl config unset current-context || true"

@@ -1,0 +1,58 @@
+{
+  "api_probe": {
+    "image": "testcontainers/ryuk:0.14.0",
+    "amd64_manifest": "sha256:f0456560ea5b4acdbed0da0efc33b5f9dd6bc1e59f2337106826dcb5b0b0e981",
+    "blobs": [
+      {
+        "digest": "sha256:9a5f93e8f9300530b91866bcf41c0b8a5d72f0e5a7b4365167a48df9816cd36e",
+        "bytes": 1062,
+        "first_seconds": 0.204,
+        "second_seconds": 0.096
+      },
+      {
+        "digest": "sha256:cd33c313a23a2c33e58a5b30256b2699cb5d298a1669f0c92432964de5d55ff2",
+        "bytes": 216064,
+        "first_seconds": 0.295,
+        "second_seconds": 0.101
+      },
+      {
+        "digest": "sha256:602112db62eb01f08dc57da55d61da97fdc847fa8d146e5437f1bdb1b8efe0d5",
+        "bytes": 2186752,
+        "first_seconds": 0.311,
+        "second_seconds": 0.121
+      }
+    ],
+    "total_bytes": 2403878,
+    "first_blob_seconds": 0.8099999999999999,
+    "second_blob_seconds": 0.318,
+    "caveat": "Same bytes fetched twice through the registry API; not a Docker extraction benchmark or upstream-offline proof."
+  },
+  "docker_pilot": {
+    "worker": "worker-integration-78f97bd775-44s6r",
+    "reload_without_restart": true,
+    "mirror": [
+      "http://buildbarn-image-cache.migrations-buildbarn.svc.cluster.local:5000/"
+    ],
+    "image_id": "sha256:9a5f93e8f9300530b91866bcf41c0b8a5d72f0e5a7b4365167a48df9816cd36e",
+    "pull_seconds": 1.165,
+    "exit_code": 0,
+    "scope": "One idle standard worker only; existing image layers warm, so this validates routing and identity, not download speed."
+  },
+  "deployment": {
+    "statefulset": "buildbarn-image-cache",
+    "ready": "1/1",
+    "volume": "data-buildbarn-image-cache-0",
+    "capacity": "50Gi",
+    "workers_configured": 1
+  },
+  "benchmark_interruption": {
+    "phase": "interrupted",
+    "pid": 2468115,
+    "started_at_epoch": 1790908693.9353359,
+    "target_count": 16,
+    "shard_count": 131,
+    "interruption_observed_at_epoch": 1790909729.560417,
+    "error": "Recorded Bazel client PID 2468115 and run driver are absent; no terminal BEP event. Tool session 51121 no longer exists. Exit cause unknown."
+  },
+  "remote_actions_after_interruption": 0
+}

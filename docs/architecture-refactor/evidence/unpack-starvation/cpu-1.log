@@ -1,0 +1,28 @@
+processors=1 elasticCap=10
+WARNING: A restricted method in java.lang.foreign.Linker has been called
+WARNING: java.lang.foreign.Linker::downcallHandle has been called by the unnamed module
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for this module
+
+Oct 01, 2026 4:52:42 PM shadow.lucene9.org.apache.lucene.store.MemorySegmentIndexInputProvider <init>
+INFO: Using MemorySegmentIndexInput and native madvise support with Java 21 or later; to disable start with -Dshadow.lucene9.org.apache.lucene.store.MMapDirectory.enableMemorySegments=false
+attempt=0 completed=false files=12 error=null
+boundedElastic-1 WAITING
+  java.base@21.0.11/jdk.internal.misc.Unsafe.park(Native Method)
+  java.base@21.0.11/java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+  java.base@21.0.11/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:788)
+  java.base@21.0.11/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1133)
+  java.base@21.0.11/java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+  app//org.opensearch.migrations.bulkload.common.SnapshotShardUnpacker.unpackFilesInParallel(SnapshotShardUnpacker.java:166)
+  app//org.opensearch.migrations.bulkload.common.SnapshotShardUnpacker.unpack(SnapshotShardUnpacker.java:130)
+  app//UnpackProbe.lambda$main$1(UnpackProbe.java:28)
+  app//UnpackProbe$$Lambda/0x00007f095d131458.run(Unknown Source)
+  app//reactor.core.scheduler.SchedulerTask.call(SchedulerTask.java:72)
+  app//reactor.core.scheduler.SchedulerTask.call(SchedulerTask.java:28)
+  java.base@21.0.11/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+  java.base@21.0.11/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+  java.base@21.0.11/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+  java.base@21.0.11/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+  java.base@21.0.11/java.lang.Thread.runWith(Thread.java:1596)
+  java.base@21.0.11/java.lang.Thread.run(Thread.java:1583)
+attempt=1 completed=true files=13 error=null
+attempt=2 completed=true files=13 error=null

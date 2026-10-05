@@ -1,0 +1,44 @@
+name: WireMock experiment
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wiremock-experiment-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playback:
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          java-version: '21'
+          distribution: corretto
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+      - name: Measure Gradle playback and unchanged reuse
+        run: python3 libs/migration-engine/src/test/wiremock/benchmark.py
+        env:
+          DOCKER_HOST: unix:///tmp/wiremock-no-docker.sock
+      - name: Check formatting and documentation
+        run: ./gradlew :RFS:spotlessJavaCheck :RFS:javadoc --max-workers=4 --console=plain
+      - name: Upload timings and test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wiremock-experiment-evidence
+          path: |
+            build/wiremock-ci-results/
+            build/reports/profile/
+            libs/migration-engine/build/test-results/wiremockTest/
+            libs/migration-engine/build/reports/tests/wiremockTest/
+          retention-days: 14

@@ -6,20 +6,20 @@ on:
     branches:
       - main
     paths:
-      - 'deployment/k8s/**'
-      - '!deployment/k8s/aws/cli/**'
-      - 'packages/schemas/**'
-      - 'packages/config-processor/**'
-      - 'migrationConsole/**'
+      - 'deploy/kubernetes/**'
+      - 'deploy/charts/**'
+      - 'apps/orchestration/packages/schemas/**'
+      - 'apps/orchestration/packages/config-processor/**'
+      - 'apps/console/**'
       - '.github/workflows/generate-workflow-schema.yaml'
       - '.github/workflows/release-drafter.yml'
   pull_request:
     paths:
-      - 'deployment/k8s/**'
-      - '!deployment/k8s/aws/cli/**'
-      - 'packages/schemas/**'
-      - 'packages/config-processor/**'
-      - 'migrationConsole/**'
+      - 'deploy/kubernetes/**'
+      - 'deploy/charts/**'
+      - 'apps/orchestration/packages/schemas/**'
+      - 'apps/orchestration/packages/config-processor/**'
+      - 'apps/console/**'
       - '.github/workflows/generate-workflow-schema.yaml'
       - '.github/workflows/release-drafter.yml'
 
@@ -107,13 +107,13 @@ jobs:
 
       - name: Generate workflow schema artifact
         run: |
-          chmod +x ./deployment/k8s/generateWorkflowSchemaArtifact.sh
+          chmod +x ./deploy/kubernetes/generateWorkflowSchemaArtifact.sh
           KUBE_CONTEXT=kind-generate-workflow-schema \
           IMAGE_REPOSITORY_PREFIX=localhost:5000 \
           IMAGE_TAG=latest \
           IMAGE_PULL_POLICY=IfNotPresent \
           OUTPUT_PATH="${PWD}/workflowMigration.schema.json" \
-          ./deployment/k8s/generateWorkflowSchemaArtifact.sh
+          ./deploy/kubernetes/generateWorkflowSchemaArtifact.sh
 
       - name: Upload workflow schema artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

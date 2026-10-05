@@ -1,0 +1,99 @@
+{
+  "recorded_at": "2026-10-02T00:43:00.217869+00:00",
+  "pools": [
+    {
+      "name": "build-services-small",
+      "id": "16449593-a060-4d28-83b1-dbc95400693f",
+      "size": "g5-2vcpu-4gb-80gb",
+      "count": 1,
+      "auto_scale": null,
+      "min_nodes": null,
+      "max_nodes": null
+    },
+    {
+      "name": "bazel-execution",
+      "id": "05a731a9-5372-4077-9a0c-410094908730",
+      "size": "g5-16vcpu-64gb-80gb",
+      "count": 7,
+      "auto_scale": true,
+      "min_nodes": 1,
+      "max_nodes": 8
+    },
+    {
+      "name": "build-services",
+      "id": "52e9ce10-d172-4246-8d7e-fd9d0e43f459",
+      "size": "g5-4vcpu-16gb-80gb",
+      "count": 1,
+      "auto_scale": null,
+      "min_nodes": null,
+      "max_nodes": null
+    }
+  ],
+  "ready_execution_nodes": [
+    "bazel-execution-3xkl3w",
+    "bazel-execution-3xktu3",
+    "bazel-execution-3xktu8",
+    "bazel-execution-3xktuu",
+    "bazel-execution-3xktv8",
+    "bazel-execution-3xktvc",
+    "bazel-execution-3xktvu"
+  ],
+  "worker_replica_bounds": {
+    "lightweight": [
+      1,
+      12
+    ],
+    "integration": [
+      2,
+      32
+    ],
+    "integration-large": [
+      1,
+      8
+    ]
+  },
+  "scratch_per_integration_worker_gib": {
+    "workspace": 12,
+    "docker": 40
+  },
+  "service_memory_correction": {
+    "frontend_old_limit": "384Mi",
+    "storage_old_limit": "1Gi",
+    "new_limits": "4Gi each",
+    "GOMEMLIMIT": "3GiB each",
+    "reason": "Both OOMKilled during full-9 request burst"
+  },
+  "cache_preservation_smoke": {
+    "exit_code": 0,
+    "wall_seconds": 3.442744731903076
+  },
+  "forced_remote_smoke": {
+    "exit_code": 0,
+    "wall_seconds": 15.601101160049438,
+    "test_targets": 3,
+    "junit_cases": 14,
+    "remote_actions": 3,
+    "cache_hits": 0
+  },
+  "nested_docker_bind_mount": "passed",
+  "active_run": {
+    "path": "larger-nodes/uncached-1",
+    "total_targets": 439,
+    "counts": {
+      "RUNNING": 36,
+      "PASSED": 149,
+      "PENDING": 254
+    },
+    "cache_hits": 0,
+    "finished": false,
+    "cache_policy": "buildbarn-uncached; fresh output base; no remote result reads, no test result reuse, no disk cache",
+    "remaining_warm_state": "pre-exported Gradle runtime, CAS inputs, worker images"
+  },
+  "raw_evidence": "build/full-suite-evidence/larger-nodes/ (ignored)",
+  "limitations": [
+    "Node and worker counts vary during the run; not a fixed-resource benchmark.",
+    "Full suite still running; no final speedup or success claim.",
+    "Prior four npm blob-upload failures remain unresolved.",
+    "Generic ephemeral PVCs add billed storage, provisioning latency and different I/O performance."
+  ]
+}

@@ -57,12 +57,12 @@ allprojects {
 
 def commonExclusions = ['.gradle/**',
                         '**/build/**',
-                        '**/TrafficCapture/SolrTransformations/transforms/dist/**',
+                        '**/libs/traffic/SolrTransformations/transforms/dist/**',
                         '**/node_modules/**',
                         '**/opensearch-cluster-cdk/**',
                         '**/cdk.out/**',
                         '**/cdk.out-minified/**',
-                        '**/transformation/standardJavascriptTransforms/node_modules/**']
+                        '**/libs/transforms/standardJavascriptTransforms/node_modules/**']
 spotless {
     format 'misc', {
         target fileTree('.') {
@@ -145,7 +145,10 @@ subprojects {
 
         tasks.withType(Test).configureEach {
             // Getting javadoc to compile is part of the test suite to ensure we are able to publish our artifacts
-            dependsOn project.javadoc
+            // The focused RFS contract task keeps documentation in check, outside playback preparation.
+            if (project.path != ':RFS' || name != 'wiremockTest') {
+                dependsOn project.javadoc
+            }
         }
         if (!sourceSets.test.allSource.files.isEmpty()) {
             tasks.withType(Test).configureEach {
@@ -447,8 +450,11 @@ gradle.projectsEvaluated {
     Set<Task> sharedProcessTestsTasks = [] as Set
 
     subprojects { subproject ->
-        // Collect all Test type tasks
+        // Explicit recording/benchmark tasks must never run through aggregate CI tasks.
         subproject.tasks.withType(Test).all { task ->
+            if (task.hasProperty("manualExperiment") && task.manualExperiment) {
+                return
+            }
             if (task.name == "isolatedTest") {
                 isolatedTestsTasks.add(task)
             } else {

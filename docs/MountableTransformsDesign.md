@@ -25,7 +25,7 @@ New top-level aliased map, following the same pattern as `kafkaClusterConfigurat
 const TRANSFORMS_IMAGE_SOURCE = z.object({
     image: z.string()
         .describe("OCI image reference (preferably with digest) whose root contains transform files. " +
-            "The workflow mounts the image at /transforms/. Build with deployment/k8s/package-transforms.sh.")
+            "The workflow mounts the image at /transforms/. Build with deploy/kubernetes/package-transforms.sh.")
 });
 
 const TRANSFORMS_CONFIGMAP_SOURCE = z.object({
@@ -331,7 +331,7 @@ record ResolvedScript(String source, Path sourceFile) {}
 
 ## Part 4: Packaging
 
-### `deployment/k8s/Dockerfile.transforms`
+### `deploy/kubernetes/Dockerfile.transforms`
 
 ```dockerfile
 FROM scratch
@@ -341,7 +341,7 @@ COPY . /
 Works because K8s image volumes mount image layers directly — no runtime binary needed in the image.
 Copying the transform directory contents to the image root makes those files appear directly under `/transforms/` when the image is mounted.
 
-### `deployment/k8s/package-transforms.sh`
+### `deploy/kubernetes/package-transforms.sh`
 
 Build and push script placed alongside `aws-bootstrap.sh` and other deployment scripts:
 
@@ -516,7 +516,7 @@ traffic:
 7. **Replayer** (`replayer.ts`) — wire request and tuple transform pipelines separately
 8. **MetadataMigration** (`metadataMigration.ts`) — wire transforms into container builder + generated `transformerConfig` injection
 9. **Full migration** (`fullMigration.ts`) — thread resolved transforms image/configMap to sub-workflows (may be partially automatic via process options rollup; the resolved source itself needs explicit threading since it comes from the top-level config, not per-tool options)
-10. **Packaging** (`deployment/k8s/Dockerfile.transforms`, `deployment/k8s/package-transforms.sh`)
+10. **Packaging** (`deploy/kubernetes/Dockerfile.transforms`, `deploy/kubernetes/package-transforms.sh`)
 11. **Docs** (`docs/Transforms.md` user-facing guide, update `docs/MigrationAsAWorkflow.md`, update `EXPERT_FILE_SUFFIX` text)
 12. **Java provider support** — allow optional object-valued `bindingsObject` or keep serialization in the config processor; add Python script parent directory to `sys.path`
 13. **Tests** — schema validation (source references, relative paths, legacy config conflicts), workflow rendering snapshots, generated transformer config tests, Python sibling import test, integration tests

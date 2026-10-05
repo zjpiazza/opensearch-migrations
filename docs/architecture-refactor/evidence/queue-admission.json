@@ -1,0 +1,112 @@
+{
+  "recorded_at": "2026-10-02T00:07:52.884395+00:00",
+  "client_admission": {
+    "before": 18,
+    "after": 512,
+    "target_count": 439
+  },
+  "before": {
+    "ready_workers": 17,
+    "observed_running_tests": 6,
+    "completed_targets": 82
+  },
+  "handoff": {
+    "from": "full-7",
+    "to": "full-8",
+    "remote_instance": "migrations-mixed-workers-1",
+    "other_invocation_deduplications_observed": 21,
+    "cached_results_recovered": 83,
+    "independent_cold_benchmark": false
+  },
+  "after": {
+    "ready_workers": 18,
+    "worker_processes": 9,
+    "target_status_by_pool": {
+      "integration": {
+        "PASSED": 99,
+        "PENDING": 223,
+        "RUNNING": 5
+      },
+      "integration-large": {
+        "RUNNING": 3,
+        "PENDING": 5,
+        "PASSED": 3
+      },
+      "lightweight": {
+        "PASSED": 101
+      }
+    },
+    "nominal_node_cpus": 36,
+    "average_cpu_cores": 6.061397755913979,
+    "average_cpu_percent": 16.83721598864994,
+    "per_node_cpu_window": [
+      {
+        "node": "workers-3x5037",
+        "cores": 1.0411585666666667,
+        "seconds": 30.0,
+        "working_set_gib": 1.7411460876464844
+      },
+      {
+        "node": "workers-3x503c",
+        "cores": 0.6926354,
+        "seconds": 30.0,
+        "working_set_gib": 5.405841827392578
+      },
+      {
+        "node": "workers-3x503m",
+        "cores": 1.2680335,
+        "seconds": 30.0,
+        "working_set_gib": 4.800098419189453
+      },
+      {
+        "node": "workers-3xkee4",
+        "cores": 1.0609747333333335,
+        "seconds": 30.0,
+        "working_set_gib": 1.6093063354492188
+      },
+      {
+        "node": "workers-3xkeeh",
+        "cores": 0.5484901666666666,
+        "seconds": 30.0,
+        "working_set_gib": 1.4707107543945312
+      },
+      {
+        "node": "workers-3xkeei",
+        "cores": 0.053731433333333335,
+        "seconds": 30.0,
+        "working_set_gib": 1.3191871643066406
+      },
+      {
+        "node": "workers-3xkeev",
+        "cores": 0.2851307741935484,
+        "seconds": 31.0,
+        "working_set_gib": 1.4630241394042969
+      },
+      {
+        "node": "workers-3xkeou",
+        "cores": 0.3390845483870968,
+        "seconds": 31.0,
+        "working_set_gib": 1.5600967407226562
+      },
+      {
+        "node": "workers-3xkgza",
+        "cores": 0.7721586333333333,
+        "seconds": 30.0,
+        "working_set_gib": 1.4517860412597656
+      }
+    ]
+  },
+  "limitations": [
+    "CPU measurement is a 30\u201331 second window, not a full-run utilization average.",
+    "Ready workers and Bazel running-action counts do not measure CPU saturation.",
+    "All lightweight tests completed; those workers cannot execute Docker-platform actions.",
+    "Four npm targets failed input upload; a full-suite passing result and cache replay remain unverified.",
+    "Target/process snapshots are asynchronous; a completed cached target can briefly have a duplicate live process observation."
+  ],
+  "raw_evidence": "build/full-suite-evidence/queue-admission/ (ignored)",
+  "validation": [
+    "Python AST parsing",
+    "JavaScript node --check",
+    "Live dashboard API pool/target consistency check"
+  ]
+}
