@@ -49,11 +49,22 @@ get_docker_network_dns_servers() {
   resolv_conf="$(docker run --rm --network "${EXTERNAL_DOCKER_NETWORK}" "${registry_image}" cat /etc/resolv.conf 2>/dev/null || true)"
   dns_line="$(printf '%s\n' "${resolv_conf}" | sed -n 's/^# ExtServers: \[\(.*\)\]$/\1/p' | head -n1)"
 
-  if [[ -z "${dns_line}" ]]; then
-    return 0
-  fi
-
-  printf '%s\n' "${dns_line}" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}'
+  # BuildKit's explicit [dns] nameservers are injected into build sandboxes,
+  # where host-local stub resolvers such as 127.0.0.53 are unreachable. GitHub
+  # hosted runners commonly expose Docker ExtServers as a loopback stub; using
+  # that value makes Dockerfile package installs fail with DNS errors. Prefer
+  # non-loopback Docker/host resolvers, and omit [dns] entirely if we cannot
+  # find one so Docker/BuildKit can use its default embedded resolver.
+  {
+    printf '%s\n' "${dns_line}" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' || true
+    for resolv in /run/systemd/resolve/resolv.conf /etc/resolv.conf; do
+      [[ -r "${resolv}" ]] || continue
+      awk '/^nameserver[[:space:]]+/ { print $2 }' "${resolv}"
+    done
+  } | awk '
+    /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ &&
+    $0 !~ /^127\./ && $0 != "0.0.0.0" && !seen[$0]++ { print }
+  '
 }
 
 write_buildkit_config() {
