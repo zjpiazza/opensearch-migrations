@@ -1,0 +1,105 @@
+name: CI comparison (native Jenkins suite, Gradle)
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which Jenkins jobs to run natively in GitHub Actions
+        type: choice
+        required: true
+        default: local
+        options:
+          - local
+          - aws
+          - all
+      trial:
+        description: Measurement label
+        required: true
+        default: native-jenkins
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  BACKEND: gradle
+
+concurrency:
+  group: ci-comparison-native-jenkins-gradle-${{ github.ref }}-${{ inputs.suite }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  matrix:
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: matrix
+        env:
+          SUITE: ${{ inputs.suite }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, subprocess
+          data = json.loads(subprocess.check_output(['python3','tools/ci-comparison/jenkins-native-runner.py','list-jobs','--format=json']))
+          suite = os.environ['SUITE']
+          jobs = data['jobs']
+          if suite == 'local':
+              jobs = [j for j in jobs if j['environment'] != 'aws']
+          elif suite == 'aws':
+              jobs = [j for j in jobs if j['environment'] == 'aws']
+          print('matrix=' + json.dumps({'include': jobs}))
+          PY
+
+  native-jenkins-job:
+    needs: matrix
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-env
+        with:
+          gradle-cache-enabled: true
+          gradle-cache-read-only: false
+
+      - name: Configure AWS credentials for live AWS jobs
+        if: matrix.environment == 'aws'
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.MIGRATIONS_TEST_GHA_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Run Jenkins job natively with Gradle path
+        run: |
+          python3 tools/ci-comparison/jenkins-native-runner.py run \
+            --backend "$BACKEND" \
+            --trial "${{ inputs.trial }}" \
+            --job "${{ matrix.job }}"
+
+      - name: Collect JUnit inventory
+        if: always()
+        run: |
+          python3 tools/ci-comparison/collect-junit.py \
+            --backend "$BACKEND" \
+            --suite native-jenkins \
+            --trial "${{ inputs.trial }}" \
+            --output "build/ci-comparison/jenkins-native/${{ matrix.job }}/junit-inventory.json"
+
+      - name: Upload native Jenkins evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-jenkins-gradle-${{ matrix.job }}
+          path: |
+            build/ci-comparison/jenkins-native/${{ matrix.job }}/
+            tests/automation/reports/**
+            tests/automation/logs/**
+            logs/docker/**
+            **/build/reports/profile/
+            **/build/test-results/**/*.xml
+          retention-days: 14
