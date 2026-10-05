@@ -51,6 +51,10 @@ jobs to repository-local commands. The AWS path still needs a real GitHub
 Actions deployment role/secret and first-run validation, but it no longer
 triggers Jenkins. Do not use the earlier Gradle/JVM workflow results as the
 requested Jenkins-suite comparison.
+Use pull request labels to trigger the native suite from the PR without
+enabling it on every synchronize: `run-native-jenkins-local`,
+`run-native-jenkins-aws`, or `run-native-jenkins-all`. Manual
+`workflow_dispatch` defaults to `all`.
 
 ## Resolve the suite before claiming a comparison
 
