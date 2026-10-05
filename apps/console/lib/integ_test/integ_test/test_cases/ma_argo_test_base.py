@@ -1,5 +1,6 @@
 from enum import Enum
 import logging
+import os
 import time
 
 from ..cluster_version import ClusterVersion, is_incoming_version_supported
@@ -54,8 +55,9 @@ _WILDCARD_TEMPLATE_MAP = {
     ("solr", 9): 8,
 }
 
-CLUSTER_SETUP_TIMEOUT_SECONDS = 1000
-MIGRATION_COMPLETION_TIMEOUT_SECONDS = 1800
+CLUSTER_SETUP_TIMEOUT_SECONDS = int(os.environ.get("MA_CLUSTER_SETUP_TIMEOUT_SECONDS", "1000"))
+MIGRATION_COMPLETION_TIMEOUT_SECONDS = int(os.environ.get("MA_MIGRATION_COMPLETION_TIMEOUT_SECONDS", "1800"))
+MIGRATION_MONITOR_RETRY_LIMIT = os.environ.get("MA_MONITOR_RETRY_LIMIT")
 
 
 def get_template_name(version: ClusterVersion) -> str:
@@ -256,6 +258,8 @@ class MATestBase:
             self.parameters["source-cluster-template"] = self.source_argo_cluster_template
             self.parameters["target-cluster-template"] = self.target_argo_cluster_template
             self.parameters["skip-cleanup"] = "true" if self.reuse_clusters else "false"
+            if MIGRATION_MONITOR_RETRY_LIMIT:
+                self.parameters["monitor-retry-limit"] = MIGRATION_MONITOR_RETRY_LIMIT
             if self.image_registry_prefix:
                 self.parameters["image-registry-prefix"] = self.image_registry_prefix
 
