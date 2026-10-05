@@ -182,6 +182,12 @@ def run_local_kind(r):
             kubectl config unset current-context || true
             export PYTHONPATH="$PWD/testAutomation${{PYTHONPATH:+:$PYTHONPATH}}"
             unset PYTHONSAFEPATH
+            # GitHub-hosted runners are slower than the Jenkins c5xlarge hosts,
+            # especially for older Elasticsearch target-coordinator backfills.
+            # Let the inner migration workflow finish instead of timing out at
+            # the default 30 minutes while it is still making progress.
+            export MA_MIGRATION_COMPLETION_TIMEOUT_SECONDS="${{MA_MIGRATION_COMPLETION_TIMEOUT_SECONDS:-4500}}"
+            export MA_MONITOR_RETRY_LIMIT="${{MA_MONITOR_RETRY_LIMIT:-75}}"
             pipenv run app \
               --source-version {source_arg} \
               --target-version={target} \
