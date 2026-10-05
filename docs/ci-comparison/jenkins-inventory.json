@@ -1,0 +1,192 @@
+{
+  "baseline_commit": "83e9c4e5ab37cd40393ddc53966f86d9487d6e3c",
+  "source_workflow": ".github/workflows/jenkins_tests.yml",
+  "scope_unit": "workflow jobs, not test cases; labels gate some cloud jobs",
+  "job_count": 20,
+  "jobs": [
+    {
+      "workflow_job": "full-es68-e2e-aws-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-full-es68source-e2e-test' || 'pr-full-es68source-e2e-test' }}",
+      "timeout_minutes": 180,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/fullES68SourceE2ETest.groovy"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch1x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch1x-test' || 'pr-k8s-local-elasticsearch1x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch1xTest.groovy",
+      "sourceVersion": "ES_1.5",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch2x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch2x-test' || 'pr-k8s-local-elasticsearch2x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch2xTest.groovy",
+      "sourceVersion": "ES_2.4",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch5x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch5x-test' || 'pr-k8s-local-elasticsearch5x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch5xTest.groovy",
+      "sourceVersion": "ES_5.6",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003,0004,0005"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch6x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch6x-test' || 'pr-k8s-local-elasticsearch6x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch6xTest.groovy",
+      "sourceVersion": "ES_6.8",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003,0006"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch7x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch7x-test' || 'pr-k8s-local-elasticsearch7x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch7xTest.groovy",
+      "sourceVersion": "ES_7.10",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003,0006,0008,0020"
+    },
+    {
+      "workflow_job": "k8s-local-elasticsearch8x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-elasticsearch8x-test' || 'pr-k8s-local-elasticsearch8x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalElasticsearch8xTest.groovy",
+      "sourceVersion": "ES_8.19",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003,0020,0035,0040"
+    },
+    {
+      "workflow_job": "k8s-local-opensearch1x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-opensearch1x-test' || 'pr-k8s-local-opensearch1x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalOpensearch1xTest.groovy",
+      "sourceVersion": "OS_1.3",
+      "targetVersion": "OS_3.1",
+      "testIds": "0001,0002,0003"
+    },
+    {
+      "workflow_job": "k8s-local-solr8x-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-solr8x-test' || 'pr-k8s-local-solr8x-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalSolr8xTest.groovy",
+      "sourceVersion": "SOLR_8.11",
+      "targetVersion": "OS_2.19",
+      "testIds": "0071,0070"
+    },
+    {
+      "workflow_job": "k8s-local-solr-other-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-k8s-local-solr-other-test' || 'pr-k8s-local-solr-other-test' }}",
+      "timeout_minutes": 120,
+      "environment": "local-kind",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/k8sLocalSolrOtherTest.groovy",
+      "sourceVersion": "SOLR_9.8",
+      "targetVersion": "OS_2.19",
+      "testIds": "0071,0070"
+    },
+    {
+      "workflow_job": "docker-compose-e2e-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-docker-compose-e2e-test' || 'pr-docker-compose-e2e-test' }}",
+      "timeout_minutes": 30,
+      "environment": "local-docker-compose",
+      "live_test_result_cache_eligible": false,
+      "entry_point": "vars/dockerComposeE2ETest.groovy"
+    },
+    {
+      "workflow_job": "eks-integ-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-integ-test' || 'pr-eks-integ-test' }}",
+      "timeout_minutes": 180,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-aoss-integ-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-aoss-search-integ-test' || 'pr-eks-aoss-search-integ-test' }}",
+      "timeout_minutes": 120,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-byos-integ-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-byos-integ-test' || 'pr-eks-byos-integ-test' }}",
+      "timeout_minutes": 1080,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-cdc-full-e2e-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-cdc-full-e2e-test' || 'pr-eks-cdc-full-e2e-test' }}",
+      "timeout_minutes": 180,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-cdc-aoss-e2e-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-cdc-aoss-e2e-test' || 'pr-eks-cdc-aoss-e2e-test' }}",
+      "timeout_minutes": 240,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-cdc-k6-load-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-cdc-k6-load-test' || 'pr-eks-cdc-k6-load-test' }}",
+      "timeout_minutes": 180,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-cfn-create-vpc-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-deploy-eks-cfn-create-vpc' || 'pr-deploy-eks-cfn-create-vpc' }}",
+      "timeout_minutes": 120,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-cfn-import-vpc-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-deploy-eks-cfn-import-vpc' || 'pr-deploy-eks-cfn-import-vpc' }}",
+      "timeout_minutes": 120,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    },
+    {
+      "workflow_job": "eks-full-e2e-isolated-vpc-test",
+      "jenkins_job_expression": "${{ github.event_name == 'push' && 'main-eks-full-e2e-isolated-vpc-test' || 'pr-eks-full-e2e-isolated-vpc-test' }}",
+      "timeout_minutes": 240,
+      "environment": "aws",
+      "live_test_result_cache_eligible": false
+    }
+  ],
+  "separate_suite": {
+    "workflow": ".github/workflows/CI.yml",
+    "job": "gradle-tests",
+    "entry_point": "./gradlew allTests mergeJacocoReports",
+    "note": "The previous 131-shard and 28-scenario measurements are from this separate suite, not the 20 Jenkins deployment jobs."
+  }
+}

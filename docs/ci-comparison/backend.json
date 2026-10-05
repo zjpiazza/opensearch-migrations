@@ -1,0 +1,5 @@
+{
+  "backend": "gradle",
+  "baseline_commit": "83e9c4e5ab37cd40393ddc53966f86d9487d6e3c",
+  "benchmark_status": "scope-and-provider-selection-pending"
+}
