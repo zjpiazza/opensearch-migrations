@@ -1,0 +1,188 @@
+name: CI comparison (Gradle JVM)
+
+on:
+  workflow_dispatch:
+    inputs:
+      trial:
+        description: Measurement case to run
+        type: choice
+        required: true
+        default: cold-forced
+        options:
+          - cold-forced
+          - warm-forced
+          - unchanged
+          - leaf-change
+          - shared-change
+      stripes:
+        description: Number of Gradle test stripes; must match the generated matrix
+        required: true
+        default: '30'
+      seed_cache_namespace:
+        description: Exact cache namespace from a successful seed run; required except for cold-forced
+        required: false
+        default: ''
+      cache_namespace:
+        description: Namespace to save this run under; defaults to run id/attempt
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  SUITE_NAME: gradle-jvm-allTests
+  CACHE_NAMESPACE: ${{ inputs.cache_namespace || format('{0}-{1}', github.run_id, github.run_attempt) }}
+
+concurrency:
+  group: ci-comparison-gradle-${{ github.ref }}-${{ inputs.trial }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  generate-test-matrix:
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        env:
+          STRIPES: ${{ inputs.stripes }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          stripes = int(os.environ['STRIPES'])
+          if not 1 <= stripes <= 60:
+              raise SystemExit('stripes must be between 1 and 60')
+          print('matrix=' + json.dumps(list(range(stripes))))
+          PY
+
+  gradle-tests:
+    needs: generate-test-matrix
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        index: ${{ fromJson(needs.generate-test-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate benchmark inputs
+        env:
+          TRIAL: ${{ inputs.trial }}
+          SEED_CACHE_NAMESPACE: ${{ inputs.seed_cache_namespace }}
+        run: |
+          set -euo pipefail
+          if [[ "$TRIAL" != "cold-forced" && -z "$SEED_CACHE_NAMESPACE" ]]; then
+            echo "seed_cache_namespace is required for $TRIAL" >&2
+            exit 1
+          fi
+
+      - uses: ./.github/actions/setup-env
+        with:
+          gradle-cache-enabled: false
+
+      - name: Apply source mutation for invalidation trials
+        env:
+          TRIAL: ${{ inputs.trial }}
+        run: |
+          set -euo pipefail
+          case "$TRIAL" in
+            leaf-change) python3 tools/ci-comparison/apply-source-change.py leaf ;;
+            shared-change) python3 tools/ci-comparison/apply-source-change.py shared ;;
+            *) python3 tools/ci-comparison/apply-source-change.py none ;;
+          esac
+
+      - name: Record machine information
+        run: python3 tools/ci-comparison/machine-info.py build/ci-comparison/machine-info-stripe-${{ matrix.index }}.json
+
+      - name: Restore exact Gradle seed cache
+        if: inputs.trial != 'cold-forced'
+        id: restore-gradle-seed
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle/build-cache
+          key: ci-comparison-gradle-${{ inputs.seed_cache_namespace }}-stripe-${{ matrix.index }}
+          fail-on-cache-miss: true
+
+      - name: Run striped Gradle JVM suite
+        env:
+          TRIAL: ${{ inputs.trial }}
+          STRIPES: ${{ inputs.stripes }}
+          STRIPE_INDEX: ${{ matrix.index }}
+          OS_MIGRATIONS_GRADLE_SCAN_TOS_AGREE_AND_ENABLED: ''
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci-comparison
+          max_workers=$(( $(nproc) - 1 ))
+          if (( max_workers < 1 )); then max_workers=1; fi
+          force_args=()
+          case "$TRIAL" in
+            cold-forced|warm-forced)
+              force_args=(-I tools/ci-comparison/gradle-force-tests.init.gradle)
+              ;;
+          esac
+          start_epoch=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          start_ns=$(date +%s%N)
+          set +e
+          ./gradlew "${force_args[@]}" allTests mergeJacocoReports \
+            --max-workers "$max_workers" \
+            -Dtest.striping.total="$STRIPES" \
+            -Dtest.striping.index="$STRIPE_INDEX" \
+            -x spotlessCheck --stacktrace --continue --profile --console=plain
+          exit_code=$?
+          set -e
+          end_ns=$(date +%s%N)
+          python3 - <<PY
+          import json
+          record = {
+              'backend': 'gradle',
+              'suite': '${{ env.SUITE_NAME }}',
+              'trial': '$TRIAL',
+              'stripe': int('$STRIPE_INDEX'),
+              'stripes': int('$STRIPES'),
+              'start_utc': '$start_epoch',
+              'seconds': (int('$end_ns') - int('$start_ns')) / 1_000_000_000,
+              'exit_code': int('$exit_code'),
+          }
+          open('build/ci-comparison/timing-stripe-${{ matrix.index }}.json', 'w').write(json.dumps(record, indent=2) + '\n')
+          print(json.dumps(record, sort_keys=True))
+          PY
+          exit "$exit_code"
+
+      - name: Collect JUnit inventory
+        if: always()
+        run: |
+          python3 tools/ci-comparison/collect-junit.py \
+            --backend gradle \
+            --suite "${{ env.SUITE_NAME }}" \
+            --trial "${{ inputs.trial }}" \
+            --stripe "${{ matrix.index }}" \
+            --output build/ci-comparison/junit-inventory-stripe-${{ matrix.index }}.json
+
+      - name: Save Gradle cache namespace
+        if: success()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle/build-cache
+          key: ci-comparison-gradle-${{ env.CACHE_NAMESPACE }}-stripe-${{ matrix.index }}
+
+      - name: Upload stripe evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-comparison-gradle-${{ inputs.trial }}-stripe-${{ matrix.index }}
+          path: |
+            build/ci-comparison/
+            build/reports/profile/
+            **/build/test-results/**/*.xml
+            **/build/reports/tests/
+          retention-days: 14
