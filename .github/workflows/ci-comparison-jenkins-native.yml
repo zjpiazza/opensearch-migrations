@@ -1,6 +1,8 @@
 name: CI comparison (native Jenkins suite, Bazel)
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       suite:
@@ -35,14 +37,16 @@ permissions:
 
 env:
   BACKEND: bazel
+  REQUESTED_SUITE: ${{ github.event_name == 'workflow_dispatch' && inputs.suite || (contains(github.event.pull_request.labels.*.name, 'run-native-jenkins-all') && 'all' || contains(github.event.pull_request.labels.*.name, 'run-native-jenkins-aws') && 'aws' || contains(github.event.pull_request.labels.*.name, 'run-native-jenkins-local') && 'local' || 'none') }}
+  TRIAL_LABEL: ${{ github.event_name == 'workflow_dispatch' && inputs.trial || 'native-jenkins-pr' }}
 
 concurrency:
-  group: ci-comparison-native-jenkins-bazel-${{ github.ref }}-${{ inputs.suite }}-${{ github.run_id }}
+  group: ci-comparison-native-jenkins-bazel-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && inputs.suite || 'pr' }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
   matrix:
-    if: github.repository == 'zjpiazza/opensearch-migrations'
+    if: github.repository == 'zjpiazza/opensearch-migrations' && env.REQUESTED_SUITE != 'none'
     runs-on: ubuntu-22.04
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -50,7 +54,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: matrix
         env:
-          SUITE: ${{ inputs.suite }}
+          SUITE: ${{ env.REQUESTED_SUITE }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, subprocess
@@ -66,7 +70,7 @@ jobs:
 
   native-jenkins-job:
     needs: matrix
-    if: github.repository == 'zjpiazza/opensearch-migrations'
+    if: github.repository == 'zjpiazza/opensearch-migrations' && env.REQUESTED_SUITE != 'none'
     runs-on: ubuntu-22.04
     timeout-minutes: 360
     strategy:
@@ -104,7 +108,7 @@ jobs:
           ./bazelw "${bazel_args[@]}" -- \
             run \
             --backend "$BACKEND" \
-            --trial "${{ inputs.trial }}" \
+            --trial "${{ env.TRIAL_LABEL }}" \
             --job "${{ matrix.job }}"
 
       - name: Collect JUnit inventory
@@ -113,7 +117,7 @@ jobs:
           python3 tools/ci-comparison/collect-junit.py \
             --backend "$BACKEND" \
             --suite native-jenkins \
-            --trial "${{ inputs.trial }}" \
+            --trial "${{ env.TRIAL_LABEL }}" \
             --output "build/ci-comparison/jenkins-native/${{ matrix.job }}/junit-inventory.json"
 
       - name: Upload native Jenkins evidence
