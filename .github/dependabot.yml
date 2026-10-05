@@ -13,12 +13,12 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directories:
-      - "/deployment/migration-assistant-solution"
-      - "/deployment/cdk/opensearch-service-migration"
-      - "/orchestrationSpecs"
-      - "/transformation/standardJavascriptTransforms"
-      - "/TrafficCapture/SolrTransformations/transforms"
-      - "/schema-viewer"
+      - "/deploy/distributions/aws-solution"
+      - "/deploy/distributions/aws-cdk/opensearch-service-migration"
+      - "/apps/orchestration"
+      - "/libs/transforms/standardJavascriptTransforms"
+      - "/libs/traffic/SolrTransformations/transforms"
+      - "/apps/schema-viewer"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 1
@@ -107,14 +107,14 @@ updates:
 
   - package-ecosystem: "pip"
     directories:
-      - "/migrationConsole/lib/console_link"
-      - "/migrationConsole/cluster_tools"
-      - "/migrationConsole/lib/integ_test"
-      - "/libraries/testAutomation"
-      - "/test/cleanupDeployment"
-      - "/TrafficCapture/dockerSolution/src/main/docker/elasticsearchTestConsole"
-      - "/solrMigrationDevSandbox"
-      - "/transformation/transformationPlugins/jsonMessageTransformers/jsonPythonTransformerProvider/custom_transform"
+      - "/apps/console/lib/console_link"
+      - "/apps/console/cluster_tools"
+      - "/apps/console/lib/integ_test"
+      - "/tests/automation"
+      - "/tests/e2e/cleanupDeployment"
+      - "/deploy/local/docker-compose/src/main/docker/elasticsearchTestConsole"
+      - "/examples/solr"
+      - "/libs/transforms/transformationPlugins/jsonMessageTransformers/jsonPythonTransformerProvider/custom_transform"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 1

@@ -1,0 +1,22 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+# Production sources needed by the HTTP sink contract experiment.
+# Gradle remains the build for the complete module.
+java_library(
+    name = "http_contract",
+    srcs = [
+        "src/main/java/org/opensearch/migrations/IHttpMessage.java",
+        "src/main/java/org/opensearch/migrations/aws/SigV4Signer.java",
+    ],
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = [
+        "@maven//:org_projectlombok_lombok",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:software_amazon_awssdk_auth",
+        "@maven//:software_amazon_awssdk_http_client_spi",
+        "@maven//:software_amazon_awssdk_regions",
+        "@maven//:software_amazon_awssdk_sdk_core",
+        "@maven//:software_amazon_awssdk_utils",
+    ],
+    visibility = ["//visibility:public"],
+)

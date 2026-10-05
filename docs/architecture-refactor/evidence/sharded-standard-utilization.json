@@ -1,0 +1,365 @@
+{
+  "nodes": [
+    {
+      "node": "bazel-execution-3xkl3w",
+      "interval_seconds": 30.0,
+      "cpu_cores": 8.735,
+      "working_set_GiB": 14.293
+    },
+    {
+      "node": "bazel-execution-3xktu3",
+      "interval_seconds": 30.0,
+      "cpu_cores": 3.891,
+      "working_set_GiB": 9.638
+    },
+    {
+      "node": "bazel-execution-3xktu8",
+      "interval_seconds": 30.0,
+      "cpu_cores": 7.105,
+      "working_set_GiB": 18.015
+    },
+    {
+      "node": "bazel-execution-3xktuu",
+      "interval_seconds": 30.0,
+      "cpu_cores": 6.857,
+      "working_set_GiB": 11.788
+    },
+    {
+      "node": "bazel-execution-3xktv8",
+      "interval_seconds": 30.0,
+      "cpu_cores": 4.738,
+      "working_set_GiB": 10.107
+    },
+    {
+      "node": "bazel-execution-3xktvc",
+      "interval_seconds": 30.0,
+      "cpu_cores": 8.361,
+      "working_set_GiB": 17.704
+    },
+    {
+      "node": "bazel-execution-3xktvu",
+      "interval_seconds": 30.0,
+      "cpu_cores": 6.819,
+      "working_set_GiB": 11.656
+    },
+    {
+      "node": "build-services-3xktiw",
+      "interval_seconds": 30.0,
+      "cpu_cores": 0.144,
+      "working_set_GiB": 3.015
+    }
+  ],
+  "worker_samples": [
+    {
+      "pod": "worker-integration-6ddd579666-4vd79",
+      "class": "org.opensearch.migrations.bulkload.workcoordination.WorkCoordinatorTest",
+      "container": "runner",
+      "interval_seconds": 30.09,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.067,
+      "throttled_period_fraction": 0.029,
+      "memory_current_GiB": 0.3,
+      "memory_peak_GiB": 0.333,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-4vd79",
+      "class": "org.opensearch.migrations.bulkload.workcoordination.WorkCoordinatorTest",
+      "container": "docker",
+      "interval_seconds": 30.05,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 0.893,
+      "throttled_period_fraction": 0.676,
+      "memory_current_GiB": 2.807,
+      "memory_peak_GiB": 3.235,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-6sdwj",
+      "class": "org.opensearch.migrations.CustomTransformationTest",
+      "container": "runner",
+      "interval_seconds": 30.09,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.015,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.239,
+      "memory_peak_GiB": 0.244,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-6sdwj",
+      "class": "org.opensearch.migrations.CustomTransformationTest",
+      "container": "docker",
+      "interval_seconds": 30.11,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.494,
+      "throttled_period_fraction": 0.98,
+      "memory_current_GiB": 5.999,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 432,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-72qcn",
+      "class": "org.opensearch.migrations.bulkload.DeltaSnapshotRestoreTest",
+      "container": "runner",
+      "interval_seconds": 30.07,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.008,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.255,
+      "memory_peak_GiB": 0.259,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-72qcn",
+      "class": "org.opensearch.migrations.bulkload.DeltaSnapshotRestoreTest",
+      "container": "docker",
+      "interval_seconds": 30.07,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.456,
+      "throttled_period_fraction": 0.91,
+      "memory_current_GiB": 5.98,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 671,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-7v9l9",
+      "class": "org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "container": "runner",
+      "interval_seconds": 30.08,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.254,
+      "throttled_period_fraction": 0.411,
+      "memory_current_GiB": 0.452,
+      "memory_peak_GiB": 0.453,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-7v9l9",
+      "class": "org.opensearch.migrations.bulkload.RoutingShardColocationTest",
+      "container": "docker",
+      "interval_seconds": 30.05,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.097,
+      "throttled_period_fraction": 0.644,
+      "memory_current_GiB": 6.0,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 566,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-8hwdh",
+      "class": "org.opensearch.migrations.bulkload.SnapshotConfigurationTest",
+      "container": "runner",
+      "interval_seconds": 30.07,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.104,
+      "throttled_period_fraction": 0.154,
+      "memory_current_GiB": 0.406,
+      "memory_peak_GiB": 0.42,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-8hwdh",
+      "class": "org.opensearch.migrations.bulkload.SnapshotConfigurationTest",
+      "container": "docker",
+      "interval_seconds": 30.07,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.265,
+      "throttled_period_fraction": 0.717,
+      "memory_current_GiB": 3.585,
+      "memory_peak_GiB": 5.523,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-8r649",
+      "class": "org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest",
+      "container": "runner",
+      "interval_seconds": 30.05,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.085,
+      "throttled_period_fraction": 0.109,
+      "memory_current_GiB": 0.327,
+      "memory_peak_GiB": 0.332,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-8r649",
+      "class": "org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest",
+      "container": "docker",
+      "interval_seconds": 30.04,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.321,
+      "throttled_period_fraction": 0.813,
+      "memory_current_GiB": 4.215,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 40,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-dccfv",
+      "class": "org.opensearch.migrations.bulkload.EndToEndCompressionTest",
+      "container": "runner",
+      "interval_seconds": 30.05,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.282,
+      "throttled_period_fraction": 0.367,
+      "memory_current_GiB": 0.252,
+      "memory_peak_GiB": 0.376,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-dccfv",
+      "class": "org.opensearch.migrations.bulkload.EndToEndCompressionTest",
+      "container": "docker",
+      "interval_seconds": 30.04,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 0.971,
+      "throttled_period_fraction": 0.685,
+      "memory_current_GiB": 3.013,
+      "memory_peak_GiB": 6.0,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 242,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-fcl94",
+      "class": "org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "container": "runner",
+      "interval_seconds": 30.03,
+      "cpu_limit": "100000 100000",
+      "cpu_cores": 0.027,
+      "throttled_period_fraction": 0.0,
+      "memory_current_GiB": 0.286,
+      "memory_peak_GiB": 0.315,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "pod": "worker-integration-6ddd579666-fcl94",
+      "class": "org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "container": "docker",
+      "interval_seconds": 30.05,
+      "cpu_limit": "150000 100000",
+      "cpu_cores": 1.225,
+      "throttled_period_fraction": 0.739,
+      "memory_current_GiB": 4.864,
+      "memory_peak_GiB": 4.864,
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    }
+  ],
+  "execution_pool_cpu_cores": 46.506,
+  "nominal_execution_pool_cpu_cores": 112,
+  "caveats": [
+    "Includes concurrent integration-large baseline work.",
+    "Throttled period fraction is not percentage of elapsed time lost.",
+    "Sampled worker may start a different shard during the interval."
+  ]
+}

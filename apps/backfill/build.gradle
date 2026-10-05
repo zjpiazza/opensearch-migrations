@@ -1,0 +1,163 @@
+plugins {
+    id 'org.opensearch.migrations.java-application-conventions'
+    id 'io.freefair.lombok'
+}
+
+import org.opensearch.migrations.common.CommonUtils
+
+dependencies {
+    implementation project(":coreUtilities")
+    implementation project(":RFS")
+    implementation project(":SnapshotReader")
+    implementation project(":SnapshotReaderGcs")
+    implementation project(":RfsPipeline")
+    implementation project(":SolrReader")
+    implementation project(":transformation")
+    implementation project(':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerLoaders')
+    runtimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider')
+    runtimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonPythonTransformerProvider')
+
+    implementation libs.log4j.api
+    implementation libs.log4j.core
+    implementation libs.jcommander
+    implementation libs.jackson.databind
+    implementation libs.jackson.annotations
+    implementation libs.jackson.core
+    implementation libs.jackson.dataformat.smile
+    implementation libs.reactor.netty.core
+    implementation libs.reactor.netty.http
+    implementation libs.slf4j.api
+    implementation libs.log4j.slf4j2.impl
+
+    // For failed document stream S3 sink (see RfsMigrateDocuments#buildFailedDocumentStreamSink)
+    implementation libs.aws.s3
+    implementation libs.aws.sdk.core
+
+
+    testImplementation testFixtures(project(":RFS"))
+    testImplementation testFixtures(project(":SolrReader"))
+    testImplementation testFixtures(project(":RfsPipeline"))
+    testImplementation testFixtures(project(":coreUtilities"))
+    testImplementation testFixtures(project(":testHelperFixtures"))
+    testImplementation project(":SearchSnapshotExtractor")
+    testImplementation project(":DataGenerator")
+    testImplementation project(":CreateSnapshot")
+    testImplementation project(":MetadataMigration")
+    testImplementation libs.lucene.v9.core
+    testImplementation libs.hamcrest
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.junit.jupiter.params
+    testImplementation libs.testcontainers.opensearch
+    testImplementation libs.testcontainers
+    testImplementation libs.testcontainers.toxiproxy
+    testImplementation libs.testcontainers.localstack
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.junit.jupiter
+    testImplementation libs.json
+
+    testRuntimeOnly libs.junit.jupiter.engine
+
+}
+
+application {
+    mainClass.set('org.opensearch.migrations.RfsMigrateDocuments')
+}
+
+// Register copy version file task
+CommonUtils.syncVersionFileToDockerStaging(project, "reindexFromSnapshot", "docker/build/version")
+
+// Cleanup additional docker build directory
+def dockerBuildDir = file("./docker/build")
+clean.doFirst {
+    delete dockerBuildDir
+}
+
+tasks.register('copyDockerRuntimeJars', Sync) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    description = 'Copy runtime JARs and app jar to docker build directory'
+
+    def buildDir = project.file("./docker/build/runtimeJars")
+    into buildDir
+
+    from configurations.runtimeClasspath
+    from tasks.named('jar')
+    include '*.jar'
+}
+
+tasks.named('slowTest') {
+    testLogging.showStandardStreams = false
+}
+
+// Experimental full-pipeline replay: shares the real test scenario bodies.
+sourceSets {
+    wiremock {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+}
+configurations {
+    wiremockImplementation.extendsFrom testImplementation
+    wiremockRuntimeOnly.extendsFrom testRuntimeOnly
+}
+dependencies {
+    wiremockImplementation libs.wiremock.standalone
+}
+tasks.register('preparePipelineWiremock') {
+    inputs.files(sourceSets.wiremock.runtimeClasspath)
+}
+['pipelineWiremockTest', 'recordPipelineWiremock', 'pipelineRealBenchmark', 'pipelinePreparedSnapshotBenchmark'].each { taskName ->
+    tasks.register(taskName, Test) {
+        ext.manualExperiment = true
+        jacoco.enabled = false
+        description = 'Local pipeline fixture/replay experiment: ' + taskName
+        testClassesDirs = taskName == 'pipelineRealBenchmark' ? sourceSets.test.output.classesDirs : sourceSets.wiremock.output.classesDirs
+        classpath = sourceSets.wiremock.runtimeClasspath
+        useJUnitPlatform()
+        filter.includeTestsMatching(taskName == 'pipelineRealBenchmark' ?
+            'org.opensearch.migrations.bulkload.PipelineEndToEndTest' :
+            'org.opensearch.migrations.bulkload.PipelineWireMockTest')
+        maxParallelForks = 1
+        systemProperty 'pipeline.contract.disableCompression', 'true'
+        systemProperty 'api.version', providers.gradleProperty('pipelineDockerApi').getOrElse('1.44')
+        systemProperty 'pipeline.contract.liveTarget', taskName == 'pipelinePreparedSnapshotBenchmark' ? 'true' : 'false'
+        systemProperty 'pipeline.contract.fixtures', providers.gradleProperty('pipelineFixtures')
+            .getOrElse(layout.projectDirectory.dir('src/wiremock/resources/pipeline').asFile.absolutePath)
+        systemProperty 'pipeline.contract.record', taskName == 'recordPipelineWiremock' ? 'true' : 'false'
+        systemProperty 'snapshot.fixture.cache.dir', providers.gradleProperty('pipelineSnapshotCache').getOrElse(
+            layout.buildDirectory.dir('pipeline-experiment/' + taskName + '/snapshots').get().asFile.absolutePath)
+        systemProperty 'io.netty.eventLoopThreads', '2'
+        systemProperty 'reactor.netty.ioWorkerCount', '2'
+        if (taskName == 'recordPipelineWiremock') {
+            // A new capture must not silently reuse snapshots from an earlier engine build.
+            systemProperty 'snapshot.fixture.cache.disable', 'true'
+            doFirst {
+                if (!providers.gradleProperty('pipelineFixtures').isPresent()) {
+                    throw new GradleException('Recording requires -PpipelineFixtures=NEW_DIRECTORY')
+                }
+                def destination = file(providers.gradleProperty('pipelineFixtures').get())
+                if (destination.exists()) {
+                    throw new GradleException('Refusing to replace fixture directory: ' + destination)
+                }
+                destination.mkdirs()
+            }
+        }
+        if (taskName != 'pipelineWiremockTest') {
+            outputs.upToDateWhen { false }
+            outputs.cacheIf { false }
+        } else {
+            inputs.dir(providers.gradleProperty('pipelineFixtures')
+                .getOrElse(layout.projectDirectory.dir('src/wiremock/resources/pipeline').asFile.absolutePath))
+        }
+    }
+}
+
+tasks.register('pipelineReplayGuardTest', Test) {
+    ext.manualExperiment = true
+    jacoco.enabled = false
+    description = 'Checks that recorded pipeline contracts reject missing, duplicate and changed requests.'
+    testClassesDirs = sourceSets.wiremock.output.classesDirs
+    classpath = sourceSets.wiremock.runtimeClasspath
+    useJUnitPlatform()
+    filter.includeTestsMatching('org.opensearch.migrations.bulkload.PipelineReplayGuardTest')
+    systemProperty 'pipeline.contract.fixtures', layout.projectDirectory.dir('src/wiremock/resources/pipeline').asFile.absolutePath
+}

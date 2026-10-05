@@ -1,0 +1,196 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: scheduler-metrics
+spec:
+  selector:
+    app: scheduler
+    instance: ubuntu22-04
+  ports:
+  - name: metrics
+    port: 9980
+    targetPort: 9980
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: buildbarn-prometheus
+spec:
+  selector:
+    app: buildbarn-prometheus
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buildbarn-prometheus
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: buildbarn-prometheus
+  template:
+    metadata:
+      labels:
+        app: buildbarn-prometheus
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        doks.digitalocean.com/node-pool: build-services
+      securityContext:
+        fsGroup: 65534
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
+        args:
+        - --config.file=/etc/prometheus/prometheus.yaml
+        - --storage.tsdb.path=/prometheus
+        - --storage.tsdb.retention.time=2h
+        - --storage.tsdb.retention.size=256MB
+        ports:
+        - containerPort: 9090
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65534
+          capabilities:
+            drop:
+            - ALL
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          periodSeconds: 5
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+          readOnly: true
+        - name: data
+          mountPath: /prometheus
+      volumes:
+      - name: config
+        configMap:
+          name: buildbarn-prometheus-config
+      - name: data
+        emptyDir:
+          sizeLimit: 512Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bb-autoscaler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: bb-autoscaler
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  resourceNames:
+  - worker-integration
+  - worker-integration-large
+  - worker-ubuntu22-04
+  verbs:
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bb-autoscaler
+subjects:
+- kind: ServiceAccount
+  name: bb-autoscaler
+  namespace: migrations-buildbarn
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: bb-autoscaler
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bb-autoscaler-api
+spec:
+  podSelector:
+    matchLabels:
+      app: bb-autoscaler
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.108.32.1/32
+    - ipBlock:
+        cidr: 10.128.0.3/32
+    ports:
+    - protocol: TCP
+      port: 443
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bb-autoscaler
+spec:
+  schedule: '* * * * *'
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 50
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app: bb-autoscaler
+        spec:
+          serviceAccountName: bb-autoscaler
+          restartPolicy: Never
+          nodeSelector:
+            doks.digitalocean.com/node-pool: build-services
+          containers:
+          - name: autoscaler
+            image: ghcr.io/buildbarn/bb-autoscaler:20251002T162539Z-9e8d8be@sha256:d8c222c69915bfbf4ab7c4f6df2a5e3f081b910fa92929d508e6948e7934c15d
+            args:
+            - /config/autoscaler.jsonnet
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 65534
+              capabilities:
+                drop:
+                - ALL
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                cpu: 250m
+                memory: 128Mi
+            volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+          volumes:
+          - name: config
+            configMap:
+              name: buildbarn-autoscaler-config

@@ -1,0 +1,10 @@
+processors=4 elasticCap=40
+WARNING: A restricted method in java.lang.foreign.Linker has been called
+WARNING: java.lang.foreign.Linker::downcallHandle has been called by the unnamed module
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for this module
+
+Oct 01, 2026 4:52:46 PM shadow.lucene9.org.apache.lucene.store.MemorySegmentIndexInputProvider <init>
+INFO: Using MemorySegmentIndexInput and native madvise support with Java 21 or later; to disable start with -Dshadow.lucene9.org.apache.lucene.store.MMapDirectory.enableMemorySegments=false
+attempt=0 completed=true files=13 error=null
+attempt=1 completed=true files=13 error=null
+attempt=2 completed=true files=13 error=null

@@ -1,0 +1,43 @@
+{
+  "default": "integration",
+  "lightweight_tasks": [
+    ":RFS:wiremockTest",
+    ":TrafficCapture:nettyWireLogging:slowTest",
+    ":TrafficCapture:nettyWireLogging:test",
+    ":TrafficCapture:transformationShim:slowTest",
+    ":TrafficCapture:transformationShim:test",
+    ":coreUtilities:test",
+    ":dashboardsSanitizer:test",
+    ":transformation:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformerProvider:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformer:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonJSTransformerProvider:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformerProvider:slowTest",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformerProvider:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerLoaders:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformer:test",
+    ":transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider:test"
+  ],
+  "large_classes": [
+    "org.opensearch.migrations.EndToEndTest",
+    "org.opensearch.migrations.bulkload.EndToEndTest",
+    "org.opensearch.migrations.bulkload.PipelineEndToEndTest",
+    "org.opensearch.migrations.bulkload.SnapshotReaderEndToEndTest",
+    "org.opensearch.migrations.bulkload.common.LuceneDocumentsReaderTest",
+    "org.opensearch.migrations.replay.e2etests.KafkaRestartingTrafficReplayerTest"
+  ],
+  "large_tasks": [
+    ":migrationConsole:testConfigProcessor",
+    ":migrationConsole:testWorkflowTemplates",
+    ":migrationConsole:typeCheckConfigProcessor",
+    ":migrationConsole:typeCheckWorkflowTemplates"
+  ],
+  "notes": [
+    "Lightweight tasks are explicitly reviewed; unknown tasks retain Docker-capable workers.",
+    "Large E2E targets and known CPU-sensitive tests receive two-CPU runners.",
+    "Migration console npm checks use the larger tier initially; input upload failures still require separate diagnosis.",
+    "E-034 routes both integration tiers to uniform workers; use deploy/ci/buildbarn-unified."
+  ],
+  "unified_integration": true
+}

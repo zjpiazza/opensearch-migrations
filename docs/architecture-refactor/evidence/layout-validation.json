@@ -1,0 +1,103 @@
+{
+  "experiment": "E-005",
+  "date": "2026-10-01",
+  "baseline": "dc13cadb5",
+  "branch": "experiment/architecture-refactor",
+  "environment": {
+    "platform": "Linux x86_64",
+    "java": "Amazon Corretto 21.0.12.1",
+    "gradle": "8.14.3",
+    "node": "24.3.0",
+    "python": "3.13",
+    "rust": "1.96.0"
+  },
+  "inventory": {
+    "baseline_files_preserved": 3083,
+    "files_relocated": 2926,
+    "move_mappings": 55,
+    "gradle_mappings": 56,
+    "binary_files_unchanged": 167,
+    "shell_scripts_syntax_checked": 100
+  },
+  "checks": [
+    {
+      "command": "python3 tools/dev/check-repository-layout.py --baseline dc13cadb5",
+      "result": "pass"
+    },
+    {
+      "command": "./gradlew projects compileTestJava --console=plain --max-workers=4",
+      "result": "pass; all production and test Java sources compile (tasks run separately)"
+    },
+    {
+      "command": "./gradlew :RFS:prepareWiremockTest :RFS:wiremockTest --console=plain --max-workers=4",
+      "result": "9 passed"
+    },
+    {
+      "command": "npm run --prefix apps/orchestration type-check",
+      "result": "pass"
+    },
+    {
+      "command": "npm run --prefix apps/orchestration -ws --if-present test -- --runInBand",
+      "result": "50 suites passed; 453 tests passed, 2 skipped"
+    },
+    {
+      "command": "pytest: automation, Gradle credential scripts, and relocated console document-generator/JQ/load-test/observability tests",
+      "result": "244 passed; initial 10 Gradle repository fixture errors due to read-only user cache"
+    },
+    {
+      "command": "python -m pytest -q gradle/tests",
+      "result": "12 passed with Gradle cache access; includes the 10 initially blocked repository tests"
+    },
+    {
+      "command": "cargo test --offline --locked --lib (from apps/cli with AWS credential sources disabled)",
+      "result": "211 passed"
+    },
+    {
+      "command": "bash tests/e2e/awsBootstrapGrantEksAccessOnly.sh",
+      "result": "pass; mocked command executables"
+    },
+    {
+      "command": "bash tools/ci/jenkins/tests/configureKindClusterTest.sh",
+      "result": "pass; mocked command executables"
+    },
+    {
+      "command": "./gradlew :deployment:k8s:packageMigrationAssistantHelmChart -x :deployment:migration-assistant-solution:installDependencies :RFS:spotlessJavaCheck :RFS:javadoc --console=plain --max-workers=4",
+      "result": "pass; lockfile npm ci performed before packaging"
+    },
+    {
+      "command": "./gradlew spotlessCheck --console=plain --max-workers=4",
+      "result": "pass"
+    },
+    {
+      "command": "flake8 $(git ls-files '*.py')",
+      "result": "pass"
+    },
+    {
+      "command": "actionlint -shellcheck= (six changed workflows)",
+      "result": "pass; structural validation only"
+    },
+    {
+      "command": "compare previously valid local Markdown links against relocated destinations",
+      "result": "no regressions"
+    }
+  ],
+  "wiremock_path_smoke": {
+    "command": "python3 libs/migration-engine/src/test/wiremock/benchmark.py",
+    "sample_count": 1,
+    "prepare_wall_seconds": 2.136,
+    "playback_wall_seconds": 4.738,
+    "playback_tests": 9,
+    "playback_test_seconds": 1.604,
+    "unchanged_wall_seconds": 2.096,
+    "unchanged_result": "UP-TO-DATE",
+    "interpretation": "warm local path smoke check, not a before/after performance comparison"
+  },
+  "limitations": [
+    "No live cloud deployment, full E2E, image publishing, or external CI reconfiguration validated.",
+    "Initial Rust run reached native AWS credential discovery in an existing test; ECR calls were denied and the run was stopped. Isolated offline rerun passed all 211 library tests.",
+    "Shellcheck reports pre-existing warnings in workflow shell snippets; structural actionlint passed.",
+    "Physical organization preserves dependency edges; operator and language consolidation remain proposals."
+  ],
+  "implementation_commit": "8060ee7a7",
+  "pull_request": "https://github.com/zjpiazza/opensearch-migrations/pull/4"
+}

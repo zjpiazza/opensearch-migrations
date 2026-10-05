@@ -1,0 +1,55 @@
+rule_files:
+- /etc/prometheus/autoscaler-rules.yaml
+evaluation_interval: 15s
+tests:
+- interval: 1m
+  input_series:
+  - series: buildbarn_builder_in_memory_build_queue_tasks_scheduled_total{instance_name_prefix="",platform="integration",size_class="0"}
+    values: 9+0x45
+  - series: buildbarn_builder_in_memory_build_queue_tasks_executing_duration_seconds_count{instance_name_prefix="",platform="integration",size_class="0"}
+    values: 0+0x4 6+0x14 9+0x25
+  - series: buildbarn_builder_in_memory_build_queue_workers_created_total{instance_name_prefix="",platform="integration",size_class="0"}
+    values: 9+0x45
+  - series: buildbarn_builder_in_memory_build_queue_workers_removed_total{instance_name_prefix="",platform="integration",size_class="0"}
+    values: 0+0x45
+  - series: up{job="buildbarn-scheduler"}
+    values: 1+0x24 0+0x20
+  promql_expr_test:
+  - expr: buildbarn:tasks_in_flight
+    eval_time: 10m
+    exp_samples:
+    - labels: buildbarn:tasks_in_flight{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 3
+  - expr: buildbarn:worker_demand
+    eval_time: 10m
+    exp_samples:
+    - labels: buildbarn:worker_demand{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 9
+  - expr: buildbarn:desired_workers
+    eval_time: 10m
+    exp_samples:
+    - labels: buildbarn:desired_workers{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 9
+  - expr: buildbarn:tasks_in_flight
+    eval_time: 21m
+    exp_samples:
+    - labels: buildbarn:tasks_in_flight{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 0
+  - expr: buildbarn:desired_workers
+    eval_time: 34m
+    exp_samples:
+    - labels: buildbarn:desired_workers{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 9
+  - expr: buildbarn:desired_workers
+    eval_time: 36m
+    exp_samples:
+    - labels: buildbarn:desired_workers{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 0
+  - expr: buildbarn:desired_workers and on() (up{job="buildbarn-scheduler"} == 1)
+    eval_time: 10m
+    exp_samples:
+    - labels: buildbarn:desired_workers{instance_name_prefix="",platform="integration",size_class="0"}
+      value: 9
+  - expr: buildbarn:desired_workers and on() (up{job="buildbarn-scheduler"} == 1)
+    eval_time: 26m
+    exp_samples: []

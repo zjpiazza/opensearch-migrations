@@ -17,7 +17,7 @@ Here are the main steps to synchronize a target cluster from a source cluster:
 
 1. Traffic is directed to the existing cluster, reaching each coordinator node.
 2. A Capture Proxy is added in front of the coordinator nodes in the cluster, allowing for traffic capture and storage.
-   (see [here](./ClientTrafficSwinging.md) for details about how to use an ALB to do this).
+   (see [here](ClientTrafficSwinging.md) for details about how to use an ALB to do this).
 3. A historical backfill is triggered to synchronize the documents in the target from the source as it was at some
    point in time. That point in time will/must be after all traffic has been captured.
 4. Following the backfill, the Traffic Replayer begins replaying the captured traffic to the target cluster.
@@ -40,7 +40,7 @@ The proxy is expected to supplant the original source cluster endpoint so that c
 any changes. One way to accomplish that is to install a proxy alongside the source cluster’s coordinating nodes and
 shift the coordinating nodes’ configuration to use a port bound only to the loopback address and likely without TLS,
 as encrypting local traffic with TLS is expensive and unnecessary. Another approach is
-described [here](./ClientTrafficSwinging.md).
+described [here](ClientTrafficSwinging.md).
 
 The proxy can also be deployed on standalone hardware. However, two caveats remain.
 
@@ -92,7 +92,7 @@ source and the proxy.
 
 Captured data is organized into TrafficObservations (Read, Write, Close, etc) that have timestamps and are organized
 into larger “TrafficStream” objects which are written as records to Kafka. These observations are serialized
-as [Protobuf](../TrafficCapture/captureProtobufs/src/main/proto/TrafficCaptureStream.proto) wrappers to the raw bytes
+as [Protobuf](../libs/traffic/captureProtobufs/src/main/proto/TrafficCaptureStream.proto) wrappers to the raw bytes
 that were received or sent by the Proxy sans TLS. TrafficStream objects are organized by connection, with each socket
 connection represented by a sequences of TrafficStreams, which will have TrafficObservations for that connection only.
 Those TrafficStreams are flushed to Kafka after buffering or after a mutating request has been received. Concurrent

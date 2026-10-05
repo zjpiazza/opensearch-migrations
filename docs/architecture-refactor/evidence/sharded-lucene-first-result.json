@@ -1,0 +1,19 @@
+{
+  "target": "SnapshotReader_isolatedTest__org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+  "baseline_seconds": 785.697,
+  "expected_cases": 88,
+  "actual_unique_cases": 88,
+  "outcomes": {
+    "passed": 88
+  },
+  "missing": 0,
+  "additional": 0,
+  "duplicates": 0,
+  "scope": "First completed class only; overall 12-class run still active. Worker/cache warm states and cluster contention differ.",
+  "sharded_seconds": 124.413,
+  "speedup": 6.315,
+  "summed_shard_seconds": 836.053,
+  "shards": 11,
+  "status": "PASSED",
+  "cached_shards": 0
+}

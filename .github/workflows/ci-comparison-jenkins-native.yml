@@ -1,0 +1,167 @@
+name: CI comparison (native Jenkins suite, Bazel)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which Jenkins jobs to run natively in GitHub Actions
+        type: choice
+        required: true
+        default: all
+        options:
+          - local
+          - aws
+          - all
+      trial:
+        description: Measurement label
+        required: true
+        default: native-jenkins
+      bazel_execution_mode:
+        description: Bazel command execution mode. Live deployment commands still execute locally from bazel run.
+        type: choice
+        required: true
+        default: local
+        options:
+          - local
+          - buildbarn-build-only
+      remote_instance_name:
+        description: Buildbarn namespace for Bazel build actions when buildbarn-build-only is selected
+        required: false
+        default: migrations-ci-jenkins-native
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  BACKEND: bazel
+
+concurrency:
+  group: ci-comparison-native-jenkins-bazel-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  matrix:
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      suite: ${{ steps.matrix.outputs.suite }}
+      trial: ${{ steps.matrix.outputs.trial }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SUITE: ${{ inputs.suite || '' }}
+          INPUT_TRIAL: ${{ inputs.trial || '' }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, subprocess
+          data = json.loads(subprocess.check_output(['python3','tools/ci-comparison/jenkins-native-runner.py','list-jobs','--format=json']))
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          labels = {item.get('name') for item in event.get('pull_request', {}).get('labels', [])}
+          if os.environ['EVENT_NAME'] == 'workflow_dispatch':
+              suite = os.environ.get('INPUT_SUITE') or 'all'
+              trial = os.environ.get('INPUT_TRIAL') or 'native-jenkins'
+          elif 'run-native-jenkins-all' in labels:
+              suite = 'all'
+              trial = 'native-jenkins-pr'
+          elif 'run-native-jenkins-aws' in labels:
+              suite = 'aws'
+              trial = 'native-jenkins-pr'
+          elif 'run-native-jenkins-local' in labels:
+              suite = 'local'
+              trial = 'native-jenkins-pr'
+          else:
+              suite = 'none'
+              trial = 'native-jenkins-pr'
+          jobs = data['jobs']
+          if suite == 'local':
+              jobs = [j for j in jobs if j['environment'] != 'aws']
+          elif suite == 'aws':
+              jobs = [j for j in jobs if j['environment'] == 'aws']
+          elif suite == 'none':
+              jobs = []
+          print('suite=' + suite)
+          print('trial=' + trial)
+          print('matrix=' + json.dumps({'include': jobs}))
+          PY
+
+  native-jenkins-job:
+    needs: matrix
+    if: github.repository == 'zjpiazza/opensearch-migrations' && needs.matrix.outputs.suite != 'none'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    env:
+      AWS_ROLE_ARN: ${{ secrets.MIGRATIONS_TEST_GHA_ROLE_ARN || vars.MIGRATIONS_TEST_GHA_ROLE_ARN || '' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-env
+        with:
+          gradle-cache-enabled: true
+          gradle-cache-read-only: false
+
+      - name: Check AWS role configuration
+        if: matrix.environment == 'aws' && env.AWS_ROLE_ARN == ''
+        run: |
+          echo "MIGRATIONS_TEST_GHA_ROLE_ARN is not configured as a repository secret or variable." >&2
+          echo "Set it to the JenkinsDeploymentRole ARN for the migrations test AWS account before running AWS jobs." >&2
+          exit 1
+
+      - name: Configure AWS credentials for live AWS jobs
+        if: matrix.environment == 'aws'
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Run Jenkins job natively through Bazel launcher
+        env:
+          MODE: ${{ inputs.bazel_execution_mode || 'local' }}
+          REMOTE_INSTANCE: ${{ inputs.remote_instance_name || 'migrations-ci-jenkins-native' }}
+        run: |
+          set -euo pipefail
+          bazel_args=(run)
+          if [[ "$MODE" == "local" ]]; then
+            bazel_args+=(--spawn_strategy=local --jobs=$(( $(nproc) - 1 )))
+          else
+            echo "buildbarn-build-only only uses Buildbarn for Bazel build actions; deployment commands execute locally via bazel run."
+            echo "Full remote execution of live Jenkins deployment jobs is intentionally not enabled because AWS/kind/Docker side effects are not cacheable or hermetic."
+            bazel_args+=(--config=buildbarn --remote_instance_name="$REMOTE_INSTANCE")
+          fi
+          bazel_args+=(//tools/ci-comparison:jenkins_native_runner)
+          ./bazelw "${bazel_args[@]}" -- \
+            run \
+            --backend "$BACKEND" \
+            --trial "${{ needs.matrix.outputs.trial }}" \
+            --job "${{ matrix.job }}"
+
+      - name: Collect JUnit inventory
+        if: always()
+        run: |
+          python3 tools/ci-comparison/collect-junit.py \
+            --backend "$BACKEND" \
+            --suite native-jenkins \
+            --trial "${{ needs.matrix.outputs.trial }}" \
+            --output "build/ci-comparison/jenkins-native/${{ matrix.job }}/junit-inventory.json"
+
+      - name: Upload native Jenkins evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-jenkins-bazel-${{ matrix.job }}
+          path: |
+            build/ci-comparison/jenkins-native/${{ matrix.job }}/
+            tests/automation/reports/**
+            tests/automation/logs/**
+            logs/docker/**
+            **/build/reports/profile/
+            **/build/test-results/**/*.xml
+          retention-days: 14

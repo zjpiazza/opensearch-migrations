@@ -1,0 +1,172 @@
+plugins {
+    id 'org.opensearch.migrations.java-library-conventions'
+    id 'io.freefair.lombok'
+    id 'java-test-fixtures'
+    id 'me.champeau.jmh'
+}
+
+evaluationDependsOn ':SearchSnapshotExtractor'
+
+ext {
+    awsSdkVersion = '2.25.16'
+    dataset = findProperty('dataset') ?: 'skip_dataset'
+}
+
+dependencies {
+    api project(':RfsCommon')
+    api project(':RfsHttp')
+    api project(':RfsPipeline')
+    api project(':SearchSnapshotExtractor')
+    implementation project(':awsUtilities')
+    implementation project(':coreUtilities')
+    // api (not implementation): RotatingGzipS3ObjectWriter types appear in S3FailedDocumentStreamSink's
+    // public builder/uploader API, so consumers (e.g. DocumentsFromSnapshotMigration) compile against them.
+    api project(':s3Common')
+    implementation project(':transformation')
+
+    implementation project(':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerInterface')
+    runtimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJMESPathMessageTransformerProvider')
+    runtimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonJoltMessageTransformerProvider')
+    runtimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider')
+
+    runtimeOnly libs.log4j.layout.template.json
+
+    implementation libs.jcommander
+    implementation libs.jackson.databind
+    implementation libs.jackson.annotations
+    implementation libs.jackson.core
+    implementation libs.jackson.dataformat.smile
+    implementation libs.netty.codec.http
+    implementation libs.httpclient5
+
+    implementation libs.zstd.jni
+
+    implementation libs.slf4j.api
+
+    implementation libs.aws.crt
+    implementation libs.aws.s3
+
+    implementation libs.reactor.netty.core
+    implementation libs.reactor.netty.http
+
+    testImplementation libs.docker.java.core
+    testImplementation libs.docker.java.transport.httpclient5
+
+    // Shadow lucene jars from SearchSnapshotExtractor (needed by test code)
+    testImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene5').map { it.outputs.files }
+    testImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene6').map { it.outputs.files }
+    testImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene7').map { it.outputs.files }
+    testImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene9').map { it.outputs.files }
+
+    testImplementation testFixtures(project(path: ':RFS'))
+    testImplementation libs.lucene.v9.backward.codecs
+    testImplementation libs.reactor.test
+    testImplementation libs.log4j.core
+    testImplementation libs.log4j.slf4j2.impl
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.junit.jupiter.params
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.junit.jupiter
+
+    testImplementation project(':transformation:transformationPlugins:jsonMessageTransformers:jsonMessageTransformerLoaders')
+    testRuntimeOnly project(':transformation:transformationPlugins:jsonMessageTransformers:jsonTypeMappingsSanitizationTransformerProvider')
+
+    testRuntimeOnly libs.junit.jupiter.engine
+
+    testImplementation libs.jmh.core
+
+    // Integration tests
+    testImplementation testFixtures(project(path: ':testHelperFixtures'))
+    testImplementation testFixtures(project(path: ':coreUtilities'))
+    testImplementation libs.testcontainers
+    testImplementation libs.testcontainers.junit.jupiter
+    testImplementation libs.testcontainers.localstack
+    testImplementation libs.hamcrest
+    testImplementation libs.junit.jupiter.api
+    testRuntimeOnly libs.junit.jupiter.engine
+
+    testFixturesApi testFixtures(project(':searchClusterTestFixtures'))
+    testFixturesImplementation project(':transformation')
+    testFixturesImplementation testFixtures(project(":coreUtilities"))
+    testFixturesImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene5').map { it.outputs.files }
+    testFixturesImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene6').map { it.outputs.files }
+    testFixturesImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene7').map { it.outputs.files }
+    testFixturesImplementation project(':SearchSnapshotExtractor').tasks.named('shadowLucene9').map { it.outputs.files }
+    testFixturesImplementation libs.docker.java
+    testFixturesImplementation libs.docker.java.core
+    testFixturesImplementation libs.docker.java.transport.httpclient5
+    testFixturesImplementation libs.testcontainers
+
+    testFixturesImplementation libs.hamcrest
+    testFixturesImplementation libs.guava
+    testFixturesImplementation libs.slf4j.api
+    testFixturesImplementation libs.junit.jupiter.api
+}
+
+jmh {
+    includeTests = true // Benchmarks should be in test code, not product code
+    failOnError = true
+    fork = 0
+    humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt")
+    resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt")
+}
+
+// Compile contract tests independently of the container/snapshot test suite.
+sourceSets {
+    wiremock {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    wiremockImplementation.extendsFrom implementation
+    wiremockRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+    wiremockImplementation libs.wiremock.standalone
+    wiremockImplementation libs.junit.jupiter
+    wiremockRuntimeOnly libs.junit.platform.launcher
+    wiremockRuntimeOnly libs.log4j.core
+    wiremockRuntimeOnly libs.log4j.slf4j2.impl
+}
+
+// Materialize the complete execution classpath, including runtime-only project JARs.
+tasks.register('prepareWiremockTest') {
+    description = 'Builds and resolves the complete WireMock playback classpath without running tests.'
+    group = 'verification'
+    inputs.files(sourceSets.wiremock.runtimeClasspath)
+    doLast {
+        logger.lifecycle("WireMock runtime classpath: ${sourceSets.wiremock.runtimeClasspath.files.size()} entries")
+    }
+}
+
+// A focused task for PR playback; ordinary tests also consume this source set below.
+tasks.register('wiremockTest', Test) {
+    description = 'Runs recorded destination HTTP contracts without a search engine or Docker.'
+    group = 'verification'
+    testClassesDirs = sourceSets.wiremock.output.classesDirs
+    classpath = sourceSets.wiremock.runtimeClasspath
+    useJUnitPlatform()
+    maxParallelForks = 1
+    systemProperty 'io.netty.eventLoopThreads', '2'
+    systemProperty 'reactor.netty.ioWorkerCount', '2'
+}
+
+tasks.named('test') {
+    // Preserve normal test filtering and CI striping without running a separate suite on every shard.
+    testClassesDirs += sourceSets.wiremock.output.classesDirs
+    classpath += sourceSets.wiremock.output + configurations.wiremockRuntimeClasspath
+}
+tasks.named('check') { dependsOn tasks.named('javadoc') }
+
+// Deliberate live recording only; this is never a dependency of a test task.
+tasks.register('recordWireMock', JavaExec) {
+    description = 'Records sink HTTP contracts against a fresh local engine; pass endpoint and new output directory via --args.'
+    group = 'verification'
+    dependsOn wiremockClasses
+    classpath = sourceSets.wiremock.runtimeClasspath
+    mainClass = 'org.opensearch.migrations.bulkload.wiremock.SinkWireMockTest'
+    jvmArgs '-ea', '-Xmx512m', '-Dreactor.netty.ioWorkerCount=2'
+}

@@ -1,0 +1,447 @@
+{
+  "experiment": "E-007 hardware baseline; full-suite comparison pending",
+  "observed_date": "2026-10-01",
+  "github": {
+    "run_url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958",
+    "specification_source": "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+    "repository_visibility": "public",
+    "runner_label": "ubuntu-22.04",
+    "documented_per_runner": {
+      "vcpus": 4,
+      "memory_gb": 16,
+      "ssd_gb": 14
+    },
+    "shards": 30,
+    "initial_total_vcpus": 120,
+    "initial_total_memory_gb": 480,
+    "job_start_spread_seconds": 3,
+    "maximum_job_seconds": 4134,
+    "sum_job_seconds": 86724,
+    "shard_results": [
+      {
+        "name": "gradle-tests (0)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929512",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:19:38Z",
+        "job_seconds": 2682,
+        "gradle_step_seconds": 2349,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (1)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929330",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:21:14Z",
+        "job_seconds": 2778,
+        "gradle_step_seconds": 2157,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (2)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929579",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:24:46Z",
+        "job_seconds": 2990,
+        "gradle_step_seconds": 2657,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (3)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929814",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:29:31Z",
+        "job_seconds": 3275,
+        "gradle_step_seconds": 2840,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (4)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929590",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:23:51Z",
+        "job_seconds": 2935,
+        "gradle_step_seconds": 2575,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (5)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929518",
+        "started_at": "2026-10-01T18:34:55Z",
+        "completed_at": "2026-10-01T19:30:41Z",
+        "job_seconds": 3346,
+        "gradle_step_seconds": 3023,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (6)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929458",
+        "started_at": "2026-10-01T18:34:55Z",
+        "completed_at": "2026-10-01T19:34:55Z",
+        "job_seconds": 3600,
+        "gradle_step_seconds": 3280,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (7)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929473",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:33:32Z",
+        "job_seconds": 3516,
+        "gradle_step_seconds": 3094,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (8)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929560",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:39:44Z",
+        "job_seconds": 3888,
+        "gradle_step_seconds": 3387,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (9)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929453",
+        "started_at": "2026-10-01T18:34:57Z",
+        "completed_at": "2026-10-01T19:43:51Z",
+        "job_seconds": 4134,
+        "gradle_step_seconds": 3457,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (10)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929523",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:38:42Z",
+        "job_seconds": 3826,
+        "gradle_step_seconds": 2837,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (11)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929505",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:36:14Z",
+        "job_seconds": 3678,
+        "gradle_step_seconds": 3329,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (12)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929634",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:13:20Z",
+        "job_seconds": 2304,
+        "gradle_step_seconds": 1893,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (13)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929447",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:27:34Z",
+        "job_seconds": 3158,
+        "gradle_step_seconds": 2620,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (14)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929602",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:18:23Z",
+        "job_seconds": 2607,
+        "gradle_step_seconds": 2189,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (15)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929494",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:14:18Z",
+        "job_seconds": 2362,
+        "gradle_step_seconds": 1899,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (16)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929514",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:23:57Z",
+        "job_seconds": 2941,
+        "gradle_step_seconds": 2568,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (17)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929585",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:16:02Z",
+        "job_seconds": 2466,
+        "gradle_step_seconds": 2004,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (18)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929569",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:17:13Z",
+        "job_seconds": 2537,
+        "gradle_step_seconds": 2173,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (19)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929704",
+        "started_at": "2026-10-01T18:34:57Z",
+        "completed_at": "2026-10-01T19:27:42Z",
+        "job_seconds": 3165,
+        "gradle_step_seconds": 2737,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (20)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929521",
+        "started_at": "2026-10-01T18:34:55Z",
+        "completed_at": "2026-10-01T19:14:36Z",
+        "job_seconds": 2381,
+        "gradle_step_seconds": 1993,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (21)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929577",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:12:20Z",
+        "job_seconds": 2244,
+        "gradle_step_seconds": 1830,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (22)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929511",
+        "started_at": "2026-10-01T18:34:55Z",
+        "completed_at": "2026-10-01T19:18:23Z",
+        "job_seconds": 2608,
+        "gradle_step_seconds": 2281,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (23)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929647",
+        "started_at": "2026-10-01T18:34:57Z",
+        "completed_at": "2026-10-01T19:15:43Z",
+        "job_seconds": 2446,
+        "gradle_step_seconds": 2092,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (24)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522930116",
+        "started_at": "2026-10-01T18:34:58Z",
+        "completed_at": "2026-10-01T19:20:42Z",
+        "job_seconds": 2744,
+        "gradle_step_seconds": 2329,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (25)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929626",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:19:38Z",
+        "job_seconds": 2682,
+        "gradle_step_seconds": 1928,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (26)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929519",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:12:25Z",
+        "job_seconds": 2249,
+        "gradle_step_seconds": 1718,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (27)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929679",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:10:15Z",
+        "job_seconds": 2119,
+        "gradle_step_seconds": 1596,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (28)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929727",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:15:24Z",
+        "job_seconds": 2428,
+        "gradle_step_seconds": 2009,
+        "conclusion": "success"
+      },
+      {
+        "name": "gradle-tests (29)",
+        "url": "https://github.com/zjpiazza/opensearch-migrations/actions/runs/36907315958/job/110522929643",
+        "started_at": "2026-10-01T18:34:56Z",
+        "completed_at": "2026-10-01T19:18:51Z",
+        "job_seconds": 2635,
+        "gradle_step_seconds": 2223,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "buildbarn": {
+    "context": "do-atl1-bazel",
+    "namespace": "migrations-buildbarn",
+    "execution_node_size": "g5-4vcpu-16gb-80gb",
+    "execution_nodes": 3,
+    "nominal_execution_pool_vcpus": 12,
+    "nominal_execution_pool_memory_gb": 48,
+    "replicas": 9,
+    "slots_per_replica": 1,
+    "runner_resources": {
+      "limits": {
+        "cpu": "1",
+        "ephemeral-storage": "12Gi",
+        "memory": "3Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "ephemeral-storage": "2Gi",
+        "memory": "3Gi"
+      }
+    },
+    "total_runner_cpu_limit": 9,
+    "total_runner_memory_limit_gib": 27,
+    "nodes": [
+      {
+        "name": "control-plane-3x5033",
+        "pool": "control-plane",
+        "capacity": {
+          "cpu": "1",
+          "ephemeral-storage": "51392640Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "2021224Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "920m",
+          "ephemeral-storage": "47363456946",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "1500008Ki",
+          "pods": "110"
+        }
+      },
+      {
+        "name": "control-plane-3x5038",
+        "pool": "control-plane",
+        "capacity": {
+          "cpu": "1",
+          "ephemeral-storage": "51392640Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "2021224Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "920m",
+          "ephemeral-storage": "47363456946",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "1500008Ki",
+          "pods": "110"
+        }
+      },
+      {
+        "name": "control-plane-3x503u",
+        "pool": "control-plane",
+        "capacity": {
+          "cpu": "1",
+          "ephemeral-storage": "51392640Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "2021224Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "920m",
+          "ephemeral-storage": "47363456946",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "1500008Ki",
+          "pods": "110"
+        }
+      },
+      {
+        "name": "workers-3x5037",
+        "pool": "workers",
+        "capacity": {
+          "cpu": "4",
+          "ephemeral-storage": "82355004Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "16381256Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "3890m",
+          "ephemeral-storage": "75898371561",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "13972808Ki",
+          "pods": "110"
+        }
+      },
+      {
+        "name": "workers-3x503c",
+        "pool": "workers",
+        "capacity": {
+          "cpu": "4",
+          "ephemeral-storage": "82355004Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "16381256Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "3890m",
+          "ephemeral-storage": "75898371561",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "13972808Ki",
+          "pods": "110"
+        }
+      },
+      {
+        "name": "workers-3x503m",
+        "pool": "workers",
+        "capacity": {
+          "cpu": "4",
+          "ephemeral-storage": "82355004Ki",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "16381248Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "3890m",
+          "ephemeral-storage": "75898371561",
+          "hugepages-1Gi": "0",
+          "hugepages-2Mi": "0",
+          "memory": "13972800Ki",
+          "pods": "110"
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "Allocated resources and elapsed runner-hours are not measured CPU utilization.",
+    "CPU models and per-core performance have not been matched.",
+    "GitHub documented SSD capacity and Kubernetes ephemeral-storage limits are different measurements.",
+    "Support nodes are additional resources; execution pool totals exclude them.",
+    "Buildbarn has only executed the nine-test WireMock slice, not the full Gradle suite.",
+    "Current Buildbarn execution containers lack Docker support required by container-backed integration tests."
+  ]
+}

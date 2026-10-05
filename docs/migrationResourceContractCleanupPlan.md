@@ -79,10 +79,10 @@ surfaces must agree on the resulting contract:
 
 | Surface | File |
 | --- | --- |
-| Projected fields (drives CRD schema + VAP CEL + dry-run) | `orchestrationSpecs/packages/schemas/src/migrationResourceProjections.ts` |
-| Workflow apply manifests (`tryApply`, writes the live CR spec) | `orchestrationSpecs/packages/migration-workflow-templates/src/workflowTemplates/resourceManagement.ts` |
-| Resolved resources (MigrationRun history + dry-run input) | `orchestrationSpecs/packages/config-processor/src/resolvedMigrationResources.ts` |
-| Checksum computation | `orchestrationSpecs/packages/config-processor/src/migrationConfigTransformer.ts` |
+| Projected fields (drives CRD schema + VAP CEL + dry-run) | `apps/orchestration/packages/schemas/src/migrationResourceProjections.ts` |
+| Workflow apply manifests (`tryApply`, writes the live CR spec) | `apps/orchestration/packages/migration-workflow-templates/src/workflowTemplates/resourceManagement.ts` |
+| Resolved resources (MigrationRun history + dry-run input) | `apps/orchestration/packages/config-processor/src/resolvedMigrationResources.ts` |
+| Checksum computation | `apps/orchestration/packages/config-processor/src/migrationConfigTransformer.ts` |
 
 The apply manifests are the one surface that does **not** read the projection
 table; it is hand-transcribed. The changes below fix the specific divergences

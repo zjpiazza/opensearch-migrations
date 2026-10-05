@@ -1,0 +1,26 @@
+{
+  "notes": [
+    "Only reviewed Jupiter classes are sharded; dynamic factories fail closed.",
+    "fixture-index keeps the same version-provider index together across methods.",
+    "independent distributes cases by their full JUnit unique ID when fixtures are per case.",
+    "Counts are experimental and require a forced-execution selected-class coverage comparison."
+  ],
+  "classes": {
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.EndToEndTest": {"count": 16, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.PipelineEndToEndTest": {"count": 7},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest": {"count": 8, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.LeaseExpirationTest": {"count": 5},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.SnapshotConfigurationTest": {"count": 6, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.RoutingShardColocationTest": {"count": 5, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.EndToEndCompressionTest": {"count": 5, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.DeltaSnapshotRestoreTest": {"count": 6, "grouping": "independent"},
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.SolrSnapshotToOpenSearchTest": {"count": 6, "grouping": "independent"},
+    ":MetadataMigration:isolatedTest|org.opensearch.migrations.EndToEndTest": {"count": 16, "grouping": "independent"},
+    ":MetadataMigration:isolatedTest|org.opensearch.migrations.SnapshotConfigurationTest": {"count": 6, "grouping": "independent"},
+    ":MetadataMigration:isolatedTest|org.opensearch.migrations.CustomTransformationTest": {"count": 5, "grouping": "independent"},
+    ":RFS:isolatedTest|org.opensearch.migrations.bulkload.workcoordination.WorkCoordinatorTest": {"count": 7},
+    ":SnapshotReader:isolatedTest|org.opensearch.migrations.bulkload.SnapshotReaderEndToEndTest": {"count": 16},
+    ":SnapshotReader:isolatedTest|org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest": {"count": 11},
+    ":SolrReader:isolatedTest|org.opensearch.migrations.bulkload.solr.SolrToOpenSearchEndToEndTest": {"count": 6, "grouping": "independent"}
+  }
+}

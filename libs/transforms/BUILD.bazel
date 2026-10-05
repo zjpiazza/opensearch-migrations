@@ -1,0 +1,32 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools/build/bazel:java_tests.bzl", "junit_tests")
+
+package(default_visibility = ["//visibility:public"])
+
+LIB_DEPS = [
+    "@maven//:org_slf4j_slf4j_api",
+    "@maven//:com_fasterxml_jackson_core_jackson_databind",
+    "@maven//:com_fasterxml_jackson_core_jackson_core",
+    "@maven//:com_fasterxml_jackson_core_jackson_annotations",
+    "@maven//:org_projectlombok_lombok",
+    "//libs/transforms/transformationPlugins/jsonMessageTransformers/jsonMessageTransformerInterface:lib",
+]
+
+java_library(
+    name = "lib",
+    srcs = glob(["src/main/java/**/*.java"]),
+    resources = glob(["src/main/resources/**"], allow_empty = True),
+    plugins = ["//tools/build/bazel:lombok"],
+    deps = LIB_DEPS,
+)
+
+junit_tests(
+    classes = [
+        "org.opensearch.migrations.FlavorTest",
+        "org.opensearch.migrations.UnboundVersionMatchersTest",
+        "org.opensearch.migrations.VersionMatchersTest",
+        "org.opensearch.migrations.VersionTest",
+        "org.opensearch.migrations.transformation.rules.TemplateMatchClausePatternTest",
+    ],
+    deps = LIB_DEPS + [":lib"],
+)

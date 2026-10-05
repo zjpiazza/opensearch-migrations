@@ -1,0 +1,48 @@
+load("@rules_python//python:defs.bzl", "py_test")
+load("@console_pypi//:requirements.bzl", "requirement")
+
+py_test(
+    name = "workflow_output_integration_test",
+    srcs = ["test_workflow_output_integration.py", "//tools/build/bazel:pytest_main.py"],
+    main = "//tools/build/bazel:pytest_main.py",
+    args = ["$(location test_workflow_output_integration.py)"],
+    deps = [
+        "//apps/console/lib/console_link:workflow_outputs",
+        "//apps/console/lib/integ_test:approval_contract",
+        requirement("pytest"),
+        requirement("click"),
+        requirement("kubernetes"),
+    ],
+    tags = ["block-network"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)
+
+py_test(
+    name = "approval_integration_test",
+    srcs = ["test_approval_integration.py", "//tools/build/bazel:pytest_main.py"],
+    main = "//tools/build/bazel:pytest_main.py",
+    args = ["$(location test_approval_integration.py)"],
+    data = ["approval_scenario.json"],
+    deps = [
+        "//apps/console/lib/console_link:approval",
+        "//apps/console/lib/integ_test:approval_contract",
+        requirement("pytest"),
+        requirement("click"),
+        requirement("kubernetes"),
+    ],
+    tags = ["block-network"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)
+
+py_test(
+    name = "approval_contract_test",
+    srcs = ["test_approval_contract.py", "//tools/build/bazel:pytest_main.py"],
+    main = "//tools/build/bazel:pytest_main.py",
+    args = ["$(location test_approval_contract.py)"],
+    deps = ["//apps/console/lib/integ_test:approval_contract", requirement("pytest")],
+    tags = ["block-network"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)

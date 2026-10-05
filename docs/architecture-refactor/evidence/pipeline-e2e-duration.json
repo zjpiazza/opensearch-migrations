@@ -1,0 +1,148 @@
+{
+  "run": "full-6",
+  "class": "org.opensearch.migrations.bulkload.PipelineEndToEndTest",
+  "junit_launcher_seconds": 2595.981,
+  "cases": [
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[3]",
+      "seconds": 9.87,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[3]",
+      "seconds": 600.009,
+      "status": "failed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[4]",
+      "seconds": 11.085,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[2]",
+      "seconds": 22.386,
+      "status": "passed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[1]",
+      "seconds": 9.904,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[5]",
+      "seconds": 9.979,
+      "status": "passed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[2]",
+      "seconds": 74.282,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[4]",
+      "seconds": 35.389,
+      "status": "passed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[7]",
+      "seconds": 131.452,
+      "status": "passed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[5]",
+      "seconds": 62.79,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[1]",
+      "seconds": 18.342,
+      "status": "passed"
+    },
+    {
+      "name": "metadataPipelineMigration(ContainerVersion, ContainerVersion)[6]",
+      "seconds": 72.549,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[7]",
+      "seconds": 600.006,
+      "status": "failed"
+    },
+    {
+      "name": "pipelineWithComplexData(ContainerVersion, ContainerVersion)[6]",
+      "seconds": 600.007,
+      "status": "failed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[3]",
+      "seconds": 10.094,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[4]",
+      "seconds": 10.161,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[1]",
+      "seconds": 10.01,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[2]",
+      "seconds": 10.124,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[7]",
+      "seconds": 14.256,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[5]",
+      "seconds": 8.249,
+      "status": "passed"
+    },
+    {
+      "name": "fullPipelineMigration(ContainerVersion, ContainerVersion)[6]",
+      "seconds": 14.44,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[3]",
+      "seconds": 36.771,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[4]",
+      "seconds": 115.14,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[1]",
+      "seconds": 43.322,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[2]",
+      "seconds": 19.854,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[7]",
+      "seconds": 21.154,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[5]",
+      "seconds": 8.367,
+      "status": "passed"
+    },
+    {
+      "name": "pipelineWithSmallBatches(ContainerVersion, ContainerVersion)[6]",
+      "seconds": 14.434,
+      "status": "passed"
+    }
+  ],
+  "note": "One Bazel class/task target; three complex-data cases timed out after ten minutes each. No scheduling or test changes made."
+}

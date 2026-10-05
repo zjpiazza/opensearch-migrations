@@ -104,10 +104,10 @@ def call(Map config = [:]) {
                         if (config.cdkContextStep) {
                             config.cdkContextStep()
                         } else {
-                            writeFile (file: "test/$source_context_file_name", text: sourceContext)
-                            sh "echo 'Using source context file options: ' && cat test/$source_context_file_name"
-                            writeFile (file: "test/$migration_context_file_name", text: migrationContext)
-                            sh "echo 'Using migration context file options: ' && cat test/$migration_context_file_name"
+                            writeFile (file: "tests/e2e/$source_context_file_name", text: sourceContext)
+                            sh "echo 'Using source context file options: ' && cat tests/e2e/$source_context_file_name"
+                            writeFile (file: "tests/e2e/$migration_context_file_name", text: migrationContext)
+                            sh "echo 'Using migration context file options: ' && cat tests/e2e/$migration_context_file_name"
                         }
                     }
                 }
@@ -135,7 +135,7 @@ def call(Map config = [:]) {
                 }
                 steps {
                     timeout(time: 60, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 withCredentials([string(credentialsId: 'migrations-test-account-id', variable: 'MIGRATIONS_TEST_ACCOUNT_ID')]) {
                                     withAWS(role: 'JenkinsDeploymentRole', roleAccount: "${MIGRATIONS_TEST_ACCOUNT_ID}", duration: 5400, roleSessionName: 'jenkins-session') {
@@ -157,7 +157,7 @@ def call(Map config = [:]) {
             stage('Deploy') {
                 steps {
                     timeout(time: 90, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 // Allow overwriting this step
                                 if (config.deployStep) {
@@ -186,7 +186,7 @@ def call(Map config = [:]) {
             stage('Pre-Integ Test Cleanup') {
                 steps {
                     timeout(time: 10, unit: 'MINUTES') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 if (config.preIntegTestStep) {
                                     withCredentials([string(credentialsId: 'migrations-test-account-id', variable: 'MIGRATIONS_TEST_ACCOUNT_ID')]) {
@@ -204,7 +204,7 @@ def call(Map config = [:]) {
             stage('Integ Tests') {
                 steps {
                     timeout(time: 1, unit: 'HOURS') {
-                        dir('test') {
+                        dir('tests/e2e') {
                             script {
                                 // Allow overwriting this step
                                 if (config.integTestStep) {
@@ -234,7 +234,7 @@ def call(Map config = [:]) {
         post {
             always {
                 timeout(time: 10, unit: 'MINUTES') {
-                    dir('test') {
+                    dir('tests/e2e') {
                         script {
                             // Allow overwriting this step
                             if (config.finishStep) {

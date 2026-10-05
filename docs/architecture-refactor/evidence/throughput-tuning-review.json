@@ -1,0 +1,195 @@
+{
+  "observed_at": "2026-10-02T00:52:02.013697+00:00",
+  "initial_checkpoint": {
+    "counts": {
+      "PASSED": 387,
+      "RUNNING": 36,
+      "PENDING": 16
+    },
+    "cached": 0,
+    "elapsed_seconds": 423.8946497440338,
+    "pools": {
+      "integration": {
+        "ready": 32,
+        "total": 32,
+        "PASSED": 283,
+        "RUNNING": 32,
+        "PENDING": 12
+      },
+      "integration-large": {
+        "ready": 8,
+        "total": 8,
+        "RUNNING": 4,
+        "PASSED": 3,
+        "PENDING": 4
+      },
+      "lightweight": {
+        "ready": 11,
+        "total": 12,
+        "PASSED": 101
+      }
+    }
+  },
+  "sampled_container_counters": [
+    {
+      "test": "org.opensearch.migrations.DataGeneratorEndToEndTest",
+      "container": "runner",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.019775400898175307,
+      "throttled_period_fraction": 0.0,
+      "memory_peak_gib": 0.35251617431640625,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.DataGeneratorEndToEndTest",
+      "container": "docker",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.8635417398267448,
+      "throttled_period_fraction": 0.8115942028985508,
+      "memory_peak_gib": 6.000419616699219,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 2983,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "container": "runner",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.025763400384622485,
+      "throttled_period_fraction": 0.02127659574468085,
+      "memory_peak_gib": 0.353973388671875,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.bulkload.pipeline.adapter.LuceneSnapshotSourceEndToEndTest",
+      "container": "docker",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.6021184690547816,
+      "throttled_period_fraction": 0.1688888888888889,
+      "memory_peak_gib": 6.0001220703125,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 2454,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.bulkload.SnapshotReaderEndToEndTest",
+      "container": "runner",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.018358249052405913,
+      "throttled_period_fraction": 0.0,
+      "memory_peak_gib": 0.4485969543457031,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.bulkload.SnapshotReaderEndToEndTest",
+      "container": "docker",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 0.4999864950879321,
+      "throttled_period_fraction": 0.14084507042253522,
+      "memory_peak_gib": 6.000461578369141,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 2594,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "test": "org.opensearch.migrations.bulkload.PipelineEndToEndTest",
+      "container": "docker",
+      "sample_seconds": 32.367738246917725,
+      "cpu_cores": 1.4207427670476518,
+      "throttled_period_fraction": 0.8944099378881988,
+      "memory_peak_gib": 6.000003814697266,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 2313,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    }
+  ],
+  "oom_observations": [
+    {
+      "pod": "worker-integration-6ddd579666-t7ffb",
+      "container": "docker",
+      "termination": {
+        "containerID": "containerd://d2f8ff7e29e90f8194806c0d43c291eb6066f52cb8e2600e4d438776effe56ef",
+        "exitCode": 137,
+        "finishedAt": "2026-10-02T00:49:04Z",
+        "reason": "OOMKilled",
+        "startedAt": "2026-10-02T00:41:59Z"
+      }
+    }
+  ],
+  "measurement_notes": [
+    "Throttled-period fraction is quota periods with throttling, not fraction of wall time lost or a predicted speedup.",
+    "CPU rates use approximate common sample duration; one runner probe failed with a TLS handshake timeout.",
+    "memory.peak and memory.events are cumulative for the cgroup lifetime, include charged file cache, and are not isolated per-test measurements.",
+    "The first uncorrected Docker probe read a daemon subgroup; only corrected parent-cgroup observations include nested services."
+  ],
+  "next_experiments": [
+    {
+      "priority": 1,
+      "change": "Compare Docker CPU limits 1.5, 3 and 4 for slow E2E cases; keep runner CPU and assertions fixed.",
+      "reason": "Pipeline Docker group throttled in 89% of observed quota periods; sampled test JVMs used little CPU."
+    },
+    {
+      "priority": 2,
+      "change": "Measure peak resident/anonymous/cache memory and apply separate heavy Docker budget; compare 6 versus 8 GiB where justified.",
+      "reason": "All four sampled Docker parent groups reached their 6-GiB memory limit; another worker Docker sidecar was OOMKilled."
+    },
+    {
+      "priority": 3,
+      "change": "Allow compatible integration work to use idle large capacity through validated scheduling/size-class policy; review default Docker routing.",
+      "reason": "All 32 standard slots busy while four of eight large slots idle and all lightweight targets complete."
+    },
+    {
+      "priority": 4,
+      "change": "Split long parameterized classes into independently isolated method/version-pair targets and prioritize long jobs early.",
+      "reason": "The exporter currently selects an entire JUnit class; remaining matrix cases may dominate final wall time."
+    },
+    {
+      "priority": 5,
+      "change": "Measure preparation separately; reuse worker image/input caches and adjust idle retention per pool.",
+      "reason": "PVC/image provisioning costs and a universal 15-minute demand retention can leave idle reserved capacity."
+    }
+  ],
+  "active_run_unchanged": true,
+  "hardware_benchmarks_deferred_until_completion": true
+}

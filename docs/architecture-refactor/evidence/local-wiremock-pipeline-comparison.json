@@ -1,0 +1,1153 @@
+{
+  "scope": "Local single-JVM 28-scenario experiment; no remote execution or result reuse",
+  "source_commit": "f6fbf32792c3dc58c17728208d9891409d43527e",
+  "phases": [
+    {
+      "phase": "prepare",
+      "wall_seconds": 6.179,
+      "exit_code": 0
+    },
+    {
+      "phase": "replay-1",
+      "wall_seconds": 296.142,
+      "exit_code": 0,
+      "test_seconds": 290.545,
+      "cases": [
+        {
+          "name": "batching: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.816,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.112,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.035,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.037,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.026,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.022,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.064,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.019,
+          "passed": true
+        },
+        {
+          "name": "Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.019,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.02,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.013,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 62.547,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.014,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.272,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 58.96,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 49.283,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 117.393,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.148,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.141,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.119,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.099,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.093,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.104,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.103,
+          "passed": true
+        }
+      ],
+      "group_test_seconds": {
+        "metadata_7": 288.482,
+        "documents_and_batching_21": 2.046
+      }
+    },
+    {
+      "phase": "replay-2",
+      "wall_seconds": 307.749,
+      "exit_code": 0,
+      "test_seconds": 300.457,
+      "cases": [
+        {
+          "name": "batching: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.823,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.124,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.031,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.038,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.027,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.023,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.066,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.02,
+          "passed": true
+        },
+        {
+          "name": "Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.02,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.016,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 63.223,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.012,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.27,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 55.203,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 62.127,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 117.481,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.159,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.13,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.114,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.126,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.096,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.105,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.119,
+          "passed": true
+        }
+      ],
+      "group_test_seconds": {
+        "metadata_7": 298.332,
+        "documents_and_batching_21": 2.108
+      }
+    },
+    {
+      "phase": "replay-3",
+      "wall_seconds": 301.858,
+      "exit_code": 0,
+      "test_seconds": 295.137,
+      "cases": [
+        {
+          "name": "batching: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.889,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.115,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.035,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.038,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.024,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.024,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.068,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.021,
+          "passed": true
+        },
+        {
+          "name": "Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.02,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.017,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.019,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.018,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.012,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 53.945,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.012,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.269,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 57.674,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 59.362,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 121.666,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.154,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.14,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.139,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 0.088,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 0.111,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.102,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 0.119,
+          "passed": true
+        }
+      ],
+      "group_test_seconds": {
+        "metadata_7": 292.94,
+        "documents_and_batching_21": 2.177
+      }
+    },
+    {
+      "phase": "live",
+      "wall_seconds": 622.488,
+      "exit_code": 0,
+      "test_seconds": 615.66,
+      "cases": [
+        {
+          "name": "batching: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 15.497,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 14.332,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 15.183,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 24.361,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 6.188,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 11.02,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 15.348,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.943,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.116,
+          "passed": true
+        },
+        {
+          "name": "Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.963,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.184,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 6.03,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.065,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.281,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.893,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 64.438,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.903,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.496,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 64.025,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 65.492,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 129.328,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 15.739,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 17.216,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 16.562,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 25.987,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 7.168,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 11.034,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 16.863,
+          "passed": true
+        }
+      ],
+      "group_test_seconds": {
+        "metadata_7": 346.575,
+        "documents_and_batching_21": 269.08
+      }
+    },
+    {
+      "phase": "prepared-snapshots",
+      "wall_seconds": 531.589,
+      "exit_code": 0,
+      "test_seconds": 524.577,
+      "cases": [
+        {
+          "name": "batching: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.286,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.991,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.013,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.223,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 6.102,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.953,
+          "passed": true
+        },
+        {
+          "name": "batching: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.203,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.907,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.181,
+          "passed": true
+        },
+        {
+          "name": "Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.971,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.088,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 6.204,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.976,
+          "passed": true
+        },
+        {
+          "name": "Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.164,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.001,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 59.354,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.872,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 7.55,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 66.702,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 66.63,
+          "passed": true
+        },
+        {
+          "name": "metadata: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 130.06,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 1.7.6) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.096,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.713,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(OPENSEARCH 1.3.20) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.594,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 8.19.11) \u2192 Container(OPENSEARCH 2.19.4)",
+          "seconds": 8.57,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 1.3.20)",
+          "seconds": 6.953,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 7.10.2) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 11.345,
+          "passed": true
+        },
+        {
+          "name": "complex: Container(ELASTICSEARCH 6.8.23) \u2192 Container(OPENSEARCH 3.7.0)",
+          "seconds": 10.869,
+          "passed": true
+        }
+      ],
+      "group_test_seconds": {
+        "metadata_7": 345.169,
+        "documents_and_batching_21": 179.402
+      }
+    }
+  ],
+  "summary": {
+    "replay_median_wall_seconds": 301.858,
+    "replay_median_test_seconds": 295.137,
+    "wall_reduction_vs_real_percent": 51.507820231072735,
+    "wall_reduction_vs_prepared_snapshots_percent": 43.21590552099461,
+    "real_to_prepared_snapshot_reduction_seconds": 90.899,
+    "prepared_snapshot_to_wiremock_reduction_seconds": 229.73100000000005,
+    "replay_median_document_test_seconds": 2.108
+  },
+  "fixture_directory": "apps/backfill/src/wiremock/resources/pipeline",
+  "source_inputs": {
+    "uncommitted_experiment": true,
+    "sha256": {
+      "build.gradle": "e239d4a1d1e3500932ce8b0dfa45fd1d27606c8b7139ab501be236db2d1b9b1a",
+      "apps/backfill/build.gradle": "dbd07f52c968940c4eef9a07b635ad787165a79c4db42c776653edc4ca8a687a",
+      "apps/backfill/src/test/java/org/opensearch/migrations/bulkload/PipelineEndToEndTest.java": "92d8e6b2f43ec32d23e93c0a5d228e02d199ae33951b8304831d5b46f7822f15",
+      "apps/backfill/src/wiremock/java/org/opensearch/migrations/bulkload/PipelineWireMockTest.java": "f42c9070a6999ec9f18bf7d3478a2b6d17061068f3487afde510e61a8bbaf8f4",
+      "tools/build/wiremock-pipeline/benchmark.py": "b7e46d0f69747f5c8774a6b24db2a493383f0fa39f5c555564ccb4f852dd40b5",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz": "211d7a95cf8e2fa17d2cf4a12f5490059d2be1a9e1d909b2a4a57833ebd80bb7",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz.sha256": "cbb284da2f8c763da4beadd2c47c57c3d5ba57178dafc55b2b52c4416f4094ef",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz": "a39b811b9f21ae193597763dba57c5be4fc2d6173d39a7e54f171101774a4f2f",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz.sha256": "18726c1c72f47f4f11379995b638016f9f14dac9ba74c2aa675bff957947875b",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz": "bc911d1e2038f8d2cf888179ee905aa70e20a4ad52d08a986adb13a0ebbb3f42",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz.sha256": "7da494f4cd8b41127cbd768ae41fb0c13d96b6091779857e036c0ce48e1ca781",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz": "9d324be9f60a1030d02d6a582ca67b7a1f8896c6d73506c5cb151c548a4b00d3",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_1.7.6__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz.sha256": "d561816a6c3a95666e4670deb875ee964b49573632ab291b338102c4c9fd4146",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__fullPipelineMigration.json.gz": "035ec87f05119f5e08ff2c30a181591865d1123f83937d56e25fef6fbec0dc88",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__fullPipelineMigration.json.gz.sha256": "2ae4bffe89bcf461d067f3e0f6ed1c4033b77c1194f2551b645e519c4b291bdf",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz": "5b6152261152328c0dfcab6c7a558ddf71198dca7e1f024dbac2bb1626b9f333",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz.sha256": "374c393086d2e7513faa629695958f3bf35ad77d9586cff69aecc4922671ff52",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__pipelineWithComplexData.json.gz": "f9714e622093e56a2f156ac93c2d495e17bc87a52f3a593abc8b01f6a6335419",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__pipelineWithComplexData.json.gz.sha256": "9bf340694ac9e9cd5ccdbf69931f470f95c57853ffa095e46b2e253df69f8491",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__pipelineWithSmallBatches.json.gz": "fca2468593021ade3c4b345b7cac09f04c3f78cabe4a9df149e4ff5d56ac4005",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__pipelineWithSmallBatches.json.gz.sha256": "74f61f6ab4595e6945dc439f65e2874b879a34962f0f17c530f57fb0071b9671",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__fullPipelineMigration.json.gz": "b9382865003391e6a29161a0bf348dbb2dd4be5b34f913cf58911eaf536939a2",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__fullPipelineMigration.json.gz.sha256": "a203ef345dca316ec49989bda63e8de5cfd68585f1010170485c72dbe48a814b",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz": "5cc07ace3a1080f9af267ea9828abe91f17ec21424b9d0694aafd41f7c44b5d1",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz.sha256": "ce07f67b10293a222717094021fdd1db9ce8e9ea046b3c2c17be234c6dd7267c",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__pipelineWithComplexData.json.gz": "973b07d4a58ede0f310c4bf3e965b8349ee2f76e3f30b048d0e3aafcd4138bbf",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__pipelineWithComplexData.json.gz.sha256": "1569c8fffabaf4af63974c4a052c4eab6b865405f60bb225c336e94e304af83f",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__pipelineWithSmallBatches.json.gz": "df164a711cf35e5ee1f767a20a7fb64a64406b2d3102cc5e348f39a732813134",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__pipelineWithSmallBatches.json.gz.sha256": "fc049b4bb4610ded7a01eb73054754be9a2d6be2fb6685ec3f3999aa4c8d2af4",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz": "82b92fb7802ce5c6897627c36d3adac40c42ddeab3fffaf9d699bd8bda30bf79",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz.sha256": "c98b859306ae353f69d34dea0e59f47d0ab950d2b53a52edae075ab57a49d818",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz": "3aecc7ee3eabd8daac33a82c53bf19b39f575d911b0dd6f0bbde613147201ad7",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz.sha256": "e850e723288da0af55e5623eec25ccaa9194581423b43a138252dec0554d215d",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz": "114074cc551fe4875b1d5ec28e2bd54904d05d41de1d9a10d0ab175e168feccb",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz.sha256": "5a83dff29158abaef3bb88ebb741d732b6f7dd8ad394b35f78f7c356b05ef4a0",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz": "f6443dd4e29560aa9f107f4e3f2e8445f9a0e25e05e6dac0435d9af6163841ec",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz.sha256": "ffc8016e7b7c6553d31678dbaddd496cfbea925fb54471a9fd01bde2a13c5502",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__fullPipelineMigration.json.gz": "fe1d8001f3e94994174626298ad366826cd53f0b0365406a94ed640d91aaebb2",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__fullPipelineMigration.json.gz.sha256": "c92d59531c24f8bda5479925e6ab367f5d8f6a4ba3cd4b7524d28da17cc89273",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz": "0fc918d7b7e1052abc03e11aa277309e74f08e970e688326b46b00b117dabefd",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz.sha256": "ce07b967dd52b0934e6ffaeef15a7da495d9e4c0a6162ed4f1ff47b307bdc531",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__pipelineWithComplexData.json.gz": "bcd277c89ae8824c626c1b6578483e4c1f225d82ca31a8e576cc8e42bbd4f659",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__pipelineWithComplexData.json.gz.sha256": "acf0373581c896f1ebe110002c4704b74674548fabb5378f533ab74eaf25b7a7",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__pipelineWithSmallBatches.json.gz": "9e63447c526a6ce1ba077b56d69837b2075ee35ae486ba4d188e3423465e049a",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__pipelineWithSmallBatches.json.gz.sha256": "4b3831d108a48a22cda7090e0ff03278fdda8b6a02724a9d2fb451fa95246e78",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz": "fa9cfd2ace6c1eed35e9b71d0d937125b5daf51b446c433ee873c7039b0d0348",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz.sha256": "f65fd29668e44926a88a6cd979f9b324a2651e60d851d300fd277aedb081b9f5",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz": "a3580ccbf1b782e45c5078ac9cfdc1f316062d821f1fd589af3d366d3c3dc775",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz.sha256": "d42df5f57d96ab9e1913144a8f8d7fa2f2c37d449e34cfa2cfd9f67c4888f847",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz": "600a224c7373c5a5de4bf06b24ac9d52ea73fd81c075a2e293c05763d0d11d9c",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz.sha256": "d7e795cc90cbc18bbc47b961cf440684980f7fd9b5fcd7c9d3e3c15799db1e3c",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz": "54c8ccbe8c1f6b5436bd8c7a5990a6b6c45c0f8ea25b6f1384f3f40b65c51395",
+      "apps/backfill/src/wiremock/resources/pipeline/http/ELASTICSEARCH_8.19.11__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz.sha256": "f45af7a1708029a501da0203b3c1c5f58cb6c13b56af89c161e0ac29fbff2230",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz": "7d57b25965a4f794d5e1d81a92c90464fe1177c6d7c28465c8ce84cca36b32f9",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__fullPipelineMigration.json.gz.sha256": "413f85a55e21e3d505840fd6ab53dd5e1980ac297c13fc23db73909a255e15ba",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz": "fa3398f0f4f1a3fde939e9245f81a5548aec48b98aa357fbd6aeef5b30a09580",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz.sha256": "0a7e967fe5c7c1bd472d86feffd55f190b0d66bd42383076d7c37ff3684ba2de",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz": "3343a93644f8301512c0b76decc6f03ebc29328a351aafefe8a39f75b63822ba",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__pipelineWithComplexData.json.gz.sha256": "e5a722bfa2b40e2dc0fb6697a79f83dc3e5e2ca6e9230286c34f521e752a46f3",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz": "5f5838af78ff72965b857e38a75774e8ab0af930ae9955488f86848b0397e247",
+      "apps/backfill/src/wiremock/resources/pipeline/http/OPENSEARCH_1.3.20__OPENSEARCH_2.19.4__pipelineWithSmallBatches.json.gz.sha256": "6ad13cd171d485d461f63479bb8ebe211436dc9a346bf3a68c12e5ea2b30d9d0",
+      "apps/backfill/src/wiremock/resources/pipeline/provenance.json": "e104d8dbb5fb626ea4e02253c4cbdb76b780e988f40b6e6e3bbcc204089f7ed0",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_1.7.6-false.zip": "11c1c567746514ec6c02317227fdb64e34d905a748b3c8b8479149805e39fa89",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_1.7.6-false.zip.sha256": "0aa9f966e1fdd24fd9dfce462c936564aa912a95b62054fd9858b8505d7c0239",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_1.7.6-true.zip": "3a8aa40ba60cb0ce668a9e20b72747737017ddcc69a021bf8698dfff143e120d",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_1.7.6-true.zip.sha256": "814ac5932784f4d0189aa097a725f67903cc105efda7737448c55676d0292937",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_6.8.23-false.zip": "0b0263c2c4789e5aecd409b2695b9559339b1a0e72578d3caac54693164c5f27",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_6.8.23-false.zip.sha256": "3254a9958e1c6a8065a492470a2c8f39174dd364e5c93c61d07ca83b88d203ea",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_6.8.23-true.zip": "eb1ec28c137991b750c94cf9e639bf0ae33c4553015303993a7dfbee604b7948",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_6.8.23-true.zip.sha256": "3d05221d92eedb5b0ec6a512872a1ae5e7354b02f09836b53bf409cd7f9797ce",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_7.10.2-false.zip": "b977f2763e60cedd5c04f8dffd3445151d21bb9dd635867ff7ab74c3841b20d3",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_7.10.2-false.zip.sha256": "9e2ec811fb2d54d804b33658e0d896e9040c04b6a4bf137d23a8255577c65ee1",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_7.10.2-true.zip": "037a3fab6cefd1af49f564c2e5e836bbda467645eb2059f4dca2aa513cf55ccc",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_7.10.2-true.zip.sha256": "443d70d3d92f08443673b16c34e36ecd6255b670a6ae2ed202d97e46c9b006bb",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_8.19.11-false.zip": "03183c0b56815ac0a3dde2fcd89fc3b820b29dc17fba8517377a91c1149a6374",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_8.19.11-false.zip.sha256": "19b5634c1bd7876b3736e1010618aacba87b4051fb3149580ff3dbf8e5113308",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_8.19.11-true.zip": "e05a03c60df820ca26c57ab2ae0aad5626cc1712cfd81faa0637d5b2679d4771",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/ELASTICSEARCH_8.19.11-true.zip.sha256": "47fbdcec2a890e1c4056fb89faec11df6af2607b94c5616dc397edf1b64b023e",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/OPENSEARCH_1.3.20-false.zip": "681ca1eb7480705c1e17741cf53fcc3c1597e68a086d136ef6cc50829127793e",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/OPENSEARCH_1.3.20-false.zip.sha256": "f2d5ce33fb996d32ef7a044a949c686d19572feb7317818fcfb5134d8b1103d3",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/OPENSEARCH_1.3.20-true.zip": "84271b8620615fb644cc0afb7ebb987b3ec18eef3d558b874ee972d84e17755f",
+      "apps/backfill/src/wiremock/resources/pipeline/snapshots/OPENSEARCH_1.3.20-true.zip.sha256": "609c28679c04ed55cd0ca434e38eea5047e1c66e7da6f79a69cc2473f122be51"
+    }
+  },
+  "hardware": {
+    "cpu": "AMD Ryzen 7 7800X3D, 8 cores / 16 logical CPUs",
+    "memory_kib": 64923656,
+    "jdk": "Amazon Corretto 21.0.11",
+    "gradle": "8.14.3",
+    "docker": "29.7.2",
+    "wiremock": "3.13.2",
+    "notes": [
+      "Local workstation, existing unrelated services retained. No Buildbarn execution.",
+      "Engine images already present; compilation measured separately; Gradle daemon warm.",
+      "Single-JVM serial test scenarios, unchanged production retries/jitter.",
+      "All three modes disable request compression and coverage instrumentation consistently."
+    ]
+  },
+  "metadata_retries": {
+    "operations": [
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.ml-config",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-logstash",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/security_audit_log",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.watches",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-es",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.ml-notifications",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-kibana",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.ml-anomalies-",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-alerts",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.triggered_watches",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.watch-history-9",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.ml-meta",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/security-index-template",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-beats",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.ml-state",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_6.8.23__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/logstash-index-template",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-notifications-000002",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-internal-005",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-es",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.logstash-management",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-logstash",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-alerts-7",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-beats",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_2.19.4__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-kibana",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-notifications-000002",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-internal-005",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-es",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.logstash-management",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-logstash",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-alerts-7",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-beats",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_3.7.0__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-kibana",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-notifications-000002",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.transform-internal-005",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-es",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.logstash-management",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-logstash",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-alerts-7",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-beats",
+        "attempts": 4
+      },
+      {
+        "cassette": "ELASTICSEARCH_7.10.2__OPENSEARCH_1.3.20__metadataPipelineMigration.json.gz",
+        "method": "PUT",
+        "url": "/_template/.monitoring-kibana",
+        "attempts": 4
+      }
+    ],
+    "retry_waits": 120,
+    "note": "Production retries use exponential backoff and jitter; durations were not independently instrumented."
+  },
+  "limitations": [
+    "One 28-scenario class, not the complete 756-case integration suite.",
+    "Three replay trials, one run of each real-engine control; retry jitter and unrelated background services contribute variability.",
+    "All timings are local Gradle executions with --rerun, warm dependencies/images, a prepared classpath, and no Buildbarn or Bazel result cache.",
+    "Source snapshot cache starts empty in the ordinary real-engine run, then reuses snapshots within that run. Prepared modes reuse exact pinned ZIPs.",
+    "Request compression and JaCoCo are disabled consistently for all measured modes; default E2E compression remains enabled.",
+    "Replay validates outgoing HTTP and document payloads, not actual destination persistence/search or live snapshot creation.",
+    "Replay sets DOCKER_HOST to an invalid endpoint and has no engine-start/proxy fallback in its code; this is not an OS network sandbox.",
+    "No production retry waits were shortened; 40 failing template operations produce 160 HTTP 500 responses and 120 retry waits.",
+    "After measurement, only the recording task was hardened to disable the older snapshot cache; comparison tasks and test Java sources remained unchanged."
+  ],
+  "validation": {
+    "negative_controls": [
+      "matchingRequestPasses()",
+      "omittedWriteFails()",
+      "droppedFieldFails()",
+      "duplicatedWriteFails()",
+      "unexpectedRequestFailsAfterExpectedWrite()"
+    ],
+    "negative_control_seconds": 0.519,
+    "spotless_java_check": "passed",
+    "aggregate_task_graph": "all five manual tasks absent from allTests and syncJacocoExecFiles; original isolatedTest present",
+    "recording_overwrite_guard": "refused committed fixture directory, all fixture hashes unchanged",
+    "checksums_and_retry_sequences": "28 cassettes and 10 snapshots verified; unique IDs and complete retry-state chains"
+  }
+}

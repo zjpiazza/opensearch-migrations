@@ -1,0 +1,5 @@
+{
+  "backend": "bazel",
+  "baseline_commit": "83e9c4e5ab37cd40393ddc53966f86d9487d6e3c",
+  "benchmark_status": "jenkins-native-20-job-scaffolded-awaiting-live-validation"
+}

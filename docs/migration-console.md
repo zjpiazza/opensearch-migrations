@@ -13,7 +13,7 @@ The Migration Console serves as the control plane for orchestrating and managing
 
 ## System Architecture
 
-The Migration Console is deployed into the customer's VPC and maintains connections with most other components of the Migration Assistant. The below diagram is not comprehensive and does not illustrate any of the data flow between various other components. Additionally, it shows the deployment resulting from using the `deployment/cdk` tooling. A user may also deploy with Docker, in which case each of the ECS containers and Kafka in the diagram are actually Docker containers, the EFS volume is a shared volume, and Cloudwatch is replaced with Prometheus and Jaeger. Regardless, the Migration Console maintains contact with each of the components.
+The Migration Console is deployed into the customer's VPC and maintains connections with most other components of the Migration Assistant. The below diagram is not comprehensive and does not illustrate any of the data flow between various other components. Additionally, it shows the deployment resulting from using the `deploy/distributions/aws-cdk` tooling. A user may also deploy with Docker, in which case each of the ECS containers and Kafka in the diagram are actually Docker containers, the EFS volume is a shared volume, and Cloudwatch is replaced with Prometheus and Jaeger. Regardless, the Migration Console maintains contact with each of the components.
 
 ![Migration Solution Architecture](diagrams/migration-console-arch.svg)
 [Source](https://tiny.amazon.com/jmayhucf/desia2zIMi)

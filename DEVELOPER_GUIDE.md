@@ -26,41 +26,39 @@
 
 ## Kubernetes Quick Start
 
-* This [Kubernetes Guide](deployment/k8s/README.md) shows you how to create a minikube cluster locally and deploy the Migration Assistant to it.
-* This [AWS EKS Guide](deployment/k8s/aws/README.md) shows you how to deploy an EKS cluster and deploy the Migration Assistant to it.
+* This [Kubernetes Guide](deploy/kubernetes/README.md) shows you how to create a minikube cluster locally and deploy the Migration Assistant to it.
+* This [AWS EKS Guide](deploy/aws/README.md) shows you how to deploy an EKS cluster and deploy the Migration Assistant to it.
 
 See the [project wiki](https://github.com/opensearch-project/opensearch-migrations/wiki)
 to learn more about how to use the migration console and its workflow commands.
 
 ## Project Structure
 
-- [`CreateSnapshot`](CreateSnapshot/README.md): Tools for creating cluster snapshots.
-- [`DocumentsFromSnapshotMigration`](DocumentsFromSnapshotMigration/README.md): Utilities for migrating documents from snapshots.
-- [`MetadataMigration`](MetadataMigration/README.md): Core functionality for migrating cluster metadata.
-- [`RFS`](RFS/README.md) (Reindex-From-Snapshot):
-  - Migration utilities for document reindexing and metadata migration.
-  - Includes tracing contexts for both document and metadata migrations.
-- [`TrafficCapture`](TrafficCapture/README.md) (Capture-and-Replay): Projects for proxying, capturing, and replaying HTTP traffic.
-- [`migrationConsole`](migrationConsole/README.md): A comprehensive CLI tool for executing the migration workflow.
-  - [`lib/console_link`](migrationConsole/lib/console_link/README.md): Core library for migration operations.
-- [`deployment`](deployment/README.md): AWS deployment scripts and configurations.
-- `dev-tools`: Development utilities and API request templates.
-- `docs`: Project documentation and architecture diagrams.
-- `libraries`: Shared libraries used across the project.
-- [`test`](test/README.md): End-to-end testing scripts and configurations.
-- `transformation`: Data transformation utilities for migration processes.
-- [`dashboardsSanitizer`](dashboardsSanitizer/README.md): CLI tool for sanitizing dashboard configurations.
-- `testHelperFixtures`: Test utilities including HTTP client for testing.
+| Directory | Responsibility |
+| --- | --- |
+| `api/` | Contract ownership and schema entry points |
+| `apps/` | Runnable workers, CLIs, existing orchestration, and schema viewer |
+| `libs/` | Reusable migration, snapshot, HTTP, transform, traffic, and runtime code |
+| `deploy/` | Helm charts, Terraform, provider bootstrap, and distribution packaging |
+| `tests/` | Shared fixtures, cross-component automation, E2E, and performance tooling |
+| `tools/` | Build implementation, CI adapters, release support, and developer scripts |
+| `examples/` | Standalone development examples |
+| `docs/` | Architecture, user guides, design decisions, and experiment evidence |
 
-The migration console CLI provides users with a centralized interface to execute and manage the entire migration workflow, including:
-- Configuring source and target clusters
-- Managing backfill operations
-- Controlling traffic replay
-- Monitoring migration progress through metrics
-- Handling snapshots and metadata
-- Integrating with various deployment environments (Docker locally, AWS ECS, EKS, K8s)
+Component unit tests remain beside their source. Gradle project IDs and published
+artifact names are preserved: for example, `:RFS:wiremockTest` now reads sources
+from `libs/migration-engine`. See `settings.gradle` for explicit project paths.
+The root `buildSrc/` is a Gradle discovery shim; its implementation lives in
+`tools/build/gradle`. `gradle/` retains wrapper/configuration files and `vars/`
+remains at the root because Jenkins shared-library discovery requires it.
 
-Users can interact with the migration process through the CLI, which orchestrates the different components of the migration toolkit to perform a seamless migration between Elasticsearch and OpenSearch clusters.
+The existing Argo/TypeScript workspace is in `apps/orchestration`, the Python
+console in `apps/console`, and the Rust provisioning CLI in `apps/cli`. These are
+source relocations; operator adoption and language consolidation are separate
+experiments. The [layout map](docs/architecture-refactor/layout-map.json) records
+every old-to-new directory mapping.
+
+Run `python3 tools/dev/check-repository-layout.py` to check layout invariants.
 
 ## Building the Project
 
@@ -70,7 +68,7 @@ Users can interact with the migration process through the CLI, which orchestrate
 
 Builds use Maven Central and the Gradle Plugin Portal by default. To use a shared
 dependency cache, including for Spotless and `buildSrc`, see
-[dependency repository configuration](jenkins/DEPENDENCY_CACHE.md#use-another-repository-manager).
+[dependency repository configuration](tools/ci/jenkins/DEPENDENCY_CACHE.md#use-another-repository-manager).
 
 ## Running Tests
 
@@ -81,7 +79,7 @@ dependency cache, including for Spotless and `buildSrc`, see
 ## Building Images
 
 Build images with buildkit and jib.
-See [buildImages](buildImages/README-K8s.md) for instructions to set
+See [buildImages](tools/build/images/README-K8s.md) for instructions to set
 that up.
 
 ```bash
@@ -90,8 +88,8 @@ that up.
 
 ## Running the Project
 
-* Running the project in [Kubernetes](deployment/k8s/README.md) 
-* Running the legacy solution with [Docker Compose](TrafficCapture/dockerSolution/README.md)
+* Running the project in [Kubernetes](deploy/kubernetes/README.md)
+* Running the legacy solution with [Docker Compose](deploy/local/docker-compose/README.md)
 
 ## Code Style
 
@@ -107,7 +105,7 @@ We use Spotless for code formatting. To check and apply the code style:
 Install the pre-commit hooks:
 
 ```bash
-./install_githooks.sh
+./tools/dev/install-githooks.sh
 ```
 
 ## Publishing Images
@@ -130,7 +128,7 @@ dependencies {
 }
 ```
 
-The entire list of published subprojects can be viewed as follows:     
+The entire list of published subprojects can be viewed as follows:
 ```sh
 ./gradlew listPublishedArtifacts
 ```
@@ -157,3 +155,10 @@ find . -name Pipfile -not -path "*/cdk.out/*"  | while read pipfile; do
   (cd "$dir" && PIPENV_IGNORE_VIRTUALENVS=1 PIPENV_VENV_IN_PROJECT=1 pipenv install)
 done
 ```
+
+## Architecture refactor experiments
+
+The [architecture refactor record](docs/architecture-refactor/README.md) tracks
+the proposed repository layout, decision status, experiment checkpoints, and
+retained measurements. Update it with each meaningful refactor step so future
+RFCs can trace recommendations to implementation and evidence.

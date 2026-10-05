@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-ubuntu22-04
+  namespace: migrations-buildbarn
+  annotations:
+    prometheus.io/port: '80'
+    prometheus.io/scrape: 'true'
+spec:
+  selector:
+    matchLabels:
+      app: worker
+      instance: ubuntu22-04
+  template:
+    metadata:
+      labels:
+        app: worker
+        instance: ubuntu22-04
+    spec:
+      containers:
+      - args:
+        - /config/worker-ubuntu22-04.jsonnet
+        image: ghcr.io/buildbarn/bb-worker:20260908T142432Z-77f7642
+        name: worker
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+        - mountPath: /worker
+          name: worker
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 384Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - DAC_OVERRIDE
+        readinessProbe:
+          tcpSocket:
+            port: 9980
+          initialDelaySeconds: 2
+          periodSeconds: 5
+      - command:
+        - /bb/bb_runner
+        - /config/runner-ubuntu22-04.jsonnet
+        image: ghcr.io/catthehacker/ubuntu:act-22.04@sha256:dd7654ffb01d5b7b54b23b9ce928a1f7f2d08c7b3d7e320b6574b55d7ccde78b
+        name: runner
+        securityContext:
+          runAsUser: 65534
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+        - mountPath: /worker
+          name: worker
+        - mountPath: /bb
+          name: empty
+          readOnly: true
+        resources:
+          requests:
+            cpu: 500m
+            memory: 3Gi
+            ephemeral-storage: 2Gi
+          limits:
+            cpu: '1'
+            memory: 3Gi
+            ephemeral-storage: 12Gi
+      initContainers:
+      - name: bb-runner-installer
+        image: ghcr.io/buildbarn/bb-runner-installer:20260908T142432Z-77f7642
+        volumeMounts:
+        - mountPath: /bb/
+          name: empty
+      - name: volume-init
+        image: busybox:1.31.1-uclibc
+        command:
+        - sh
+        - -c
+        - mkdir -pm 0777 /worker/build && mkdir -pm 0700 /worker/cache && chmod 0777
+          /worker
+        volumeMounts:
+        - mountPath: /worker
+          name: worker
+      volumes:
+      - name: empty
+        emptyDir: {}
+      - name: configs
+        configMap:
+          name: buildbarn-config
+          items:
+          - key: common.libsonnet
+            path: common.libsonnet
+          - key: runner-ubuntu22-04.jsonnet
+            path: runner-ubuntu22-04.jsonnet
+          - key: worker-ubuntu22-04.jsonnet
+            path: worker-ubuntu22-04.jsonnet
+      - emptyDir:
+          sizeLimit: 12Gi
+        name: worker
+      automountServiceAccountToken: false
+      nodeSelector:
+        doks.digitalocean.com/node-pool: bazel-execution
+        kubernetes.io/arch: amd64
+      tolerations:
+      - key: workload
+        operator: Equal
+        value: bazel
+        effect: NoSchedule
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: worker
+                  instance: ubuntu22-04
+              topologyKey: kubernetes.io/hostname
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1

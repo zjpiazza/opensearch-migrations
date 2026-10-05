@@ -1,0 +1,56 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+load("@pypi//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "k8s_service",
+    srcs = ["testAutomation/k8s_service.py"],
+    imports = [".", "testAutomation"],
+    deps = [requirement("kubernetes")],
+)
+
+py_library(
+    name = "test_runner",
+    srcs = ["testAutomation/test_runner.py"],
+    imports = [".", "testAutomation"],
+    deps = [":k8s_service", requirement("tabulate")],
+)
+
+[
+    py_test(
+        name = name + "_test",
+        srcs = ["tests/test_" + name + ".py", "//tools/build/bazel:pytest_main.py"],
+        main = "//tools/build/bazel:pytest_main.py",
+        args = ["$(location tests/test_" + name + ".py)"],
+        deps = [":" + name, requirement("pytest")],
+        tags = ["block-network"],
+    )
+    for name in ["k8s_service", "test_runner"]
+]
+
+test_suite(name = "tests", tests = [":k8s_service_test", ":test_runner_test"])
+
+# Real Kubernetes backfill scenario. External by default: the current Helm
+# installer fetches charts and third-party images at runtime.
+[
+    py_test(
+        name = name,
+        srcs = ["//tools/build/bazel/integration:backfill_test.py"],
+        main = "//tools/build/bazel/integration:backfill_test.py",
+        data = [
+            "//:k8s_integration_resources",
+            "//tools/build/bazel/integration:runtime.json",
+            "//tools/build/bazel/integration:scenario.json",
+            "//tools/build/bazel/integration:kind.yaml",
+        ],
+        deps = [":test_runner"],
+        size = "enormous",
+        timeout = "eternal",
+        tags = ["manual", "no-sandbox", "no-remote-exec", "no-remote-cache"] + extra_tags,
+    )
+    for name, extra_tags in [
+        ("backfill_integration_test", ["external"]),
+        ("backfill_cache_experiment", []),
+    ]
+]

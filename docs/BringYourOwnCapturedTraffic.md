@@ -2,43 +2,43 @@
 
 ## Context
 
-Users today can hand the migration workflow a pre-existing snapshot (`externallyManagedSnapshotName` in `SNAPSHOT_NAME_CONFIG` at `orchestrationSpecs/packages/schemas/src/userSchemas.ts:927-939`) and optionally hand it a pre-existing Kafka cluster (`KAFKA_CLUSTER_CONFIG.existing`, `userSchemas.ts:827-833`, already wired through `buildKafkaClusters` at `config-processor/src/migrationConfigTransformer.ts:519-520` — **already supported end-to-end, no work needed**).
+Users today can hand the migration workflow a pre-existing snapshot (`externallyManagedSnapshotName` in `SNAPSHOT_NAME_CONFIG` at `apps/orchestration/packages/schemas/src/userSchemas.ts:927-939`) and optionally hand it a pre-existing Kafka cluster (`KAFKA_CLUSTER_CONFIG.existing`, `userSchemas.ts:827-833`, already wired through `buildKafkaClusters` at `config-processor/src/migrationConfigTransformer.ts:519-520` — **already supported end-to-end, no work needed**).
 
-There is no equivalent escape hatch for **traffic capture**. The only way to feed the replayer today is to run a live capture-proxy in front of the source and have it produce to a Kafka topic. We want a third mode: **"I already have the captured traffic — replay it without standing up a proxy."** The user's authoritative artifact is an S3 object produced by the migration console's `kafkaExport.sh` (`migrationConsole/kafkaExport.sh:94`, `kafka_export_from_migration_console_<ts>.proto.gz` — base64 lines of `TrafficStream` protobuf, gzipped). Example object the user has: `s3://opensearch-migrations-upload-bucket-for-02-26/kafka_export_from_migration_console_1778717282.proto.gz`.
+There is no equivalent escape hatch for **traffic capture**. The only way to feed the replayer today is to run a live capture-proxy in front of the source and have it produce to a Kafka topic. We want a third mode: **"I already have the captured traffic — replay it without standing up a proxy."** The user's authoritative artifact is an S3 object produced by the migration console's `kafkaExport.sh` (`apps/console/kafkaExport.sh:94`, `kafka_export_from_migration_console_<ts>.proto.gz` — base64 lines of `TrafficStream` protobuf, gzipped). Example object the user has: `s3://opensearch-migrations-upload-bucket-for-02-26/kafka_export_from_migration_console_1778717282.proto.gz`.
 
 User-confirmed design choices:
 - **Schema**: parallel top-level `traffic.s3Sources` map alongside `traffic.proxies`, not a discriminated union inside `proxies`.
 - **Replayer waits**: switch *both* live and S3 paths to gate on `CapturedTraffic`, dropping the replayer's dependency on `CaptureProxy` (snapshot path keeps gating on `CaptureProxy`).
 - **Phase model**: keep just `Ready`/`Error`. **For S3, `Ready` means "fully loaded"** — it flips Ready only after the loader exits zero. The intermediate "topic provisioned, load in flight" state is encoded by the *absence* of phase plus an explicit `Started` marker (see §7). CaptureProxy keeps its own Ready/Error phases for operator visibility.
-- **Loader**: pure shell pipeline using the existing `KafkaLoaderFromFile` Gradle entry point in `libraries/kafkaUtils/`; no new Java code. Documented in `kafkaCmdRef.md` and reused by the workflow.
+- **Loader**: pure shell pipeline using the existing `KafkaLoaderFromFile` Gradle entry point in `libs/kafka/kafkaUtils/`; no new Java code. Documented in `kafkaCmdRef.md` and reused by the workflow.
 - **Loader is exactly-once with explicit-reset semantics**: once an S3 load completes, the loader must not run again. If a load started but did not complete (workflow killed mid-run, network failure, etc.), the next reconcile must **fail fast** rather than silently re-running the producer (which would duplicate every record on the topic). This is enforced via two-step "create" semantics on the `CapturedTraffic` CR: first create with a `Started` marker (a CR create, not a patch — VAP-protected so re-creates are blocked); then on success, the loader itself patches the CR with `Completed` plus metrics. A re-run sees `Started` without `Completed` and fails fast. Recovery requires a manual reset (delete the `CapturedTraffic` CR).
 
 ## Critical files
 
 Schema:
-- `orchestrationSpecs/packages/schemas/src/userSchemas.ts` `TRAFFIC_CONFIG` (910), `CAPTURE_CONFIG` (881), `REPLAYER_CONFIG` (899), `OVERALL_MIGRATION_CONFIG` super-refine (1136-1193).
-- `orchestrationSpecs/packages/schemas/src/argoSchemas.ts` `DENORMALIZED_PROXY_CONFIG` (236), `DENORMALIZED_REPLAY_CONFIG` (272), `ARGO_MIGRATION_CONFIG` (295).
+- `apps/orchestration/packages/schemas/src/userSchemas.ts` `TRAFFIC_CONFIG` (910), `CAPTURE_CONFIG` (881), `REPLAYER_CONFIG` (899), `OVERALL_MIGRATION_CONFIG` super-refine (1136-1193).
+- `apps/orchestration/packages/schemas/src/argoSchemas.ts` `DENORMALIZED_PROXY_CONFIG` (236), `DENORMALIZED_REPLAY_CONFIG` (272), `ARGO_MIGRATION_CONFIG` (295).
 
 Transformer:
-- `orchestrationSpecs/packages/config-processor/src/migrationConfigTransformer.ts` `buildKafkaClusters` (508), `buildProxies` (533), `buildTrafficReplays` (713), `normalizeTrafficConfig` (222), `buildKafkaClientConfig` (296).
+- `apps/orchestration/packages/config-processor/src/migrationConfigTransformer.ts` `buildKafkaClusters` (508), `buildProxies` (533), `buildTrafficReplays` (713), `normalizeTrafficConfig` (222), `buildKafkaClientConfig` (296).
 
 Workflow templates:
-- `orchestrationSpecs/packages/migration-workflow-templates/src/workflowTemplates/` `fullMigration.ts` — `setupSingleProxy` (183), `runSingleReplay` (549; `waitForProxy` at 607 is what we replace), `main` (672). `setupCapture.ts` — `reconcileCaptureTopicAndProxy` (635); the topic-only sub-flow lives at lines 664-715 and needs to be extracted. `replayer.ts` — `setupReplayer` (340). `resourceManagement.ts` — `makeCapturedTrafficManifest` (191), `patchCapturedTrafficReady` (893), `waitForCapturedTraffic` (992 — exists, currently used by snapshot deps; we add a second use site).
+- `apps/orchestration/packages/migration-workflow-templates/src/workflowTemplates/` `fullMigration.ts` — `setupSingleProxy` (183), `runSingleReplay` (549; `waitForProxy` at 607 is what we replace), `main` (672). `setupCapture.ts` — `reconcileCaptureTopicAndProxy` (635); the topic-only sub-flow lives at lines 664-715 and needs to be extracted. `replayer.ts` — `setupReplayer` (340). `resourceManagement.ts` — `makeCapturedTrafficManifest` (191), `patchCapturedTrafficReady` (893), `waitForCapturedTraffic` (992 — exists, currently used by snapshot deps; we add a second use site).
 
 Console export format (round-trip target):
-- `migrationConsole/kafkaExport.sh:94-128` — `<key>|<base64(payload)>` per line, gzipped.
-- `libraries/kafkaCommandLineFormatter/src/main/java/.../Base64Formatter.java` — the export-side formatter (no companion reader needed; see below).
-- `libraries/kafkaUtils/` — **already contains the import-side tool**. `KafkaLoaderFromFile.java` accepts `--stdin` (uncompressed records) or `--inputFile` (gzipped), `--kafkaBrokers`, `--topicName`, `--batchSize`, and full `KafkaConfig.KafkaParameters` (broker URL, client ID, MSK-IAM, property file). Format match is exact — `KafkaLoader.java:78-83` splits on `\\|` and base64-decodes, the inverse of `Base64Formatter`. The library's README points at it but notes it's not yet shipped in any image; we just need to wire it in.
-- `migrationConsole/kafkaCmdRef.md` — sample-command reference doc. The new import recipe goes here.
-- `migrationConsole/README.md` — currently documents only the export direction; gets a new "Importing Captured Traffic into Kafka" section.
+- `apps/console/kafkaExport.sh:94-128` — `<key>|<base64(payload)>` per line, gzipped.
+- `libs/kafka/kafkaCommandLineFormatter/src/main/java/.../Base64Formatter.java` — the export-side formatter (no companion reader needed; see below).
+- `libs/kafka/kafkaUtils/` — **already contains the import-side tool**. `KafkaLoaderFromFile.java` accepts `--stdin` (uncompressed records) or `--inputFile` (gzipped), `--kafkaBrokers`, `--topicName`, `--batchSize`, and full `KafkaConfig.KafkaParameters` (broker URL, client ID, MSK-IAM, property file). Format match is exact — `KafkaLoader.java:78-83` splits on `\\|` and base64-decodes, the inverse of `Base64Formatter`. The library's README points at it but notes it's not yet shipped in any image; we just need to wire it in.
+- `apps/console/kafkaCmdRef.md` — sample-command reference doc. The new import recipe goes here.
+- `apps/console/README.md` — currently documents only the export direction; gets a new "Importing Captured Traffic into Kafka" section.
 
 ## Recommended approach
 
 ### 1. Loader = pure shell + existing `KafkaLoaderFromFile`
 
-No new Java. The migrationConsole image gains a packaged `KafkaLoaderFromFile` jar (built from `libraries/kafkaUtils/`) so the loader recipe is one shell command end to end.
+No new Java. The migrationConsole image gains a packaged `KafkaLoaderFromFile` jar (built from `libs/kafka/kafkaUtils/`) so the loader recipe is one shell command end to end.
 
-**Image change**: the migrationConsole `Dockerfile` already bundles `kafka/bin/`, the `aws` CLI, and various jars (see `migrationConsole/build/dockerContext/`). Add the `kafkaUtils` jar (and a thin wrapper like `kafkaImport.sh`) so the recipe doesn't depend on Gradle being available at runtime.
+**Image change**: the migrationConsole `Dockerfile` already bundles `kafka/bin/`, the `aws` CLI, and various jars (see `apps/console/build/dockerContext/`). Add the `kafkaUtils` jar (and a thin wrapper like `kafkaImport.sh`) so the recipe doesn't depend on Gradle being available at runtime.
 
 ### 2. Documented loader recipe (kafkaCmdRef.md)
 
@@ -54,7 +54,7 @@ aws s3 cp "$S3_URI" - \
       $kafka_command_config
 ```
 
-(Followed by the same MSK-IAM and EKS notes already at the top of `kafkaCmdRef.md`.) The companion update to `migrationConsole/README.md` points users at this section. The wrapper script `kafkaImport.sh` handles the same MSK-IAM / kafka.properties detection that `kafkaExport.sh` does today (lines 8-13).
+(Followed by the same MSK-IAM and EKS notes already at the top of `kafkaCmdRef.md`.) The companion update to `apps/console/README.md` points users at this section. The wrapper script `kafkaImport.sh` handles the same MSK-IAM / kafka.properties detection that `kafkaExport.sh` does today (lines 8-13).
 
 `KafkaLoaderFromFile` is the right tool — it has batching, future handling, full `KafkaConfig.KafkaParameters` support including MSK-IAM, and matches the export format byte-for-byte. The migrationConsole image already follows this pattern (it bundles `kafkaCommandLineFormatter-*.jar` for the export side, see `kafkaExport.sh:99`); we extend the same Dockerfile to also bundle the `kafkaUtils` jar plus a `kafkaImport.sh` wrapper that mirrors `kafkaExport.sh:8-13` (MSK-IAM / EKS property-file detection).
 
@@ -278,9 +278,9 @@ CaptureProxy phases (`patchCaptureProxyReady`, `patchCaptureProxyError` at `setu
    - Topic name aggregated into auto-created KafkaCluster topics.
    - Replayer's `kafkaConfig` resolved uniformly whether `fromCapturedTraffic` references a proxy or s3Source entry.
    - Editing a proxy's `setHeader` rotates the corresponding CapturedTraffic's `checksumForReplayer` (covers the percolation-bug fix).
-3. **Round-trip integration test (no new Java needed)** (`libraries/kafkaUtils/`):
+3. **Round-trip integration test (no new Java needed)** (`libs/kafka/kafkaUtils/`):
    - Confirm `KafkaLoaderFromFile` + the export from `kafkaExport.sh` round-trip cleanly. Existing `Base64Formatter`/`KafkaLoader` tests likely cover most of this; verify there's a smoke test exercising the gzipped path.
-4. **End-to-end** (`orchestrationSpecs/packages/e2e-orchestration-tests`):
+4. **End-to-end** (`apps/orchestration/packages/e2e-orchestration-tests`):
    - Add an e2e fixture using the LocalStack S3 endpoint already installed for local builds via Helm `valuesDev.yaml`. Loader's `S3_URI` and `awsRegion` resolve against LocalStack the same way other S3-touching workflow steps do today.
    - Run a workflow with no live capture: assert
      - **no** `CaptureProxy` CRD,
@@ -295,7 +295,7 @@ CaptureProxy phases (`patchCaptureProxyReady`, `patchCaptureProxyError` at `setu
 
 ## Running it today
 
-For exporting captured traffic to S3 (`kafkaExport.sh`) and the inverse — loading an export back onto a Kafka topic (`kafkaImport.sh`) — see [`migrationConsole/README.md`](../migrationConsole/README.md) and the full reference in [`migrationConsole/kafkaCmdRef.md`](../migrationConsole/kafkaCmdRef.md). Both scripts ship in the migration-console image.
+For exporting captured traffic to S3 (`kafkaExport.sh`) and the inverse — loading an export back onto a Kafka topic (`kafkaImport.sh`) — see [`migrationConsole/README.md`](../apps/console/README.md) and the full reference in [`migrationConsole/kafkaCmdRef.md`](../apps/console/kafkaCmdRef.md). Both scripts ship in the migration-console image.
 
 The third operation — **inspecting an already-loaded topic in dump mode** — runs through the traffic_replayer image directly, with no separate console script. `dump-raw` decodes each `TrafficStream` and prints one summary line per record. No traffic is sent to any target — useful for verifying a topic is well-formed before pointing a real replayer at it.
 

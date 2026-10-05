@@ -28,8 +28,8 @@ def call(Map config = [:]) {
         sh """curl -sL -o /tmp/aws-bootstrap.sh "${downloadUrl}" && chmod +x /tmp/aws-bootstrap.sh"""
         bootstrapScript = "/tmp/aws-bootstrap.sh"
     } else {
-        sh "./deployment/k8s/aws/assemble-bootstrap.sh"
-        bootstrapScript = "./deployment/k8s/aws/dist/aws-bootstrap.sh"
+        sh "./deploy/aws/assemble-bootstrap.sh"
+        bootstrapScript = "./deploy/aws/dist/aws-bootstrap.sh"
     }
 
     def flags = []

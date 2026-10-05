@@ -1,0 +1,24 @@
+{
+  "execution_nodes": 0,
+  "worker_replicas": {
+    "worker-integration": 0,
+    "worker-integration-large": 0,
+    "worker-ubuntu22-04": 0
+  },
+  "services_nodes": 1,
+  "persistent_claims": {
+    "ac-storage-0": {
+      "storage": "1Gi"
+    },
+    "cas-storage-0": {
+      "storage": "64Gi"
+    },
+    "data-buildbarn-image-cache-0": {
+      "storage": "50Gi"
+    },
+    "fsac-storage-0": {
+      "storage": "1Gi"
+    }
+  },
+  "limitation": "Services node, managed control plane and retained volumes remain billed; execution compute and worker scratch storage are removed."
+}

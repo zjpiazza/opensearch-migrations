@@ -570,8 +570,8 @@ The CronJob's other verbs (`get`/`delete` on deployments, statefulsets, services
 
 - `MigrationConsole` workflow status/manage code: read `SnapshotMigration.status.documentBackfill` for RFS wait nodes; avoid live RFS status reruns when the CR status is present.
 
-- `deployment/k8s/charts/aggregates/migrationAssistantWithArgo/templates/resources/workflowRbac.yaml`: add `cronjobs` to the batch RBAC rule.
-- `deployment/k8s/charts/aggregates/migrationAssistantWithArgo/templates/resources/migrationCrds.yaml`: add typed `SnapshotMigration.status.documentBackfill` schema.
+- `deploy/charts/aggregates/migrationAssistantWithArgo/templates/resources/workflowRbac.yaml`: add `cronjobs` to the batch RBAC rule.
+- `deploy/charts/aggregates/migrationAssistantWithArgo/templates/resources/migrationCrds.yaml`: add typed `SnapshotMigration.status.documentBackfill` schema.
 
 ## Test Coverage
 

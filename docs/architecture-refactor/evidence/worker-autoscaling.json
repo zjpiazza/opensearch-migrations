@@ -1,0 +1,63 @@
+{
+  "experiment": "E-009",
+  "node_pool": {
+    "name": "workers",
+    "size": "g5-4vcpu-16gb-80gb",
+    "count": 9,
+    "auto_scale": true,
+    "min_nodes": 3,
+    "max_nodes": 9
+  },
+  "integration_workers": {
+    "desired": 9,
+    "ready": 3
+  },
+  "initial_worker_scale_up_utc": "2026-10-01T21:17:43Z",
+  "node_scale_up_events": [
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-l74vs",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    },
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-nrv62",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    },
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-q5k4d",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    },
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-s8f6d",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    },
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-v8j2n",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    },
+    {
+      "worker_pod": "worker-integration-7b5c4c8659-vwndw",
+      "message": "pod triggered scale-up: [{e6431a95-7328-4277-bd1c-15295ec4d746 3->9 (max: 9)}]",
+      "first_timestamp": "2026-10-01T21:18:46Z"
+    }
+  ],
+  "validation": {
+    "prometheus_rule_assertions": 8,
+    "rule_assertions_passed": true,
+    "initial_autoscaler_job": "Complete",
+    "recurring_autoscaler_job": "Complete",
+    "can_patch_integration_deployment": true,
+    "can_patch_frontend_deployment": false,
+    "manifest_reapply_preserves_nine_replicas": true
+  },
+  "benchmark_note": "full-6 started with three integration workers; capacity expansion occurred during the run. Not a fixed-capacity timing baseline.",
+  "integration_workers_after_scale_up": {
+    "observed_at": "2026-10-01T21:24:12.753503+00:00",
+    "desired": 9,
+    "ready": 9
+  }
+}

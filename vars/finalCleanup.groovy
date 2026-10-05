@@ -73,11 +73,11 @@ def runStep(Map step, String region) {
             break
 
         case 'cdk-destroy':
-            if (!fileExists("test/${step.contextFile}")) {
-                echo "finalCleanup: cdk-destroy skipped — context file 'test/${step.contextFile}' not present (pipeline may have died before deploy)"
+            if (!fileExists("tests/e2e/${step.contextFile}")) {
+                echo "finalCleanup: cdk-destroy skipped — context file 'tests/e2e/${step.contextFile}' not present (pipeline may have died before deploy)"
                 return
             }
-            dir('test') {
+            dir('tests/e2e') {
                 def rc = sh(returnStatus: true,
                             script: "./awsDeployCluster.sh --stage ${step.stage} --context-file ${step.contextFile} --destroy")
                 if (rc != 0) {

@@ -1,0 +1,15 @@
+{
+  "notes": [
+    "Opt-in experiment only; the default eight-shard policy remains unchanged.",
+    "Apply to an idle runtime after the CPU-limit comparison, not during an active run.",
+    "86 baseline cases each own their source and target containers; splitting does not discard an in-process fixture cache.",
+    "Observed baseline case times mapped through the current Java hash give longest case-time sums of 536.1s at eight shards and 240.4s at 24 shards.",
+    "Those sums exclude added image/input/JVM setup and queueing, and are not measured speedups."
+  ],
+  "classes": {
+    ":DocumentsFromSnapshotMigration:isolatedTest|org.opensearch.migrations.bulkload.NoStoredSourceMigrationTest": {
+      "count": 24,
+      "grouping": "independent"
+    }
+  }
+}
