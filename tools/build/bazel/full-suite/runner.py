@@ -30,12 +30,15 @@ def main():
     shard_index = int(env.get('TEST_SHARD_INDEX', '0'))
     if not 0 <= shard_index < shards:
         raise ValueError('Invalid Bazel shard coordinates')
+    docker_host = env.get('CI_COMPARISON_DOCKER_HOST') or env.get('DOCKER_HOST') or 'tcp://127.0.0.1:2375'
+    testcontainers_host = env.get('CI_COMPARISON_TESTCONTAINERS_HOST_OVERRIDE') or '127.0.0.1'
+    docker_socket = env.get('CI_COMPARISON_DOCKER_SOCKET_OVERRIDE') or '/var/run/docker.sock'
     env.update({'HOME': str(work / '.home'), 'AWS_EC2_METADATA_DISABLED': 'true',
                 'AWS_CONFIG_FILE': '/dev/null', 'AWS_SHARED_CREDENTIALS_FILE': '/dev/null',
-                'DOCKER_HOST': 'tcp://127.0.0.1:2375', 'TESTCONTAINERS_HOST_OVERRIDE': '127.0.0.1'})
+                'DOCKER_HOST': docker_host, 'TESTCONTAINERS_HOST_OVERRIDE': testcontainers_host})
     Path(env['HOME']).mkdir(exist_ok=True)
     # The daemon owns its socket; Testcontainers' Ryuk container mounts that socket.
-    env['TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE'] = '/var/run/docker.sock'
+    env['TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE'] = docker_socket
     cwd = work / spec['workingDirectory']
     cwd.mkdir(parents=True, exist_ok=True)
     if spec['kind'] == 'npm':

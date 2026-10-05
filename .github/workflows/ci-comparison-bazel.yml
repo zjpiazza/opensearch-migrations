@@ -1,0 +1,284 @@
+name: CI comparison (Bazel JVM)
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: Run Bazel locally on the GitHub runner or through the Buildbarn Kubernetes cluster
+        type: choice
+        required: true
+        default: local
+        options:
+          - local
+          - buildbarn
+      trial:
+        description: Measurement case to run
+        type: choice
+        required: true
+        default: cold-forced
+        options:
+          - cold-forced
+          - warm-forced
+          - unchanged
+          - leaf-change
+          - shared-change
+      target:
+        description: Bazel target expression
+        required: true
+        default: '@full_suite//:all_tests'
+      seed_cache_namespace:
+        description: Exact cache namespace from a successful seed run; required except for cold-forced local runs
+        required: false
+        default: ''
+      cache_namespace:
+        description: Namespace to save local Bazel/Gradle caches under; defaults to run id/attempt
+        required: false
+        default: ''
+      remote_instance_name:
+        description: Buildbarn remote instance/cache namespace for buildbarn mode
+        required: false
+        default: migrations-ci-comparison
+      buildbarn_context:
+        description: Kubernetes context for buildbarn mode
+        required: false
+        default: do-atl1-bazel
+      buildbarn_namespace:
+        description: Kubernetes namespace for buildbarn mode
+        required: false
+        default: migrations-buildbarn
+      require_existing_workers:
+        description: In buildbarn mode, fail instead of scaling when no execution workers are already running
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  SUITE_NAME: gradle-jvm-allTests-through-bazel
+  CACHE_NAMESPACE: ${{ inputs.cache_namespace || format('{0}-{1}', github.run_id, github.run_attempt) }}
+
+concurrency:
+  group: ci-comparison-bazel-${{ github.ref }}-${{ inputs.execution_mode }}-${{ inputs.trial }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  bazel-tests:
+    if: github.repository == 'zjpiazza/opensearch-migrations'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate benchmark inputs
+        env:
+          TRIAL: ${{ inputs.trial }}
+          MODE: ${{ inputs.execution_mode }}
+          SEED_CACHE_NAMESPACE: ${{ inputs.seed_cache_namespace }}
+        run: |
+          set -euo pipefail
+          if [[ "$TRIAL" != "cold-forced" && -z "$SEED_CACHE_NAMESPACE" && "$MODE" == "local" ]]; then
+            echo "seed_cache_namespace is required for local $TRIAL" >&2
+            exit 1
+          fi
+          if [[ "$MODE" == "buildbarn" ]]; then
+            echo "Buildbarn mode never scales Kubernetes workers. It uses only already-running capacity."
+          fi
+
+      - uses: ./.github/actions/setup-env
+        with:
+          gradle-cache-enabled: false
+
+      - name: Apply source mutation for invalidation trials
+        env:
+          TRIAL: ${{ inputs.trial }}
+        run: |
+          set -euo pipefail
+          case "$TRIAL" in
+            leaf-change) python3 tools/ci-comparison/apply-source-change.py leaf ;;
+            shared-change) python3 tools/ci-comparison/apply-source-change.py shared ;;
+            *) python3 tools/ci-comparison/apply-source-change.py none ;;
+          esac
+
+      - name: Record machine information
+        run: python3 tools/ci-comparison/machine-info.py build/ci-comparison/machine-info.json
+
+      - name: Restore exact Gradle preparation seed cache
+        if: inputs.trial != 'cold-forced'
+        id: restore-gradle-seed
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle/build-cache
+          key: ci-comparison-bazel-gradle-${{ inputs.seed_cache_namespace }}
+          fail-on-cache-miss: ${{ inputs.execution_mode == 'local' }}
+
+      - name: Restore exact local Bazel seed cache
+        if: inputs.execution_mode == 'local' && inputs.trial != 'cold-forced'
+        id: restore-bazel-seed
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: build/bazel-disk-cache
+          key: ci-comparison-bazel-local-${{ inputs.seed_cache_namespace }}
+          fail-on-cache-miss: true
+
+      - name: Prepare exported Gradle runtime for Bazel
+        env:
+          TRIAL: ${{ inputs.trial }}
+          OS_MIGRATIONS_GRADLE_SCAN_TOS_AGREE_AND_ENABLED: ''
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci-comparison
+          start_ns=$(date +%s%N)
+          ./gradlew -I tools/build/bazel/full-suite/export.gradle exportBazelTestRuntime \
+            --max-workers=3 -x spotlessCheck --console=plain --profile
+          python3 tools/build/bazel/full-suite/prepare.py
+          end_ns=$(date +%s%N)
+          python3 - <<PY
+          import json
+          record = {
+              'backend': 'bazel',
+              'phase': 'gradle-runtime-export',
+              'trial': '$TRIAL',
+              'seconds': (int('$end_ns') - int('$start_ns')) / 1_000_000_000,
+          }
+          open('build/ci-comparison/prepare-timing.json', 'w').write(json.dumps(record, indent=2) + '\n')
+          print(json.dumps(record, sort_keys=True))
+          PY
+
+      - name: Run Bazel suite
+        env:
+          MODE: ${{ inputs.execution_mode }}
+          TRIAL: ${{ inputs.trial }}
+          TARGET: ${{ inputs.target }}
+          REMOTE_INSTANCE: ${{ inputs.remote_instance_name }}
+          BUILDBARN_CONTEXT: ${{ inputs.buildbarn_context }}
+          BUILDBARN_NAMESPACE: ${{ inputs.buildbarn_namespace }}
+          REQUIRE_EXISTING_WORKERS: ${{ inputs.require_existing_workers }}
+          KUBECONFIG_B64: ${{ secrets.BUILDBARN_KUBECONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci-comparison build/bazel-disk-cache
+          max_jobs=$(( $(nproc) - 1 ))
+          if (( max_jobs < 1 )); then max_jobs=1; fi
+
+          startup_args=(--output_base="$PWD/build/ci-comparison/bazel-client")
+          command_args=(
+            test
+            --keep_going
+            --test_timeout=7200
+            --build_event_json_file="$PWD/build/ci-comparison/results.bep.json"
+            --execution_log_json_file="$PWD/build/ci-comparison/results.execution.json"
+          )
+
+          if [[ "$MODE" == "buildbarn" ]]; then
+            if [[ -z "${KUBECONFIG_B64:-}" ]]; then
+              echo "BUILDBARN_KUBECONFIG_B64 secret is required for buildbarn mode" >&2
+              exit 1
+            fi
+            mkdir -p "$HOME/.kube"
+            echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/buildbarn-ci-comparison.yaml"
+            export KUBECONFIG="$HOME/.kube/buildbarn-ci-comparison.yaml"
+            kubectl --context "$BUILDBARN_CONTEXT" -n "$BUILDBARN_NAMESPACE" get deployments,cronjobs,pvc
+            worker_replicas=$(kubectl --context "$BUILDBARN_CONTEXT" -n "$BUILDBARN_NAMESPACE" get deploy \
+              -o json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(sum((i.get("spec",{}).get("replicas") or 0) for i in d.get("items",[]) if i.get("metadata",{}).get("name","").startswith("worker-")))')
+            if [[ "$REQUIRE_EXISTING_WORKERS" == "true" && "$worker_replicas" == "0" ]]; then
+              echo "No Buildbarn worker replicas are running; refusing to scale the cluster from this workflow." >&2
+              exit 1
+            fi
+            kubectl --context "$BUILDBARN_CONTEXT" -n "$BUILDBARN_NAMESPACE" \
+              port-forward --address 127.0.0.1 service/frontend 8980:8980 > build/ci-comparison/port-forward.log 2>&1 &
+            pf_pid=$!
+            trap 'kill $pf_pid || true' EXIT
+            sleep 5
+            if [[ "$TRIAL" == "cold-forced" || "$TRIAL" == "warm-forced" ]]; then
+              command_args+=(--config=buildbarn-rerun-tests --remote_instance_name="$REMOTE_INSTANCE")
+            else
+              command_args+=(--config=buildbarn --remote_instance_name="$REMOTE_INSTANCE")
+            fi
+            if [[ "$TRIAL" == "unchanged" ]]; then
+              command_args+=(--experimental_remote_require_cached --disk_cache= --noremote_upload_local_results)
+            fi
+          else
+            command_args+=(
+              --disk_cache="$PWD/build/bazel-disk-cache"
+              --spawn_strategy=local
+              --test_strategy=local
+              --jobs="$max_jobs"
+              --test_env=CI_COMPARISON_DOCKER_HOST=unix:///var/run/docker.sock
+              --test_env=CI_COMPARISON_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+              --test_env=CI_COMPARISON_TESTCONTAINERS_HOST_OVERRIDE=127.0.0.1
+            )
+            if [[ "$TRIAL" == "cold-forced" || "$TRIAL" == "warm-forced" ]]; then
+              command_args+=(--nocache_test_results)
+            fi
+          fi
+          command_args+=("$TARGET")
+
+          start_epoch=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          start_ns=$(date +%s%N)
+          set +e
+          ./bazelw "${startup_args[@]}" "${command_args[@]}"
+          exit_code=$?
+          set -e
+          end_ns=$(date +%s%N)
+          python3 - <<PY
+          import json
+          record = {
+              'backend': 'bazel',
+              'execution_mode': '$MODE',
+              'suite': '${{ env.SUITE_NAME }}',
+              'trial': '$TRIAL',
+              'target': '$TARGET',
+              'remote_instance': '$REMOTE_INSTANCE' if '$MODE' == 'buildbarn' else None,
+              'start_utc': '$start_epoch',
+              'seconds': (int('$end_ns') - int('$start_ns')) / 1_000_000_000,
+              'exit_code': int('$exit_code'),
+          }
+          open('build/ci-comparison/bazel-timing.json', 'w').write(json.dumps(record, indent=2) + '\n')
+          print(json.dumps(record, sort_keys=True))
+          PY
+          exit "$exit_code"
+
+      - name: Collect JUnit inventory
+        if: always()
+        run: |
+          python3 tools/ci-comparison/collect-junit.py \
+            --backend bazel-${{ inputs.execution_mode }} \
+            --suite "${{ env.SUITE_NAME }}" \
+            --trial "${{ inputs.trial }}" \
+            --output build/ci-comparison/junit-inventory.json
+
+      - name: Save Gradle preparation cache namespace
+        if: success()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle/build-cache
+          key: ci-comparison-bazel-gradle-${{ env.CACHE_NAMESPACE }}
+
+      - name: Save local Bazel cache namespace
+        if: success() && inputs.execution_mode == 'local'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: build/bazel-disk-cache
+          key: ci-comparison-bazel-local-${{ env.CACHE_NAMESPACE }}
+
+      - name: Upload Bazel evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-comparison-bazel-${{ inputs.execution_mode }}-${{ inputs.trial }}
+          path: |
+            build/ci-comparison/
+            build/full-suite/inventory.json
+            build/reports/profile/
+            bazel-testlogs/**/test.log
+            bazel-testlogs/**/test.xml
+            bazel-testlogs/**/test.outputs/**
+          retention-days: 14

@@ -9,6 +9,33 @@ The branches currently establish the common baseline and inventory. They do not
 yet contain completed full-suite benchmark workflows or new speedup results.
 `backend.json` identifies the requested backend without changing product code.
 
+## Implemented workflow entry points
+
+The current branches add manual GitHub Actions entry points for the bounded
+**Gradle/JVM allTests** comparison. These workflows intentionally do not claim to
+measure the Jenkins deployment E2E jobs.
+
+- Without-Bazel branch: `.github/workflows/ci-comparison-gradle.yml`
+- With-Bazel branch: `.github/workflows/ci-comparison-bazel.yml`
+- Shared evidence helpers: `tools/ci-comparison/`
+
+The Gradle workflow runs the existing striped `allTests mergeJacocoReports`
+path. The Bazel workflow exports the Gradle runtime and then runs the same
+exported suite through Bazel. Bazel has two execution modes:
+
+| Mode | What it measures | Notes |
+| --- | --- | --- |
+| `local` | Bazel scheduling/cache behavior on the GitHub-hosted runner | Uses a local Bazel disk cache namespace and the runner Docker socket. |
+| `buildbarn` | Bazel with remote execution/cache against the Kubernetes Buildbarn service | Requires an explicit `BUILDBARN_KUBECONFIG_B64` secret and existing worker capacity. The workflow refuses to scale the cluster. |
+
+For local cache-transfer experiments, run a successful `cold-forced` seed first
+and reuse its `cache_namespace` as `seed_cache_namespace` for `warm-forced`,
+`unchanged`, `leaf-change`, and `shared-change`. For Buildbarn mode, use an
+explicit `remote_instance_name` as the remote cache namespace and keep the live
+worker allocation/hardware in the uploaded evidence. The Kubernetes cluster was
+left scaled down; restoring remote execution capacity is a separate cost-bearing
+operation and is not performed by these workflows.
+
 ## Resolve the suite before claiming a comparison
 
 The original linked GitHub job (`110209992296`, run `36812349693`) is
