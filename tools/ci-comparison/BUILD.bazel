@@ -1,0 +1,6 @@
+py_binary(
+    name = "jenkins_native_runner",
+    srcs = ["jenkins-native-runner.py"],
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
+)

@@ -36,6 +36,21 @@ worker allocation/hardware in the uploaded evidence. The Kubernetes cluster was
 left scaled down; restoring remote execution capacity is a separate cost-bearing
 operation and is not performed by these workflows.
 
+### Corrected Jenkins-native scope
+
+The actual requested suite is the 20-job Jenkins deployment E2E workflow, but
+executed directly in GitHub Actions rather than by triggering Jenkins. New
+scaffolding for that path lives in:
+
+- `.github/workflows/ci-comparison-jenkins-native.yml`
+- `tools/ci-comparison/jenkins-native-runner.py`
+
+The native runner enumerates all 20 Jenkins workflow jobs. It currently translates
+the nine local kind jobs plus the Docker Compose job to repository-local commands.
+Live AWS deployment jobs fail closed until their Jenkins shared-library stages
+are translated one-for-one and a GitHub Actions AWS role is supplied. Do not use
+the earlier Gradle/JVM workflow results as the requested Jenkins-suite comparison.
+
 ## Resolve the suite before claiming a comparison
 
 The original linked GitHub job (`110209992296`, run `36812349693`) is
