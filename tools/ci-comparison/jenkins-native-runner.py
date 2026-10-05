@@ -180,7 +180,7 @@ def run_local_kind(r):
             pipenv install --deploy
             mkdir -p ./reports
             kubectl config unset current-context || true
-            export PYTHONPATH="$PWD/testAutomation${PYTHONPATH:+:$PYTHONPATH}"
+            export PYTHONPATH="$PWD/testAutomation${{PYTHONPATH:+:$PYTHONPATH}}"
             unset PYTHONSAFEPATH
             pipenv run app \
               --source-version {source_arg} \
