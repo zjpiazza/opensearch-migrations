@@ -7,7 +7,7 @@ on:
         description: Which Jenkins jobs to run natively in GitHub Actions
         type: choice
         required: true
-        default: local
+        default: all
         options:
           - local
           - aws

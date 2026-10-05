@@ -45,11 +45,12 @@ scaffolding for that path lives in:
 - `.github/workflows/ci-comparison-jenkins-native.yml`
 - `tools/ci-comparison/jenkins-native-runner.py`
 
-The native runner enumerates all 20 Jenkins workflow jobs. It currently translates
-the nine local kind jobs plus the Docker Compose job to repository-local commands.
-Live AWS deployment jobs fail closed until their Jenkins shared-library stages
-are translated one-for-one and a GitHub Actions AWS role is supplied. Do not use
-the earlier Gradle/JVM workflow results as the requested Jenkins-suite comparison.
+The native runner enumerates all 20 Jenkins workflow jobs. It translates the
+nine local kind jobs, the Docker Compose job, and the ten live AWS deployment
+jobs to repository-local commands. The AWS path still needs a real GitHub
+Actions deployment role/secret and first-run validation, but it no longer
+triggers Jenkins. Do not use the earlier Gradle/JVM workflow results as the
+requested Jenkins-suite comparison.
 
 ## Resolve the suite before claiming a comparison
 
