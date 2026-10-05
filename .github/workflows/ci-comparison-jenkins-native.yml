@@ -96,6 +96,8 @@ jobs:
     if: github.repository == 'zjpiazza/opensearch-migrations' && needs.matrix.outputs.suite != 'none'
     runs-on: ubuntu-22.04
     timeout-minutes: 360
+    env:
+      AWS_ROLE_ARN: ${{ secrets.MIGRATIONS_TEST_GHA_ROLE_ARN || vars.MIGRATIONS_TEST_GHA_ROLE_ARN || '' }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
@@ -106,11 +108,18 @@ jobs:
           gradle-cache-enabled: true
           gradle-cache-read-only: false
 
+      - name: Check AWS role configuration
+        if: matrix.environment == 'aws' && env.AWS_ROLE_ARN == ''
+        run: |
+          echo "MIGRATIONS_TEST_GHA_ROLE_ARN is not configured as a repository secret or variable." >&2
+          echo "Set it to the JenkinsDeploymentRole ARN for the migrations test AWS account before running AWS jobs." >&2
+          exit 1
+
       - name: Configure AWS credentials for live AWS jobs
         if: matrix.environment == 'aws'
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
-          role-to-assume: ${{ secrets.MIGRATIONS_TEST_GHA_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
       - name: Run Jenkins job natively through Bazel launcher
